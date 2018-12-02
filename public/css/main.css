@@ -1,0 +1,178 @@
+/* Font declarations */
+
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+@font-face {
+  font-family: board;
+
+  src: url(/fonts/board.otf);
+}
+
+@font-face {
+  font-family: clue;
+
+  src: url(/fonts/clue.otf);
+}
+
+@font-face {
+  font-family: logo;
+
+  src: url(/fonts/logo.ttf);
+}
+
+@font-face {
+  font-family: daily-double;
+
+  src: url(/fonts/daily_double.ttf);
+}
+
+/* Base HTML classes */
+
+body {
+  text-align: center;
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 10vh;
+}
+
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: transparent;
+
+  border: none;
+
+  font-size: 5vh;
+}
+
+/* Custom classes */
+
+.inactive {
+  display: none !important;
+}
+
+.black-border {
+  width: 100%;
+  height: 100%;
+
+  color: black;
+  border-width: .5vh;
+  border-style: solid;
+}
+
+/* Animations */
+
+@keyframes color {
+  0% {
+    background-color: #e6261f;
+  }
+  12.5% {
+    background-color: #eb7532;
+  }
+  25% {
+    background-color: #f7d038;
+  }
+  37.5% {
+    background-color: #a3e048;
+  }
+  50% {
+    background-color: #49da9a;
+  }
+  62.5% {
+    background-color: #4355db;
+  }
+  75% {
+    background-color: #d23be7;
+  }
+  87.5 {
+    background-color: #ffb6c1;
+  }
+  100% {
+    background-color: #e6261f;
+  }
+}
+
+/* HOST */
+
+/* Landing screen */
+
+.h-landing-screen {
+  display: flex;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  animation-name: color;
+  animation-duration: 20s;
+  animation-iteration-count: infinite;
+
+  background-color: red;
+}
+
+.h-logo-text {
+  color: white;
+  font-family: logo;
+  font-size: 30vh;
+}
+
+/* CONTROLLER */
+
+.c-ui-text {
+  font-size: 3vh;
+}
+
+/* Landing screen */
+
+.c-landing-screen {
+  display: flex;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  animation-name: color;
+  animation-duration: 20s;
+  animation-iteration-count: infinite;
+
+  background-color: red;
+}
+
+.c-logo-text {
+  color: white;
+  font-family: logo;
+  font-size: 10vh;
+}
+
+.join-button {
+  padding: 1vh;
+
+  font-size: 3vh;
+
+  color: black;
+  border-radius: 1vh;
+  background-color: white;
+
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Clue screen */
+
+.c-clue-screen {
+  display: flex;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-image: url("/graphics/background.png");
+}
+
+.clue-row {
+  height: 20vh;
+}
