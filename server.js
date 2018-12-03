@@ -17,6 +17,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 let hostSocket = undefined;
 let players = {};
+let lastClueRequest;
 
 io.on("connection", function(socket) {
   socket.join("session");
@@ -43,7 +44,8 @@ io.on("connection", function(socket) {
   });
 
   socket.on("request_clue", function(clueRequest) {
-    io.in("session").emit("display_clue", clueRequest);
+    io.in("session").emit("display_clue", [clueRequest, clues[clueRequest]["screen_question"]]);
+    lastClueRequest = clueRequest;
   });
 
   socket.on("disconnecting", function() {

@@ -1,6 +1,4 @@
-let i = 10;
+let request = "category-1-price-1";
 
-while (i > 0) {
-  console.log(i);
-  i--;
-}
+console.log(request.slice(0, 10));
+console.log(request.slice(11));
