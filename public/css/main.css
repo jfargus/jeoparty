@@ -56,15 +56,6 @@ button {
   display: none !important;
 }
 
-.black-border {
-  width: 100%;
-  height: 100%;
-
-  color: black;
-  border-width: .5vh;
-  border-style: solid;
-}
-
 /* Animations */
 
 @keyframes color {
@@ -121,6 +112,63 @@ button {
   font-size: 30vh;
 }
 
+/* Board screen */
+
+.h-board-screen {
+  display: flex;
+  align-items: center;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-image: url("/graphics/background.png");
+}
+
+.h-board-row {
+  height: calc(100vh / 6);
+}
+
+.h-category-text {
+  font-family: board;
+
+  word-wrap: break-word;
+
+  color: white;
+  text-shadow: 1vh 1vh black;
+
+  font-size: 10vh;
+}
+
+.h-price-text {
+  font-family: board;
+
+  letter-spacing: .2vh;
+
+  color: #D69F4C;
+  text-shadow: 1vh 1vh black;
+
+  font-size: 10vh;
+}
+
+.category-border {
+  width: 100%;
+  height: 100%;
+
+  color: black;
+  border-width: .5vh;
+  border-style: solid;
+  border-bottom-width: 1vh;
+}
+
+.price-border {
+  width: 100%;
+  height: 100%;
+
+  color: black;
+  border-width: .5vh;
+  border-style: solid;
+}
+
 /* CONTROLLER */
 
 .c-ui-text {
@@ -161,9 +209,9 @@ button {
   font-family: 'Nunito', sans-serif;
 }
 
-/* Clue screen */
+/* Board screen */
 
-.c-clue-screen {
+.c-board-screen {
   display: flex;
   align-items: center;
 
@@ -173,6 +221,59 @@ button {
   background-image: url("/graphics/background.png");
 }
 
-.clue-row {
+.c-board-row {
   height: 20vh;
+}
+
+.c-category-text {
+  font-family: board;
+
+  word-wrap: break-word;
+
+  color: white;
+  text-shadow: .8vh .8vh black;
+
+  font-size: 6.5vh;
+}
+
+.c-price-text {
+  font-family: board;
+
+  letter-spacing: .2vh;
+
+  color: #D69F4C;
+  text-shadow: .8vh .8vh black;
+
+  font-size: 6.5vh;
+}
+
+.clue-request-text {
+  font-family: board;
+
+  word-wrap: break-word;
+
+  color: white;
+  text-shadow: .8vh .8vh black;
+
+  font-size: 6vh;
+
+  line-height: 6vh;
+}
+
+.black-border {
+  width: 100%;
+  height: 100%;
+
+  color: black;
+  border-width: .5vh;
+  border-style: solid;
+
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.highlighted-button {
+  background-image: url("/graphics/highlight.png");
 }

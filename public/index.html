@@ -5,6 +5,7 @@
 <head>
   <title>Jeoparty!</title>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
 
   <!-- Boostrap modules -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
@@ -32,6 +33,132 @@
         <div class="row justify-content-center">
           <div class="col-12">
             <span>BETA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Board screen -->
+    <div id="h-board-screen" class="inactive h-board-screen">
+      <div class="container-fluid">
+        <div class="row h-board-row">
+          <div class="col-2 justify-content-center category-border category">
+            <span id="category-1" class="h-category-text"></span>
+          </div>
+          <div class="col-2 justify-content-center category-border category">
+            <span id="category-2" class="h-category-text"></span>
+          </div>
+          <div class="col-2 justify-content-center category-border category">
+            <span id="category-3" class="h-category-text"></span>
+          </div>
+          <div class="col-2 justify-content-center category-border category">
+            <span id="category-4" class="h-category-text"></span>
+          </div>
+          <div class="col-2 justify-content-center category-border category">
+            <span id="category-5" class="h-category-text"></span>
+          </div>
+          <div class="col-2 justify-content-center category-border category">
+            <span id="category-6" class="h-category-text"></span>
+          </div>
+        </div>
+        <div class="row h-board-row">
+          <div class="col-2 justify-content-center price-border price" id="category-1-price-1">
+            <span id="category-1-price-1-text" class="h-price-text">$200</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-2-price-1">
+            <span id="category-2-price-1-text" class="h-price-text">$200</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-3-price-1">
+            <span id="category-3-price-1-text" class="h-price-text">$200</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-4-price-1">
+            <span id="category-4-price-1-text" class="h-price-text">$200</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-5-price-1">
+            <span id="category-5-price-1-text" class="h-price-text">$200</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-6-price-1">
+            <span id="category-6-price-1-text" class="h-price-text">$200</span>
+          </div>
+        </div>
+        <div class="row h-board-row">
+          <div class="col-2 justify-content-center price-border price" id="category-1-price-2">
+            <span id="category-1-price-2-text" class="h-price-text">$400</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-2-price-2">
+            <span id="category-2-price-2-text" class="h-price-text">$400</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-3-price-2">
+            <span id="category-3-price-2-text" class="h-price-text">$400</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-4-price-2">
+            <span id="category-4-price-2-text" class="h-price-text">$400</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-5-price-2">
+            <span id="category-5-price-2-text" class="h-price-text">$400</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-6-price-2">
+            <span id="category-6-price-2-text" class="h-price-text">$400</span>
+          </div>
+        </div>
+        <div class="row h-board-row">
+          <div class="col-2 justify-content-center price-border price" id="category-1-price-3">
+            <span id="category-1-price-3-text" class="h-price-text">$600</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-2-price-3">
+            <span id="category-2-price-3-text" class="h-price-text">$600</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-3-price-3">
+            <span id="category-3-price-3-text" class="h-price-text">$600</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-4-price-3">
+            <span id="category-4-price-3-text" class="h-price-text">$600</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-5-price-3">
+            <span id="category-5-price-3-text" class="h-price-text">$600</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-6-price-3">
+            <span id="category-6-price-3-text" class="h-price-text">$600</span>
+          </div>
+        </div>
+        <div class="row h-board-row">
+          <div class="col-2 justify-content-center price-border price" id="category-1-price-4">
+            <span id="category-1-price-4-text" class="h-price-text">$800</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-2-price-4">
+            <span id="category-2-price-4-text" class="h-price-text">$800</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-3-price-4">
+            <span id="category-3-price-4-text" class="h-price-text">$800</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-4-price-4">
+            <span id="category-4-price-4-text" class="h-price-text">$800</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-5-price-4">
+            <span id="category-5-price-4-text" class="h-price-text">$800</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-6-price-4">
+            <span id="category-6-price-4-text" class="h-price-text">$800</span>
+          </div>
+        </div>
+        <div class="row h-board-row">
+          <div class="col-2 justify-content-center price-border price" id="category-1-price-5">
+            <span id="category-1-price-5-text" class="h-price-text">$1000</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-2-price-5">
+            <span id="category-2-price-5-text" class="h-price-text">$1000</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-3-price-5">
+            <span id="category-3-price-5-text" class="h-price-text">$1000</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-4-price-5">
+            <span id="category-4-price-5-text" class="h-price-text">$1000</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-5-price-5">
+            <span id="category-5-price-5-text" class="h-price-text">$1000</span>
+          </div>
+          <div class="col-2 justify-content-center price-border price" id="category-6-price-5">
+            <span id="category-6-price-5-text" class="h-price-text">$1000</span>
           </div>
         </div>
       </div>
@@ -71,52 +198,53 @@
       </div>
     </div>
 
-    <!-- Clue screen -->
-    <div id="c-clue-screen" class="inactive c-clue-screen">
+    <!-- Board screen -->
+    <div id="c-board-screen" class="inactive c-board-screen">
       <div class="container-fluid">
-        <div class="row clue-row">
-          <div id="category-1-wrapper" class="col-6 justify-content-center black-border">
-            <button id="category-1" onclick="pressButton(this)"><span id="category-1-text" class="category-text"></span></button>
+        <div class="row c-board-row">
+          <div id="category-1-wrapper" class="col-6 justify-content-center category black-border">
+            <button id="category-1" onclick="pressClueButton(this)"><span id="category-1-text" class="c-category-text"></span></button>
           </div>
-          <div id="category-2-wrapper" class="col-6 justify-content-center black-border">
-            <button id="category-2" onclick="pressButton(this)"><span id="category-2-text" class="category-text"></span></button>
-          </div>
-        </div>
-        <div class="row clue-row">
-          <div id="category-3-wrapper" class="col-6 justify-content-center black-border">
-            <button id="category-3" onclick="pressButton(this)"><span id="category-3-text" class="category-text"></span></button>
-          </div>
-          <div id="category-4-wrapper" class="col-6 justify-content-center black-border">
-            <button id="category-4" onclick="pressButton(this)"><span id="category-4-text" class="category-text"></span></button>
+          <div id="category-2-wrapper" class="col-6 justify-content-center category black-border">
+            <button id="category-2" onclick="pressClueButton(this)"><span id="category-2-text" class="c-category-text"></span></button>
           </div>
         </div>
-        <div class="row clue-row">
-          <div id="category-5-wrapper" class="col-6 justify-content-center black-border">
-            <button id="category-5" onclick="pressButton(this)"><span id="category-5-text" class="category-text"></span></button>
+        <div class="row c-board-row">
+          <div id="category-3-wrapper" class="col-6 justify-content-center category black-border">
+            <button id="category-3" onclick="pressClueButton(this)"><span id="category-3-text" class="c-category-text"></span></button>
           </div>
-          <div id="category-6-wrapper" class="col-6 justify-content-center black-border">
-            <button id="category-6" onclick="pressButton(this)"><span id="category-6-text" class="category-text"></span></button>
-          </div>
-        </div>
-        <div class="row clue-row">
-          <div id="price-1-wrapper" class="col-4 justify-content-center black-border">
-            <button id="price-1" onclick="pressButton(this)"><span id="price-1-text" class="price-text">$200</span></button>
-          </div>
-          <div id="price-2-wrapper" class="col-4 justify-content-center black-border">
-            <button id="price-2" onclick="pressButton(this)"><span id="price-2-text" class="price-text">$400</span></button>
-          </div>
-          <div id="price-3-wrapper" class="col-4 justify-content-center black-border">
-            <button id="price-3" onclick="pressButton(this)"><span id="price-3-text" class="price-text">$600</span></button>
+          <div id="category-4-wrapper" class="col-6 justify-content-center category black-border">
+            <button id="category-4" onclick="pressClueButton(this)"><span id="category-4-text" class="c-category-text"></span></button>
           </div>
         </div>
-        <div class="row clue-row">
-          <div id="price-4-wrapper" class="col-4 justify-content-center black-border">
-            <button id="price-4" onclick="pressButton(this)"><span id="price-4-text" class="price-text">$800</span></button>
+        <div class="row c-board-row">
+          <div id="category-5-wrapper" class="col-6 justify-content-center category black-border">
+            <button id="category-5" onclick="pressClueButton(this)"><span id="category-5-text" class="c-category-text"></span></button>
           </div>
-          <div id="price-5-wrapper" class="col-4 justify-content-center black-border">
-            <button id="price-5" onclick="pressButton(this)"><span id="price-5-text" class="price-text">$1K</span></button>
+          <div id="category-6-wrapper" class="col-6 justify-content-center category black-border">
+            <button id="category-6" onclick="pressClueButton(this)"><span id="category-6-text" class="c-category-text"></span></button>
+          </div>
+        </div>
+        <div class="row c-board-row">
+          <div id="price-1-wrapper" class="col-4 justify-content-center price black-border">
+            <button id="price-1" onclick="pressClueButton(this)"><span id="price-1-text" class="c-price-text">$200</span></button>
+          </div>
+          <div id="price-2-wrapper" class="col-4 justify-content-center price black-border">
+            <button id="price-2" onclick="pressClueButton(this)"><span id="price-2-text" class="c-price-text">$400</span></button>
+          </div>
+          <div id="price-3-wrapper" class="col-4 justify-content-center price black-border">
+            <button id="price-3" onclick="pressClueButton(this)"><span id="price-3-text" class="c-price-text">$600</span></button>
+          </div>
+        </div>
+        <div class="row c-board-row">
+          <div id="price-4-wrapper" class="col-4 justify-content-center price black-border">
+            <button id="price-4" onclick="pressClueButton(this)"><span id="price-4-text" class="c-price-text">$800</span></button>
+          </div>
+          <div id="price-5-wrapper" class="col-4 justify-content-center price black-border">
+            <button id="price-5" onclick="pressClueButton(this)"><span id="price-5-text" class="c-price-text">$1K</span></button>
           </div>
           <div class="col-4 justify-content-center black-border">
+            <button onclick="sendClueRequest()"><span class="clue-request-text">Show Clue</span></button>
           </div>
         </div>
       </div>

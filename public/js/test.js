@@ -1,7 +1,6 @@
-let test = {
-  1: "one",
-  2: "two",
-  3: "three",
-}
+let i = 10;
 
-console.log(test.length);
+while (i > 0) {
+  console.log(i);
+  i--;
+}
