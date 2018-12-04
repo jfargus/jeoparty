@@ -19,6 +19,10 @@ let hostSocket = undefined;
 let players = {};
 let lastClueRequest;
 
+let buzzersReady = false;
+
+let buzzWinner;
+
 io.on("connection", function(socket) {
   socket.join("session");
 
@@ -46,6 +50,18 @@ io.on("connection", function(socket) {
   socket.on("request_clue", function(clueRequest) {
     io.in("session").emit("display_clue", [clueRequest, clues[clueRequest]["screen_question"]]);
     lastClueRequest = clueRequest;
+
+    setTimeout(function() {
+      io.in("session").emit("buzzers_ready");
+      buzzersReady = true;
+    }, 3000);
+  });
+
+  socket.on("buzz", function() {
+    if (buzzersReady) {
+      buzzWinner = socket.id;
+      buzzersReady = false;
+    }
   });
 
   socket.on("disconnecting", function() {

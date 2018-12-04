@@ -225,6 +225,48 @@ button {
   font-weight: bolder;
 }
 
+/* Timer */
+
+.h-timer {
+  position: absolute;
+  z-index: 2;
+
+  display:inherit;
+
+  width: 100vw;
+  height: 10vh;
+
+  transform: scaleX(1);
+
+  background-color: red;
+}
+
+.h-timer.animate {
+  transition: linear transform 5s;
+  transform: scaleX(0);
+}
+
+.h-timer-frame {
+  position: absolute;
+  z-index: 3;
+
+  display: inherit;
+
+  width: 100vw;
+  height: 10vh;
+
+  border: .5vh solid black;
+}
+
+.h-timer-frame-divider {
+  float: left;
+
+  width: 12.5%;
+  height: 10vh;
+
+  border: .5vh solid black;
+}
+
 /* CONTROLLER */
 
 .c-ui-text {
@@ -238,7 +280,7 @@ button {
   align-items: center;
 
   width: 100vw;
-  height: 100vh;
+  height: 85vh;
 
   animation-name: color;
   animation-duration: 20s;
@@ -272,13 +314,13 @@ button {
   align-items: center;
 
   width: 100vw;
-  height: 100vh;
+  height: 85vh;
 
   background-image: url("/graphics/background.png");
 }
 
 .c-board-row {
-  height: 20vh;
+  height: calc(85vh / 5);
 }
 
 .price {
@@ -336,4 +378,99 @@ button {
   padding-bottom: 0 !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
+}
+
+/* Buzzer screen */
+
+.buzzer-screen {
+  width: 100vw;
+  height: 85vh;
+
+  position: absolute;
+  z-index: -1;
+
+  background-color: #060CE9;
+}
+
+.buzzer-screen-row {
+  height: 85vh;
+
+  display: flex;
+  align-items: center;
+}
+
+.buzzer {
+  position:absolute;
+  z-index: 3;
+
+  width: 30vh;
+  height: 30vh;
+
+  top: 30vh;
+
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  transition: all 0.1s;
+  text-align:center;
+  text-decoration:none;
+
+  color:#FFF;
+  border:solid .2vh #D94E3B;
+  border-radius: 20vh;
+  background:#cb3b27;
+  -webkit-box-shadow: 0 1vh 0 #84261a;
+  -moz-box-shadow: 0 1vh 0 #84261a;
+  box-shadow: 0 1vh 0 #84261a;
+}
+
+.buzzer:active {
+  position:absolute;
+
+  top: 31vh;
+
+  -webkit-box-shadow: 0 .2vh 0  #84261a;
+  -moz-box-shadow: 0 .2vh 0  #84261a;
+  box-shadow: 0 .2vh 0 #84261a;
+}
+
+/* Timer */
+
+.c-timer {
+  position: absolute;
+  z-index: 2;
+
+  display:inherit;
+
+  width: 100vw;
+  height: 5vh;
+
+  transform: scaleX(1);
+
+  background-color: red;
+}
+
+.c-timer.animate {
+  transition: linear transform 5s;
+  transform: scaleX(0);
+}
+
+.c-timer-frame {
+  position: absolute;
+  z-index: 3;
+
+  display: inherit;
+
+  width: 100vw;
+  height: 5vh;
+
+  border: .3vh solid black;
+}
+
+.c-timer-frame-divider {
+  float: left;
+
+  width: 12.5%;
+  height: 5vh;
+
+  border: .3vh solid black;
 }

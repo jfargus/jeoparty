@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="/css/main.css">
 </head>
 
-<body>
+<body ontouchstart>
   <!-- Host -->
   <div id="host" class="inactive">
     <!-- Landing screen -->
@@ -164,6 +164,19 @@
       </div>
     </div>
 
+    <!-- Timer -->
+    <div id="h-timer" class="inactive h-timer"></div>
+    <div id="h-timer-frame" class="inactive h-timer-frame">
+      <div class="h-timer-frame-divider"></div>
+      <div class="h-timer-frame-divider"></div>
+      <div class="h-timer-frame-divider"></div>
+      <div class="h-timer-frame-divider"></div>
+      <div class="h-timer-frame-divider"></div>
+      <div class="h-timer-frame-divider"></div>
+      <div class="h-timer-frame-divider"></div>
+      <div class="h-timer-frame-divider"></div>
+    </div>
+
     <!-- Clue screen -->
     <div id="clue-screen" class="inactive clue-screen">
       <div class="container-fluid">
@@ -205,7 +218,7 @@
         </div>
         <div class="row justify-content-center">
           <div class="col-12">
-            <span class="c-ui-text">WAITING FOR GAME TO START</span>
+            <span id="c-waiting-screen-text" class="c-ui-text">WAITING FOR GAME TO START</span>
           </div>
         </div>
       </div>
@@ -259,6 +272,28 @@
           <div class="col-4 justify-content-center black-border">
             <button onclick="sendClueRequest()"><span class="clue-request-text">Show Clue</span></button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div id="c-timer" class="inactive c-timer"></div>
+    <div id="c-timer-frame" class="inactive c-timer-frame">
+      <div class="c-timer-frame-divider"></div>
+      <div class="c-timer-frame-divider"></div>
+      <div class="c-timer-frame-divider"></div>
+      <div class="c-timer-frame-divider"></div>
+      <div class="c-timer-frame-divider"></div>
+      <div class="c-timer-frame-divider"></div>
+      <div class="c-timer-frame-divider"></div>
+      <div class="c-timer-frame-divider"></div>
+    </div>
+
+    <!-- Buzzer screen -->
+    <div id="buzzer-screen" class="inactive buzzer-screen">
+      <div class="container-fluid">
+        <div class="row justify-content-center buzzer-screen-row">
+          <div id="buzzer" class="buzzer" onclick="buzz()"></div>
         </div>
       </div>
     </div>

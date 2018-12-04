@@ -47,8 +47,12 @@ socket.on("display_clue", function(data) {
   if (isHost) {
     displayClue(data[0], data[1]);
   } else {
-
+    changeScreen("buzzer-screen");
   }
+});
+
+socket.on("buzzers_ready", function() {
+  startTimerAnimation(5);
 });
 
 // Jeoparty! functions
@@ -176,4 +180,45 @@ function animateClueScreen() {
   clueScreen.style.left = "0vw";
   clueScreen.style.bottom = "0vh";
   clueScreen.classList.add("animate");
+}
+
+function startTimerAnimation(time) {
+  /*
+   */
+
+  let timerId;
+  let timerFrameId;
+
+  if (isHost) {
+    timerId = "h-timer";
+    timerFrameId = "h-timer-frame";
+  } else {
+    timerId = "c-timer";
+    timerFrameId = "c-timer-frame";
+  }
+
+  let timer = document.getElementById(timerId);
+  let timerFrame = document.getElementById(timerFrameId);
+
+  timer.style.transitionDuration = time + "s";
+
+  timer.classList.remove("inactive");
+  timerFrame.classList.remove("inactive");
+
+  setTimeout(function() {
+    timer.classList.add("animate");
+  }, 1);
+
+  setTimeout(function() {
+    timer.classList.add("inactive");
+    timer.classList.remove("animate");
+    timerFrame.classList.add("inactive");
+  }, (time * 1000));
+}
+
+function buzz() {
+  /*
+   */
+
+  socket.emit("buzz");
 }
