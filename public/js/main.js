@@ -2,12 +2,10 @@
 
 let currentScreenId;
 let isHost;
-
 let lastCategoryWrapperId;
 let lastCategoryId;
 let lastPriceWrapperId;
 let lastPriceId;
-
 let buzzWinner;
 
 // Timeout/interval handlers

@@ -19,11 +19,10 @@ let hostSocket = undefined;
 let players = {};
 let lastClueRequest;
 let playersAnswered = [];
-
 let buzzersReady = false;
 let answerReady = false;
-
 let buzzWinnerId;
+let usedClueIds = [];
 
 // Timeout/interval handlers
 let buzzerTimeout;
@@ -55,6 +54,7 @@ io.on("connection", function(socket) {
 
   socket.on("request_clue", function(clueRequest) {
     io.in("session").emit("display_clue", [clueRequest, clues[clueRequest]["screen_question"]]);
+    usedClueIds.push(clueRequest);
     lastClueRequest = clueRequest;
 
     setTimeout(function() {
