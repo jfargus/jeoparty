@@ -35,7 +35,7 @@ socket.on("connect_device", function() {
 
 // CONTROLLER
 socket.on("join_success", function() {
-  changeScreen("c-waiting-screen");
+  changeWaitScreen("GAME TO START");
 });
 
 // HOST + CONTROLLER
@@ -58,6 +58,9 @@ socket.on("display_clue", function(clueRequestArray) {
 });
 
 socket.on("buzzers_ready", function() {
+  if (isHost) {
+    clearPlayerAnswerText();
+  }
   startTimerAnimation(5);
 });
 
@@ -99,7 +102,7 @@ socket.on("display_correct_answer", function(correctAnswer) {
 
 socket.on("reveal_scores", function() {
   if (isHost) {
-    currentScreenId = "clue-screen";
+    changeScreen("clue-screen");
     document.getElementById(currentScreenId).classList.remove("animate");
     changeScreen("score-screen");
   } else {
@@ -146,13 +149,25 @@ function changeScreen(newScreen) {
   currentScreenId = newScreen;
 }
 
+function changeWaitScreen(waitingFor) {
+  /*
+   */
+
+  document.getElementById(currentScreenId).classList.add("inactive");
+  document.getElementById("c-waiting-screen").classList.remove("inactive");
+
+  document.getElementById("c-waiting-screen-text").innerHTML = "WAITING FOR " + waitingFor.toUpperCase();
+
+  currentScreenId = "c-waiting-screen";
+}
+
 function adjustMobileStyle() {
   /*
    */
 
   document.body.style.position = "fixed";
 
-  let gameScreenIds = ["c-landing-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
+  let gameScreenIds = ["c-landing-screen", "c-waiting-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
 
   for (let i = 0; i < gameScreenIds.length; i++) {
     document.getElementById(gameScreenIds[i]).style.height = window.innerHeight + "px";
@@ -364,6 +379,8 @@ function submitAnswer() {
   clearInterval(livefeedInterval);
   socket.emit("submit_answer", answerForm.value);
   answerForm.value = "";
+
+  changeWaitScreen("SCREEN");
 }
 
 function displayPlayerAnswer(player, answer, correct) {
@@ -402,4 +419,13 @@ function displayCorrectAnswer(correctAnswer) {
   playerAnswer.style.transitionDuration = "0s";
   playerAnswer.style.color = "white";
   playerAnswer.innerHTML = correctAnswer.toUpperCase();
+}
+
+function clearPlayerAnswerText() {
+  /*
+   */
+
+  let playerAnswer = document.getElementById("player-answer");
+  playerAnswer.innerHTML = "";
+  playerAnswer.style.color = "white";
 }

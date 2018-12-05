@@ -63,13 +63,21 @@ io.on("connection", function(socket) {
 
       // Safety buzz timer
       buzzerTimeout = setTimeout(function() {
-
+        io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
+        setTimeout(function() {
+          io.in("session").emit("reveal_scores");
+          setTimeout(function() {
+            io.in("session").emit("reveal_board");
+          }, 5000);
+        }, 5000);
       }, 5000);
     }, 3000);
   });
 
   socket.on("buzz", function() {
     if (buzzersReady) {
+      clearTimeout(buzzerTimeout);
+
       buzzWinnerId = socket.id;
       buzzersReady = false;
       answerReady = true;
@@ -89,13 +97,17 @@ io.on("connection", function(socket) {
 
   socket.on("submit_answer", function(answer) {
     if (answerReady) {
+      clearTimeout(answerTimeout);
       answerReady = false;
       playersAnswered.push(socket.id);
       io.in("session").emit("answer_submitted", [answer, evaluateAnswer(answer)]);
 
       setTimeout(function() {
         if (evaluateAnswer(answer)) {
-
+          io.in("session").emit("reveal_scores");
+          setTimeout(function() {
+            io.in("session").emit("reveal_board");
+          }, 5000);
         } else if (playersAnswered.length == Object.keys(players).length) {
           io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
           setTimeout(function() {
@@ -110,7 +122,13 @@ io.on("connection", function(socket) {
 
           // Safety buzz timer
           buzzerTimeout = setTimeout(function() {
-
+            io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
+            setTimeout(function() {
+              io.in("session").emit("reveal_scores");
+              setTimeout(function() {
+                io.in("session").emit("reveal_board");
+              }, 5000);
+            }, 5000);
           }, 5000);
         }
       }, 5000);
