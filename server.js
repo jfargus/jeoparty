@@ -10,7 +10,7 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-server.listen(3000, "18.40.34.91");
+server.listen(3000, "18.40.42.229");
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -18,10 +18,16 @@ app.use(express.static(path.join(__dirname, "public")));
 let hostSocket = undefined;
 let players = {};
 let lastClueRequest;
+let playersAnswered = [];
 
 let buzzersReady = false;
+let answerReady = false;
 
-let buzzWinner;
+let buzzWinnerId;
+
+// Timeout/interval handlers
+let buzzerTimeout;
+let answerTimeout;
 
 io.on("connection", function(socket) {
   socket.join("session");
@@ -54,13 +60,60 @@ io.on("connection", function(socket) {
     setTimeout(function() {
       io.in("session").emit("buzzers_ready");
       buzzersReady = true;
+
+      // Safety buzz timer
+      buzzerTimeout = setTimeout(function() {
+
+      }, 5000);
     }, 3000);
   });
 
   socket.on("buzz", function() {
     if (buzzersReady) {
-      buzzWinner = socket.id;
+      buzzWinnerId = socket.id;
       buzzersReady = false;
+      answerReady = true;
+      io.in("session").emit("answer", players[buzzWinnerId]);
+
+      // Safety answer timer
+      answerTimeout = setTimeout(function() {
+        answerReady = false;
+        io.in("session").emit("answer_submitted", ["", false]);
+      }, 16000);
+    }
+  });
+
+  socket.on("livefeed", function(livefeed) {
+    io.in("session").emit("livefeed", livefeed);
+  });
+
+  socket.on("submit_answer", function(answer) {
+    if (answerReady) {
+      answerReady = false;
+      playersAnswered.push(socket.id);
+      io.in("session").emit("answer_submitted", [answer, evaluateAnswer(answer)]);
+
+      setTimeout(function() {
+        if (evaluateAnswer(answer)) {
+
+        } else if (playersAnswered.length == Object.keys(players).length) {
+          io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
+          setTimeout(function() {
+            io.in("session").emit("reveal_scores");
+            setTimeout(function() {
+              io.in("session").emit("reveal_board");
+            }, 5000);
+          }, 5000);
+        } else {
+          io.in("session").emit("buzzers_ready");
+          buzzersReady = true;
+
+          // Safety buzz timer
+          buzzerTimeout = setTimeout(function() {
+
+          }, 5000);
+        }
+      }, 5000);
     }
   });
 
@@ -125,8 +178,8 @@ function loadCategory(category) {
 
       clues[id] = category[i - 1];
       clues[id]["screen_question"] = formatScreenQuestion(clues[id]["question"]);
-      clues[id]["raw_answer"] = formatRawAnswer(clues[id]["answer"]);
-      clues[id]["screen_answer"] = formatRawAnswer(clues[id]["answer"]);
+      clues[id]["raw_answer"] = formatRawText(clues[id]["answer"]);
+      clues[id]["screen_answer"] = formatScreenAnswer(clues[id]["answer"]);
     }
   }
 }
@@ -139,7 +192,7 @@ function formatScreenQuestion(original) {
   return (formattedQuestion);
 }
 
-function formatRawAnswer(original) {
+function formatRawText(original) {
   /*
    */
 
@@ -187,4 +240,29 @@ function formatScreenAnswer(original) {
   screenAnswer = screenAnswer.replace(/'/g, "");
 
   return (screenAnswer);
+}
+
+function evaluateAnswer(answer) {
+  /*
+   */
+
+  let correctAnswer = clues[lastClueRequest]["raw_answer"];
+  let playerAnswer = formatRawText(answer);
+
+  let question = formatRawText(clues[lastClueRequest]["question"]);
+  let categoryName = formatRawText(clues[lastClueRequest]["category"]["title"]);
+
+  if (playerAnswer == correctAnswer) {
+    return true;
+  } else {
+    if (question.includes(playerAnswer) || categoryName.includes(playerAnswer) || answer.length <= 2) {
+      return false;
+    } else {
+      if (correctAnswer.includes(playerAnswer) || playerAnswer.includes(correctAnswer)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
 }

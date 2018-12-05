@@ -1,12 +1,19 @@
 "use strict";
 
-let currentScreen;
+let currentScreenId;
 let isHost;
 
 let lastCategoryWrapperId;
 let lastCategoryId;
 let lastPriceWrapperId;
 let lastPriceId;
+
+let buzzWinner;
+
+// Timeout/interval handlers
+let timerTimeout;
+let livefeedInterval;
+let scrapeAnswerTimeout;
 
 // Socket.io functions
 
@@ -16,13 +23,14 @@ let socket = io();
 socket.on("connect_device", function() {
   // Checks to see if this is a mobile device
   if (/Mobi/.test(navigator.userAgent)) {
+    adjustMobileStyle();
     document.getElementById("controller").className = "";
-    currentScreen = "c-landing-screen";
+    currentScreenId = "c-landing-screen";
     isHost = false;
   } else {
     socket.emit("set_host_socket");
     document.getElementById("host").className = "";
-    currentScreen = "h-landing-screen";
+    currentScreenId = "h-landing-screen";
     isHost = true;
   }
 });
@@ -43,9 +51,9 @@ socket.on("load_game", function(categoryNames) {
 });
 
 // HOST + CONTROLLER
-socket.on("display_clue", function(data) {
+socket.on("display_clue", function(clueRequestArray) {
   if (isHost) {
-    displayClue(data[0], data[1]);
+    displayClue(clueRequestArray[0], clueRequestArray[1]);
   } else {
     changeScreen("buzzer-screen");
   }
@@ -53,6 +61,60 @@ socket.on("display_clue", function(data) {
 
 socket.on("buzzers_ready", function() {
   startTimerAnimation(5);
+});
+
+socket.on("answer", function(player) {
+  clearTimeout(timerTimeout);
+  disableTimer();
+  setTimeout(function() {
+    startTimerAnimation(15);
+  }, 1);
+
+  buzzWinner = player;
+
+  if (isHost) {
+    setupPlayerLivefeed(buzzWinner);
+  } else {
+    changeScreen("answer-screen");
+    startLivefeedInterval();
+  }
+});
+
+socket.on("livefeed", function(livefeed) {
+  if (isHost) {
+    document.getElementById("player-livefeed").innerHTML = livefeed.toUpperCase();
+  }
+});
+
+socket.on("answer_submitted", function(answerArray) {
+  disableTimer();
+  if (isHost) {
+    displayPlayerAnswer(buzzWinner, answerArray[0], answerArray[1]);
+  }
+});
+
+socket.on("display_correct_answer", function(correctAnswer) {
+  if (isHost) {
+    displayCorrectAnswer(correctAnswer);
+  }
+});
+
+socket.on("reveal_scores", function() {
+  if (isHost) {
+    currentScreenId = "clue-screen";
+    document.getElementById(currentScreenId).classList.remove("animate");
+    changeScreen("score-screen");
+  } else {
+
+  }
+});
+
+socket.on("reveal_board", function() {
+  if (isHost) {
+    changeScreen("h-board-screen")
+  } else {
+    changeScreen("c-board-screen");
+  }
 });
 
 // Jeoparty! functions
@@ -81,9 +143,26 @@ function changeScreen(newScreen) {
   /*
    */
 
-  document.getElementById(currentScreen).classList.add("inactive");
+  document.getElementById(currentScreenId).classList.add("inactive");
   document.getElementById(newScreen).classList.remove("inactive");
-  currentScreen = newScreen;
+  currentScreenId = newScreen;
+}
+
+function adjustMobileStyle() {
+  /*
+   */
+
+  document.body.style.position = "fixed";
+
+  let gameScreenIds = ["c-landing-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
+
+  for (let i = 0; i < gameScreenIds.length; i++) {
+    document.getElementById(gameScreenIds[i]).style.height = window.innerHeight + "px";
+  }
+
+  for (let j = 1; j <= 5; j++) {
+    document.getElementById("c-board-row" + "-" + j).style.height = (window.innerHeight / 5) + "px";
+  }
 }
 
 function pressClueButton(button) {
@@ -125,14 +204,18 @@ function displayClue(clueRequest, screenQuestion) {
   /*
    */
 
-  document.getElementById(clueRequest).classList.add("highlighted");
+  let clueElement = document.getElementById(clueRequest);
+
+  clueElement.classList.add("highlighted");
 
   moveClueScreen(clueRequest);
 
+  // TODO: Add a switch statement for responsive font size
   document.getElementById("clue-text").innerHTML = screenQuestion;
 
   setTimeout(function() {
     document.getElementById(clueRequest + "-text").innerHTML = "";
+    clueElement.classList.remove("highlighted");
     displayClueScreen();
     setTimeout(animateClueScreen, 10);
   }, 1000);
@@ -209,11 +292,34 @@ function startTimerAnimation(time) {
     timer.classList.add("animate");
   }, 1);
 
-  setTimeout(function() {
+  timerTimeout = setTimeout(function() {
     timer.classList.add("inactive");
     timer.classList.remove("animate");
     timerFrame.classList.add("inactive");
   }, (time * 1000));
+}
+
+function disableTimer() {
+  /*
+   */
+
+  let timerId;
+  let timerFrameId;
+
+  if (isHost) {
+    timerId = "h-timer";
+    timerFrameId = "h-timer-frame";
+  } else {
+    timerId = "c-timer";
+    timerFrameId = "c-timer-frame";
+  }
+
+  let timer = document.getElementById(timerId);
+  let timerFrame = document.getElementById(timerFrameId);
+
+  timer.classList.add("inactive");
+  timer.classList.remove("animate");
+  timerFrame.classList.add("inactive");
 }
 
 function buzz() {
@@ -221,4 +327,81 @@ function buzz() {
    */
 
   socket.emit("buzz");
+  scrapeAnswerTimeout = setTimeout(function() {
+    submitAnswer();
+  }, 15000);
+}
+
+function setupPlayerLivefeed(player) {
+  /*
+   */
+
+  // TODO: Add a switch statement for responsive font size
+  document.getElementById("clue-text").className = "s-clue-text";
+
+  document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
+  document.getElementById("player-livefeed-nickname").innerHTML = player.nickname.toUpperCase() + ":<br>";
+}
+
+function startLivefeedInterval() {
+  /*
+   */
+
+  let answerForm = document.getElementById("answer-form");
+
+  livefeedInterval = setInterval(function() {
+    socket.emit("livefeed", answerForm.value);
+    if (answerForm.value.length > 0) {
+      document.getElementById("submit-answer-button").classList.remove("inactive");
+    }
+  }, 1);
+}
+
+function submitAnswer() {
+  /*
+   */
+
+  let answerForm = document.getElementById("answer-form");
+
+  clearInterval(livefeedInterval);
+  socket.emit("submit_answer", answerForm.value);
+  answerForm.value = "";
+}
+
+function displayPlayerAnswer(player, answer, correct) {
+  /*
+   */
+
+  document.getElementById("clue-text").className = "clue-text";
+  document.getElementById("clue-text").innerHTML = player.nickname.toUpperCase() + "'S RESPONSE:<br>";
+
+  let playerAnswer = document.getElementById("player-answer");
+  playerAnswer.classList.remove("inactive");
+  playerAnswer.innerHTML = answer.toUpperCase();
+
+  document.getElementById("player-livefeed-wrapper").classList.add("inactive");
+  document.getElementById("player-livefeed-nickname").innerHTML = "";
+
+  playerAnswer.style.transitionDuration = "2s";
+
+  setTimeout(function() {
+    if (correct) {
+      playerAnswer.style.color = "#39FF14";
+    } else {
+      playerAnswer.style.color = "red";
+    }
+  }, 1000);
+}
+
+function displayCorrectAnswer(correctAnswer) {
+  /*
+   */
+
+  document.getElementById("clue-text").className = "clue-text";
+  document.getElementById("clue-text").innerHTML = "CORRECT RESPONSE:<br>";
+
+  let playerAnswer = document.getElementById("player-answer");
+  playerAnswer.style.transitionDuration = "0s";
+  playerAnswer.style.color = "white";
+  playerAnswer.innerHTML = correctAnswer.toUpperCase();
 }

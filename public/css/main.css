@@ -62,6 +62,18 @@ button {
   background-image: url("/graphics/highlight.png");
 }
 
+.spacer {
+  height: 5vh;
+}
+
+.player-livefeed-spacer {
+  height: 12vh;
+}
+
+.answer-form-spacer {
+  height: 15vh;
+}
+
 /* Animations */
 
 @keyframes color {
@@ -225,6 +237,28 @@ button {
   font-weight: bolder;
 }
 
+.s-clue-text {
+  color: white;
+  text-shadow: .6vh .6vh #000000;
+
+  line-height: 4vh;
+
+  font-family: clue;
+  font-size: 6vh;
+  font-weight: bolder;
+}
+
+.player-answer {
+  transition: all 2s;
+
+  color: white;
+  text-shadow: .8vh .8vh #000000;
+
+  font-family: clue;
+  font-size: 8vh;
+  font-weight: bolder;
+}
+
 /* Timer */
 
 .h-timer {
@@ -267,6 +301,21 @@ button {
   border: .5vh solid black;
 }
 
+/* Score screen */
+
+.score-screen {
+  display: flex;
+  align-items: center;
+
+  position: absolute;
+  z-index: -1;
+
+  width: 100vw;
+  height: 100vh;
+
+  background-image: url("/graphics/background.png");
+}
+
 /* CONTROLLER */
 
 .c-ui-text {
@@ -280,7 +329,6 @@ button {
   align-items: center;
 
   width: 100vw;
-  height: 85vh;
 
   animation-name: color;
   animation-duration: 20s;
@@ -303,8 +351,6 @@ button {
   color: black;
   border-radius: 1vh;
   background-color: white;
-
-  font-family: 'Nunito', sans-serif;
 }
 
 /* Board screen */
@@ -314,7 +360,6 @@ button {
   align-items: center;
 
   width: 100vw;
-  height: 85vh;
 
   background-image: url("/graphics/background.png");
 }
@@ -384,7 +429,6 @@ button {
 
 .buzzer-screen {
   width: 100vw;
-  height: 85vh;
 
   position: absolute;
   z-index: -1;
@@ -473,4 +517,40 @@ button {
   height: 5vh;
 
   border: .3vh solid black;
+}
+
+/* Answer screen */
+
+.answer-screen {
+  width: 100vw;
+
+  position: absolute;
+  z-index: -1;
+
+  background-color: #060CE9;
+}
+
+.answer-form {
+  width: 80vw;
+  height: 10vh;
+
+  padding: 3vh;
+  padding-left: 1vh;
+  padding-right: 1vh;
+
+  font-size: 4vh;
+
+  color: black;
+
+  text-transform: uppercase;
+}
+
+.submit-answer-button {
+  padding: 1.5vh;
+
+  font-size: 4vh;
+
+  color: white;
+  border-radius: 1vh;
+  background-color: #cb3b27;
 }

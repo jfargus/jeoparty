@@ -184,8 +184,29 @@
           <div class="col-1"></div>
           <div class="col-10 align-self-center">
             <span id="clue-text" class="clue-text"></span>
+            <span id="player-answer" class="inactive player-answer"></span>
+            <div id="player-livefeed-wrapper" class="inactive">
+              <div class="player-livefeed-spacer"></div>
+              <span id="player-livefeed-nickname" class="clue-text">
+                ISAAC<br>
+              </span>
+              <span id="player-livefeed" class="clue-text">
+                THIS IS AN ANSWER
+              </span>
+            </div>
           </div>
           <div class="col-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score screen -->
+    <div id="score-screen" class="inactive score-screen">
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <div class="col-12">
+            SCORE SCREEN
+          </div>
         </div>
       </div>
     </div>
@@ -227,7 +248,7 @@
     <!-- Board screen -->
     <div id="c-board-screen" class="inactive c-board-screen">
       <div class="container-fluid">
-        <div class="row c-board-row">
+        <div id="c-board-row-1" class="row c-board-row">
           <div id="category-1-wrapper" class="col-6 justify-content-center category black-border">
             <button id="category-1" onclick="pressClueButton(this)"><span id="category-1-text" class="c-category-text"></span></button>
           </div>
@@ -235,7 +256,7 @@
             <button id="category-2" onclick="pressClueButton(this)"><span id="category-2-text" class="c-category-text"></span></button>
           </div>
         </div>
-        <div class="row c-board-row">
+        <div id="c-board-row-2" class="row c-board-row">
           <div id="category-3-wrapper" class="col-6 justify-content-center category black-border">
             <button id="category-3" onclick="pressClueButton(this)"><span id="category-3-text" class="c-category-text"></span></button>
           </div>
@@ -243,7 +264,7 @@
             <button id="category-4" onclick="pressClueButton(this)"><span id="category-4-text" class="c-category-text"></span></button>
           </div>
         </div>
-        <div class="row c-board-row">
+        <div id="c-board-row-3" class="row c-board-row">
           <div id="category-5-wrapper" class="col-6 justify-content-center category black-border">
             <button id="category-5" onclick="pressClueButton(this)"><span id="category-5-text" class="c-category-text"></span></button>
           </div>
@@ -251,7 +272,7 @@
             <button id="category-6" onclick="pressClueButton(this)"><span id="category-6-text" class="c-category-text"></span></button>
           </div>
         </div>
-        <div class="row c-board-row">
+        <div id="c-board-row-4" class="row c-board-row">
           <div id="price-1-wrapper" class="col-4 justify-content-center price black-border">
             <button id="price-1" onclick="pressClueButton(this)"><span id="price-1-text" class="c-price-text">$200</span></button>
           </div>
@@ -262,7 +283,7 @@
             <button id="price-3" onclick="pressClueButton(this)"><span id="price-3-text" class="c-price-text">$600</span></button>
           </div>
         </div>
-        <div class="row c-board-row">
+        <div id="c-board-row-5" class="row c-board-row">
           <div id="price-4-wrapper" class="col-4 justify-content-center price black-border">
             <button id="price-4" onclick="pressClueButton(this)"><span id="price-4-text" class="c-price-text">$800</span></button>
           </div>
@@ -294,6 +315,20 @@
       <div class="container-fluid">
         <div class="row justify-content-center buzzer-screen-row">
           <div id="buzzer" class="buzzer" onclick="buzz()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Answer screen -->
+    <div id="answer-screen" class="inactive answer-screen">
+      <div class="container-fluid">
+        <div class="answer-form-spacer"></div>
+        <div class="row justify-content-center">
+          <input type="text" id="answer-form" class="answer-form" />
+        </div>
+        <div class="row spacer"></div>
+        <div class="row justify-content-center">
+          <div id="submit-answer-button" class="inactive submit-answer-button" onclick="submitAnswer()">SUBMIT</div>
         </div>
       </div>
     </div>
