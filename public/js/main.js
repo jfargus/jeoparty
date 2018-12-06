@@ -7,6 +7,7 @@ let lastCategoryId;
 let lastPriceWrapperId;
 let lastPriceId;
 let buzzWinner;
+let usedClueArray;
 
 // Timeout/interval handlers
 let timerTimeout;
@@ -58,9 +59,6 @@ socket.on("display_clue", function(clueRequestArray) {
 });
 
 socket.on("buzzers_ready", function() {
-  if (isHost) {
-    clearPlayerAnswerText();
-  }
   startTimerAnimation(5);
 });
 
@@ -102,19 +100,24 @@ socket.on("display_correct_answer", function(correctAnswer) {
 
 socket.on("reveal_scores", function() {
   if (isHost) {
-    changeScreen("clue-screen");
-    document.getElementById(currentScreenId).classList.remove("animate");
+    currentScreenId = "clue-screen";
     changeScreen("score-screen");
+    clearPlayerAnswerText();
   } else {
 
   }
 });
 
-socket.on("reveal_board", function() {
+socket.on("reveal_board", function(newUsedClueArray) {
   if (isHost) {
-    changeScreen("h-board-screen")
+    changeScreen("h-board-screen");
+    document.getElementById("clue-screen").classList.remove("animate");
   } else {
+    resetClueButtons();
     changeScreen("c-board-screen");
+    usedClueArray = newUsedClueArray;
+    updateCategoryOptions();
+    resetCluePriceButtons();
   }
 });
 
@@ -133,7 +136,7 @@ function setCategoryNames(categoryNames) {
 
   for (let i = 1; i < 7; i++) {
     if (isHost) {
-      document.getElementById("category-" + i).innerHTML = categoryNames[i - 1].toUpperCase();
+      document.getElementById("category-" + i + "-name").innerHTML = categoryNames[i - 1].toUpperCase();
     } else {
       document.getElementById("category-" + i + "-text").innerHTML = categoryNames[i - 1].toUpperCase();
     }
@@ -185,6 +188,7 @@ function pressClueButton(button) {
   let wrapper = document.getElementById(button.id + "-wrapper");
 
   if (wrapper.classList.contains("category")) {
+    updateClueOptions(button.id);
     try {
       document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
     } catch (e) {}
@@ -201,6 +205,59 @@ function pressClueButton(button) {
   }
 
   wrapper.classList.add("highlighted");
+}
+
+function updateCategoryOptions() {
+  /*
+   */
+
+  for (let i = 1; i < 7; i++) {
+    if (usedClueArray["category-" + i].length == 5) {
+      let categoryButton = document.getElementById("category-" + i);
+      let categoryButtonText = document.getElementById("category-" + i + "-text");
+
+      categoryButton.disabled = true;
+      categoryButtonText.innerHTML = "";
+    }
+  }
+}
+
+function updateClueOptions(categoryId) {
+  /*
+   */
+
+  if (usedClueArray) {
+    resetCluePriceButtons();
+
+    for (let i = 0; i < usedClueArray[categoryId].length; i++) {
+      let priceButton = document.getElementById(usedClueArray[categoryId][i]);
+      let priceButtonText = document.getElementById(usedClueArray[categoryId][i] + "-text");
+
+      priceButton.disabled = true;
+
+      priceButtonText.innerHTML = "";
+    }
+  }
+}
+
+function resetCluePriceButtons() {
+  /*
+   */
+
+  let prices = {
+    1: "$200",
+    2: "$400",
+    3: "$600",
+    4: "$800",
+    5: "$1K",
+  };
+
+  for (let i = 1; i < 6; i++) {
+    document.getElementById("price-" + i).disabled = false;
+
+    let priceButtonText = document.getElementById("price-" + i + "-text");
+    priceButtonText.innerHTML = prices[i];
+  }
 }
 
 function sendClueRequest() {
@@ -377,6 +434,8 @@ function submitAnswer() {
   let answerForm = document.getElementById("answer-form");
 
   clearInterval(livefeedInterval);
+  clearTimeout(scrapeAnswerTimeout);
+
   socket.emit("submit_answer", answerForm.value);
   answerForm.value = "";
 
@@ -416,6 +475,7 @@ function displayCorrectAnswer(correctAnswer) {
   document.getElementById("clue-text").innerHTML = "CORRECT RESPONSE:<br>";
 
   let playerAnswer = document.getElementById("player-answer");
+  playerAnswer.classList.remove("inactive");
   playerAnswer.style.transitionDuration = "0s";
   playerAnswer.style.color = "white";
   playerAnswer.innerHTML = correctAnswer.toUpperCase();
@@ -426,6 +486,15 @@ function clearPlayerAnswerText() {
    */
 
   let playerAnswer = document.getElementById("player-answer");
+  playerAnswer.classList.add("inactive");
   playerAnswer.innerHTML = "";
   playerAnswer.style.color = "white";
+}
+
+function resetClueButtons() {
+  /*
+   */
+
+  document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
+  document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
 }

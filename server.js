@@ -10,7 +10,7 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-server.listen(3000, "18.40.42.229");
+server.listen(3000, "18.40.40.228");
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -23,6 +23,14 @@ let buzzersReady = false;
 let answerReady = false;
 let buzzWinnerId;
 let usedClueIds = [];
+let usedClueArray = {
+  "category-1": [],
+  "category-2": [],
+  "category-3": [],
+  "category-4": [],
+  "category-5": [],
+  "category-6": [],
+};
 
 // Timeout/interval handlers
 let buzzerTimeout;
@@ -54,7 +62,10 @@ io.on("connection", function(socket) {
 
   socket.on("request_clue", function(clueRequest) {
     io.in("session").emit("display_clue", [clueRequest, clues[clueRequest]["screen_question"]]);
+
     usedClueIds.push(clueRequest);
+    usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
+
     lastClueRequest = clueRequest;
 
     setTimeout(function() {
@@ -63,11 +74,13 @@ io.on("connection", function(socket) {
 
       // Safety buzz timer
       buzzerTimeout = setTimeout(function() {
+        buzzersReady = false;
         io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
         setTimeout(function() {
           io.in("session").emit("reveal_scores");
+          reset();
           setTimeout(function() {
-            io.in("session").emit("reveal_board");
+            io.in("session").emit("reveal_board", usedClueArray);
           }, 5000);
         }, 5000);
       }, 5000);
@@ -105,15 +118,17 @@ io.on("connection", function(socket) {
       setTimeout(function() {
         if (evaluateAnswer(answer)) {
           io.in("session").emit("reveal_scores");
+          reset();
           setTimeout(function() {
-            io.in("session").emit("reveal_board");
+            io.in("session").emit("reveal_board", usedClueArray);
           }, 5000);
         } else if (playersAnswered.length == Object.keys(players).length) {
           io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
           setTimeout(function() {
             io.in("session").emit("reveal_scores");
+            reset();
             setTimeout(function() {
-              io.in("session").emit("reveal_board");
+              io.in("session").emit("reveal_board", usedClueArray);
             }, 5000);
           }, 5000);
         } else {
@@ -122,11 +137,13 @@ io.on("connection", function(socket) {
 
           // Safety buzz timer
           buzzerTimeout = setTimeout(function() {
+            buzzersReady = false;
             io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
             setTimeout(function() {
               io.in("session").emit("reveal_scores");
+              reset();
               setTimeout(function() {
-                io.in("session").emit("reveal_board");
+                io.in("session").emit("reveal_board", usedClueArray);
               }, 5000);
             }, 5000);
           }, 5000);
@@ -283,4 +300,11 @@ function evaluateAnswer(answer) {
       }
     }
   }
+}
+
+function reset() {
+  /*
+   */
+
+  playersAnswered = [];
 }
