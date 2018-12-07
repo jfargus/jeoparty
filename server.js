@@ -10,7 +10,7 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-server.listen(3000, "18.40.39.14");
+server.listen(3000, "18.40.23.208");
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
