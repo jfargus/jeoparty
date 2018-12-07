@@ -10,13 +10,14 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-server.listen(3000, "18.40.40.228");
+server.listen(3000, "18.40.39.14");
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
 
 let hostSocket = undefined;
 let players = {};
+let boardController;
 let lastClueRequest;
 let playersAnswered = [];
 let buzzersReady = false;
@@ -42,6 +43,7 @@ io.on("connection", function(socket) {
   socket.emit("connect_device");
 
   socket.on("set_host_socket", function() {
+    getCategories();
     hostSocket = socket;
   });
 
@@ -53,15 +55,19 @@ io.on("connection", function(socket) {
 
     players[socket.id] = player;
 
-    socket.emit("join_success");
-
     if (Object.keys(players).length == 1) {
-      io.in("session").emit("load_game", categoryNames);
+      boardController = socket.id;
     }
+
+    socket.emit("join_success", categoryNames, boardController);
+  });
+
+  socket.on("start_game", function() {
+    io.in("session").emit("load_game", categoryNames, boardController, players[boardController].nickname);
   });
 
   socket.on("request_clue", function(clueRequest) {
-    io.in("session").emit("display_clue", [clueRequest, clues[clueRequest]["screen_question"]]);
+    io.in("session").emit("display_clue", clueRequest, clues[clueRequest]["screen_question"]);
 
     usedClueIds.push(clueRequest);
     usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
@@ -80,7 +86,7 @@ io.on("connection", function(socket) {
           io.in("session").emit("reveal_scores");
           reset();
           setTimeout(function() {
-            io.in("session").emit("reveal_board", usedClueArray);
+            io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
           }, 5000);
         }, 5000);
       }, 5000);
@@ -120,7 +126,7 @@ io.on("connection", function(socket) {
           io.in("session").emit("reveal_scores");
           reset();
           setTimeout(function() {
-            io.in("session").emit("reveal_board", usedClueArray);
+            io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
           }, 5000);
         } else if (playersAnswered.length == Object.keys(players).length) {
           io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
@@ -128,7 +134,7 @@ io.on("connection", function(socket) {
             io.in("session").emit("reveal_scores");
             reset();
             setTimeout(function() {
-              io.in("session").emit("reveal_board", usedClueArray);
+              io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
             }, 5000);
           }, 5000);
         } else {
@@ -143,7 +149,7 @@ io.on("connection", function(socket) {
               io.in("session").emit("reveal_scores");
               reset();
               setTimeout(function() {
-                io.in("session").emit("reveal_board", usedClueArray);
+                io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
               }, 5000);
             }, 5000);
           }, 5000);
@@ -164,8 +170,6 @@ let js = require("jservice-node");
 
 let categoryNames = [];
 let clues = {};
-
-getCategories();
 
 function getCategories() {
   /*

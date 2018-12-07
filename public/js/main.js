@@ -8,6 +8,7 @@ let lastPriceWrapperId;
 let lastPriceId;
 let buzzWinner;
 let usedClueArray;
+let currentScreenQuestion;
 
 // Timeout/interval handlers
 let timerTimeout;
@@ -35,33 +36,47 @@ socket.on("connect_device", function() {
 });
 
 // CONTROLLER
-socket.on("join_success", function() {
-  changeWaitScreen("GAME TO START");
+socket.on("join_success", function(categoryNames, boardController) {
+  setCategoryNames(categoryNames);
+
+  if (socket.id == boardController) {
+    changeScreen("start-game-screen");
+  } else {
+    changeWaitScreen("GAME TO START");
+  }
 });
 
 // HOST + CONTROLLER
-socket.on("load_game", function(categoryNames) {
+socket.on("load_game", function(categoryNames, boardController, boardControllerNickname) {
+  setCategoryNames(categoryNames);
+
   if (isHost) {
     changeScreen("h-board-screen")
   } else {
-    changeScreen("c-board-screen");
+    if (socket.id == boardController) {
+      changeScreen("c-board-screen");
+    } else {
+      changeWaitScreen(boardControllerNickname.toUpperCase());
+    }
   }
-  setCategoryNames(categoryNames);
 });
 
 // HOST + CONTROLLER
-socket.on("display_clue", function(clueRequestArray) {
+socket.on("display_clue", function(clueRequest, screenQuestion) {
   if (isHost) {
-    displayClue(clueRequestArray[0], clueRequestArray[1]);
+    displayClue(clueRequest, screenQuestion);
+    currentScreenQuestion = screenQuestion;
   } else {
     changeScreen("buzzer-screen");
   }
 });
 
+// HOST + CONTROLLER
 socket.on("buzzers_ready", function() {
   startTimerAnimation(5);
 });
 
+// HOST + CONTROLLER
 socket.on("answer", function(player) {
   clearTimeout(timerTimeout);
   disableTimer();
@@ -72,53 +87,66 @@ socket.on("answer", function(player) {
   buzzWinner = player;
 
   if (isHost) {
-    setupPlayerLivefeed(buzzWinner);
+    setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
   } else {
     changeScreen("answer-screen");
     startLivefeedInterval();
   }
 });
 
+// HOST
 socket.on("livefeed", function(livefeed) {
   if (isHost) {
     document.getElementById("player-livefeed").innerHTML = livefeed.toUpperCase();
   }
 });
 
+// HOST + CONTROLLER
 socket.on("answer_submitted", function(answerArray) {
   disableTimer();
   if (isHost) {
     displayPlayerAnswer(buzzWinner, answerArray[0], answerArray[1]);
+  } else {
+    changeWaitScreen("SCREEN");
   }
 });
 
+// HOST + CONTROLLER
 socket.on("display_correct_answer", function(correctAnswer) {
   if (isHost) {
     displayCorrectAnswer(correctAnswer);
+  } else {
+    changeWaitScreen("SCREEN");
   }
 });
 
+// HOST
 socket.on("reveal_scores", function() {
   if (isHost) {
-    currentScreenId = "clue-screen";
-    changeScreen("score-screen");
+    changeScreen("clue-screen");
+    setTimeout(function() {
+      changeScreen("score-screen");
+    }, 1);
     clearPlayerAnswerText();
-  } else {
-
   }
 });
 
-socket.on("reveal_board", function(newUsedClueArray) {
+// HOST + CONTROLLER
+socket.on("reveal_board", function(newUsedClueArray, boardController, boardControllerNickname) {
   if (isHost) {
     changeScreen("h-board-screen");
     document.getElementById("clue-screen").classList.remove("animate");
   } else {
-    resetClueButtons();
-    changeScreen("c-board-screen");
-    usedClueArray = newUsedClueArray;
-    updateCategoryOptions();
-    resetCluePriceButtons();
+    if (socket.id == boardController) {
+      resetClueButtons();
+      resetCluePriceButtons();
+      changeScreen("c-board-screen");
+    } else {
+      changeWaitScreen(boardControllerNickname.toUpperCase());
+    }
   }
+  usedClueArray = newUsedClueArray;
+  updateCategoryOptions();
 });
 
 // Jeoparty! functions
@@ -134,13 +162,40 @@ function setCategoryNames(categoryNames) {
   /*
    */
 
+  let categoryNameElement;
+
   for (let i = 1; i < 7; i++) {
     if (isHost) {
-      document.getElementById("category-" + i + "-name").innerHTML = categoryNames[i - 1].toUpperCase();
+      categoryNameElement = document.getElementById("category-" + i + "-name");
+      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
+
+      if (categoryNames[i - 1].length > 45) {
+        categoryNameElement.className = "xxs-h-category-name";
+      } else if (categoryNames[i - 1].length > 34) {
+        categoryNameElement.className = "xs-h-category-name";
+      } else if (categoryNames[i - 1].length > 24) {
+        categoryNameElement.className = "s-h-category-name";
+      }
     } else {
-      document.getElementById("category-" + i + "-text").innerHTML = categoryNames[i - 1].toUpperCase();
+      categoryNameElement = document.getElementById("category-" + i + "-text");
+      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
+
+      if (categoryNames[i - 1].length > 45) {
+        categoryNameElement.className = "xxs-c-category-text";
+      } else if (categoryNames[i - 1].length > 34) {
+        categoryNameElement.className = "xs-c-category-text";
+      } else if (categoryNames[i - 1].length > 24) {
+        categoryNameElement.className = "s-c-category-text";
+      }
     }
   }
+}
+
+function startGame() {
+  /*
+   */
+
+  socket.emit("start_game");
 }
 
 function changeScreen(newScreen) {
@@ -170,7 +225,7 @@ function adjustMobileStyle() {
 
   document.body.style.position = "fixed";
 
-  let gameScreenIds = ["c-landing-screen", "c-waiting-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
+  let gameScreenIds = ["c-landing-screen", "c-waiting-screen", "start-game-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
 
   for (let i = 0; i < gameScreenIds.length; i++) {
     document.getElementById(gameScreenIds[i]).style.height = window.innerHeight + "px";
@@ -211,10 +266,18 @@ function updateCategoryOptions() {
   /*
    */
 
+  let idSuffix;
+
+  if (isHost) {
+    idSuffix = "-name";
+  } else {
+    idSuffix = "-text";
+  }
+
   for (let i = 1; i < 7; i++) {
     if (usedClueArray["category-" + i].length == 5) {
       let categoryButton = document.getElementById("category-" + i);
-      let categoryButtonText = document.getElementById("category-" + i + "-text");
+      let categoryButtonText = document.getElementById("category-" + i + idSuffix);
 
       categoryButton.disabled = true;
       categoryButtonText.innerHTML = "";
@@ -267,6 +330,9 @@ function sendClueRequest() {
   if (lastCategoryId != undefined && lastPriceId != undefined) {
     let clueRequest = lastCategoryId + "-" + lastPriceId;
     socket.emit("request_clue", clueRequest);
+
+    lastCategoryId = undefined;
+    lastPriceId = undefined;
   }
 }
 
@@ -280,8 +346,8 @@ function displayClue(clueRequest, screenQuestion) {
 
   moveClueScreen(clueRequest);
 
-  // TODO: Add a switch statement for responsive font size
   document.getElementById("clue-text").innerHTML = screenQuestion;
+  adjustClueFontSize(screenQuestion, false);
 
   setTimeout(function() {
     document.getElementById(clueRequest + "-text").innerHTML = "";
@@ -289,6 +355,35 @@ function displayClue(clueRequest, screenQuestion) {
     displayClueScreen();
     setTimeout(animateClueScreen, 10);
   }, 1000);
+}
+
+function adjustClueFontSize(question, livefeed) {
+  /*
+   */
+
+  let clueText = document.getElementById("clue-text");
+
+  if (livefeed) {
+    if (question.length > 300) {
+      clueText.className = "xxxs-clue-text";
+    } else if (question.length > 200) {
+      clueText.className = "xxs-clue-text";
+    } else if (question.length > 145) {
+      clueText.className = "xs-clue-text";
+    } else {
+      clueText.className = "s-clue-text";
+    }
+  } else {
+    if (question.length > 300) {
+      clueText.className = "xxs-clue-text";
+    } else if (question.length > 200) {
+      clueText.className = "xs-clue-text";
+    } else if (question.length > 145) {
+      clueText.className = "s-clue-text";
+    } else {
+      clueText.className = "clue-text";
+    }
+  }
 }
 
 function displayClueScreen() {
@@ -402,12 +497,11 @@ function buzz() {
   }, 15000);
 }
 
-function setupPlayerLivefeed(player) {
+function setupPlayerLivefeed(player, screenQuestion) {
   /*
    */
 
-  // TODO: Add a switch statement for responsive font size
-  document.getElementById("clue-text").className = "s-clue-text";
+  adjustClueFontSize(screenQuestion, true);
 
   document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
   document.getElementById("player-livefeed-nickname").innerHTML = player.nickname.toUpperCase() + ":<br>";
@@ -435,6 +529,8 @@ function submitAnswer() {
 
   clearInterval(livefeedInterval);
   clearTimeout(scrapeAnswerTimeout);
+
+  document.getElementById("submit-answer-button").classList.add("inactive");
 
   socket.emit("submit_answer", answerForm.value);
   answerForm.value = "";

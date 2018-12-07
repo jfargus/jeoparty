@@ -22,8 +22,9 @@
 <body ontouchstart>
   <!-- Host -->
   <div id="host" class="inactive">
+
     <!-- Landing screen -->
-    <div id="h-landing-screen" class="h-landing-screen">
+    <div id="h-landing-screen" class="inactive h-landing-screen">
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12">
@@ -187,10 +188,8 @@
             <span id="player-answer" class="inactive player-answer"></span>
             <div id="player-livefeed-wrapper" class="inactive">
               <div class="player-livefeed-spacer"></div>
-              <span id="player-livefeed-nickname" class="clue-text">
-              </span>
-              <span id="player-livefeed" class="clue-text">
-              </span>
+              <span id="player-livefeed-nickname" class="clue-text"></span>
+              <span id="player-livefeed" class="clue-text"></span>
             </div>
           </div>
           <div class="col-1"></div>
@@ -199,11 +198,59 @@
     </div>
 
     <!-- Score screen -->
-    <div id="score-screen" class="inactive score-screen">
+    <div id="score-screen" class="score-screen">
       <div class="container-fluid">
-        <div class="row justify-content-center">
-          <div class="col-12">
-            SCORE SCREEN
+        <div class="row score-screen-row justify-content-center">
+          <div class="col-4">
+            <div class="row nickname-column justify-content-center">
+              <div id="player-1-display" class="nickname-display">
+                <span id="player-1-nickname" class="nickname-text">ISAAC</span>
+              </div>
+            </div>
+            <div class="row score-column justify-content-center">
+              <div id="player-1-score" class="score-display">
+                <span id="player-1-score-text" class="score-text">$1000</span>
+              </div>
+            </div>
+            <div class="row signature-column justify-content-center">
+              <div id="player-1-signature" class="signature-display">
+                <canvas id="player-1-signature-canvas" class="signature" height="200" width="200"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="row nickname-column justify-content-center">
+              <div id="player-2-display" class="nickname-display">
+                <span id="player-2-nickname" class="nickname-text">ISAAC</span>
+              </div>
+            </div>
+            <div class="row score-column justify-content-center">
+              <div id="player-2-score" class="score-display">
+                <span id="player-2-score-text" class="score-text">$1000</span>
+              </div>
+            </div>
+            <div class="row signature-column justify-content-center">
+              <div id="player-2-signature" class="signature-display">
+                <canvas id="player-2-signature-canvas" class="signature" height="200" width="200"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="row nickname-column justify-content-center">
+              <div id="player-3-display" class="nickname-display">
+                <span id="player-3-nickname" class="nickname-text">ISAAC</span>
+              </div>
+            </div>
+            <div class="row score-column justify-content-center">
+              <div id="player-3-score" class="score-display">
+                <span id="player-3-score-text" class="score-text">$1000</span>
+              </div>
+            </div>
+            <div class="row signature-column justify-content-center">
+              <div id="player-3-signature" class="signature-display">
+                <canvas id="player-3-signature-canvas" class="signature" height="200" width="200"></canvas>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -213,6 +260,7 @@
 
   <!-- Controller -->
   <div id="controller" class="inactive">
+
     <!-- Landing screen -->
     <div id="c-landing-screen" class="c-landing-screen">
       <div class="container-fluid">
@@ -223,6 +271,20 @@
         </div>
         <div class="row justify-content-center">
           <div class="join-button" onclick="joinGame()">JOIN GAME</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start game screen -->
+    <div id="start-game-screen" class="inactive c-landing-screen">
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <div class="col-12">
+            <span class="c-logo-text">JEOPARTY!</span>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="join-button" onclick="startGame()">START GAME</div>
         </div>
       </div>
     </div>
