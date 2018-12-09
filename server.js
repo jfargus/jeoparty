@@ -49,6 +49,7 @@ io.on("connection", function(socket) {
 
   socket.on("join_game", function() {
     let player = new Object();
+    player.id = socket.id;
     player.playerNumber = Object.keys(players).length + 1;
     player.nickname = "default";
     player.score = 0;
@@ -76,7 +77,7 @@ io.on("connection", function(socket) {
     lastClueRequest = clueRequest;
 
     setTimeout(function() {
-      io.in("session").emit("buzzers_ready");
+      io.in("session").emit("buzzers_ready", playersAnswered);
       buzzersReady = true;
 
       // Safety buzz timer
@@ -145,7 +146,7 @@ io.on("connection", function(socket) {
             }, 5000);
           }, 5000);
         } else {
-          io.in("session").emit("buzzers_ready");
+          io.in("session").emit("buzzers_ready", playersAnswered);
           buzzersReady = true;
 
           // Safety buzz timer

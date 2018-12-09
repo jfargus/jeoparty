@@ -81,8 +81,13 @@ socket.on("display_clue", function(clueRequest, screenQuestion) {
 });
 
 // HOST + CONTROLLER
-socket.on("buzzers_ready", function() {
-  startTimerAnimation(5);
+socket.on("buzzers_ready", function(playersAnswered) {
+  if (playersAnswered.includes(socket.id)) {
+    changeWaitScreen("OTHER PLAYERS");
+  } else {
+    changeScreen("buzzer-screen");
+    startTimerAnimation(5);
+  }
 });
 
 // HOST + CONTROLLER
@@ -98,8 +103,12 @@ socket.on("answer", function(player) {
   if (isHost) {
     setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
   } else {
-    changeScreen("answer-screen");
-    startLivefeedInterval();
+    if (socket.id == player.id) {
+      changeScreen("answer-screen");
+      startLivefeedInterval();
+    } else {
+      changeWaitScreen(player.nickname)
+    }
   }
 });
 
