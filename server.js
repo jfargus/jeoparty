@@ -10,7 +10,7 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-server.listen(3000, "18.40.23.208");
+server.listen(3000, "18.40.44.75");
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -60,6 +60,7 @@ io.on("connection", function(socket) {
     }
 
     socket.emit("join_success", categoryNames, boardController);
+    io.in("session").emit("players", players);
   });
 
   socket.on("start_game", function() {
@@ -119,10 +120,16 @@ io.on("connection", function(socket) {
       clearTimeout(answerTimeout);
       answerReady = false;
       playersAnswered.push(socket.id);
-      io.in("session").emit("answer_submitted", [answer, evaluateAnswer(answer)]);
+
+      let correct = evaluateAnswer(answer);
+
+      updateScore(socket.id, correct, lastClueRequest[lastClueRequest.length - 1]);
+
+      io.in("session").emit("answer_submitted", answer, correct);
+      io.in("session").emit("players", players);
 
       setTimeout(function() {
-        if (evaluateAnswer(answer)) {
+        if (correct) {
           io.in("session").emit("reveal_scores");
           reset();
           setTimeout(function() {
@@ -161,6 +168,7 @@ io.on("connection", function(socket) {
   socket.on("disconnecting", function() {
     socket.leave("session");
     delete players[socket.id];
+    io.in("session").emit("players", players);
   });
 });
 
@@ -303,6 +311,17 @@ function evaluateAnswer(answer) {
         return false;
       }
     }
+  }
+}
+
+function updateScore(id, correct, multiplier) {
+  /*
+   */
+
+  if (correct) {
+    players[id].score += (200 * multiplier);
+  } else {
+    players[id].score -= (200 * multiplier);
   }
 }
 

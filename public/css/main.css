@@ -393,7 +393,7 @@ button {
 }
 
 .score-screen-row {
-  height: 90vh;
+  height: 85vh;
 }
 
 .nickname-column {
@@ -420,7 +420,9 @@ button {
 /* TODO */
 
 .nickname-display {
+  width: 24vw;
 
+  line-height: 5vh;
 }
 
 .nickname-text {
@@ -429,13 +431,35 @@ button {
 
   font-size: 12vh;
   letter-spacing: .2vh;
+
+  word-wrap: break-word;
+}
+
+.s-nickname-text {
+  color: white;
+  text-shadow: .7vh .7vh black;
+
+  font-size: 7vh;
+  letter-spacing: .2vh;
+
+  word-wrap: break-word;
+}
+
+.xs-nickname-text {
+  color: white;
+  text-shadow: .7vh .7vh black;
+
+  font-size: 3.5vh;
+  letter-spacing: .2vh;
+
+  word-wrap: break-word;
 }
 
 .score-display {
   display: flex;
   align-items: center;
 
-  width: 75%;
+  width: 24vw;
   height: 75%;
 
   border: .6vh solid white;
@@ -455,7 +479,7 @@ button {
 }
 
 .signature-display {
-  width: 75%;
+  width: 24vw;
   height: 75%;
 
   border: .6vh solid white;
@@ -468,6 +492,10 @@ button {
 }
 
 .overflow-row {
+  display: flex;
+  align-items: center;
+
+  height: 5vh;
 }
 
 .overflow-divider {
@@ -475,7 +503,15 @@ button {
 }
 
 .overflow-text {
+  color: white;
+  text-shadow: .7vh .7vh black;
 
+  font-size: 4vh;
+  letter-spacing: .2vh;
+}
+
+.red-overflow-text {
+  color: red;
 }
 
 /* CONTROLLER */

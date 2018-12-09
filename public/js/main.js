@@ -2,6 +2,7 @@
 
 let currentScreenId;
 let isHost;
+let players;
 let lastCategoryWrapperId;
 let lastCategoryId;
 let lastPriceWrapperId;
@@ -46,12 +47,20 @@ socket.on("join_success", function(categoryNames, boardController) {
   }
 });
 
+// HOST
+socket.on("players", function(newPlayers) {
+  if (isHost) {
+    players = newPlayers;
+  }
+});
+
 // HOST + CONTROLLER
 socket.on("load_game", function(categoryNames, boardController, boardControllerNickname) {
   setCategoryNames(categoryNames);
 
   if (isHost) {
-    changeScreen("h-board-screen")
+    changeScreen("h-board-screen");
+    updateScoreboard();
   } else {
     if (socket.id == boardController) {
       changeScreen("c-board-screen");
@@ -102,10 +111,10 @@ socket.on("livefeed", function(livefeed) {
 });
 
 // HOST + CONTROLLER
-socket.on("answer_submitted", function(answerArray) {
+socket.on("answer_submitted", function(answer, correct) {
   disableTimer();
   if (isHost) {
-    displayPlayerAnswer(buzzWinner, answerArray[0], answerArray[1]);
+    displayPlayerAnswer(buzzWinner, answer, correct);
   } else {
     changeWaitScreen("SCREEN");
   }
@@ -124,10 +133,9 @@ socket.on("display_correct_answer", function(correctAnswer) {
 socket.on("reveal_scores", function() {
   if (isHost) {
     changeScreen("clue-screen");
-    setTimeout(function() {
-      changeScreen("score-screen");
-    }, 1);
+    changeScreen("score-screen");
     clearPlayerAnswerText();
+    setTimeout(updateScoreboard, 1000);
   }
 });
 
@@ -593,4 +601,70 @@ function resetClueButtons() {
 
   document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
   document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
+}
+
+function updateScoreboard() {
+  /*
+   */
+
+  let playersLength = Object.keys(players).length;
+
+  let podiumOne = document.getElementById("podium-1");
+  let podiumTwo = document.getElementById("podium-2");
+  let podiumThree = document.getElementById("podium-3");
+  let overflow = document.getElementById("overflow-row");
+
+  overflow.className = "inactive row overflow-row";
+  overflow.innerHTML = "";
+
+  if (playersLength == 1) {
+    podiumOne.className = "col-12";
+    podiumTwo.className = "inactive";
+    podiumThree.className = "inactive";
+  } else if (playersLength == 2) {
+    podiumOne.className = "col-6";
+    podiumTwo.className = "col-6";
+    podiumThree.className = "inactive";
+  } else if (playersLength == 3) {
+    podiumOne.className = "col-4";
+    podiumTwo.className = "col-4";
+    podiumThree.className = "col-4";
+    overflow.classList.remove("inactive");
+  }
+
+  let i = 1;
+
+  for (let id in players) {
+    if (i <= 3) {
+      let nicknameText = document.getElementById("player-" + i + "-nickname");
+      nicknameText.innerHTML = players[id].nickname.toUpperCase();
+      if (players[id].nickname.length > 15) {
+        nicknameText.className = "xs-nickname-text";
+      } else if (players[id].nickname.length > 8) {
+        nicknameText.className = "s-nickname-text";
+      } else {
+        nicknameText.className = "nickname-text";
+      }
+
+      let scoreText = document.getElementById("player-" + i + "-score-text");
+      if (players[id].score < 0) {
+        scoreText.innerHTML = "-$" + Math.abs(players[id].score);
+        scoreText.style.color = "red";
+      } else {
+        scoreText.innerHTML = "$" + players[id].score;
+        scoreText.style.color = "white";
+      }
+    } else {
+      overflow.innerHTML += players[id].nickname.toUpperCase() + ": ";
+      if (players[id].score < 0) {
+        overflow.innerHTML += "<span class='red-overflow-text'>-$" + Math.abs(players[id].score) + "</span>";
+      } else {
+        overflow.innerHTML += "$" + players[id].score;
+      }
+      if (playersLength > 4) {
+        overflow.innerHTML += " ... ";
+      }
+    }
+    i++;
+  }
 }
