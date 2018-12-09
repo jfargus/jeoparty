@@ -38,7 +38,7 @@ socket.on("connect_device", function() {
 
 // CONTROLLER
 socket.on("join_success", function(categoryNames, boardController) {
-  setCategoryNames(categoryNames);
+  setCategoryText(categoryNames, undefined);
 
   if (socket.id == boardController) {
     changeScreen("start-game-screen");
@@ -55,8 +55,8 @@ socket.on("players", function(newPlayers) {
 });
 
 // HOST + CONTROLLER
-socket.on("load_game", function(categoryNames, boardController, boardControllerNickname) {
-  setCategoryNames(categoryNames);
+socket.on("load_game", function(categoryNames, categoryDates, boardController, boardControllerNickname) {
+  setCategoryText(categoryNames, categoryDates);
 
   if (isHost) {
     changeScreen("h-board-screen");
@@ -175,7 +175,7 @@ function joinGame() {
   socket.emit("join_game");
 }
 
-function setCategoryNames(categoryNames) {
+function setCategoryText(categoryNames, categoryDates) {
   /*
    */
 
@@ -184,13 +184,15 @@ function setCategoryNames(categoryNames) {
   for (let i = 1; i < 7; i++) {
     if (isHost) {
       categoryNameElement = document.getElementById("category-" + i + "-name");
-      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
+      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase() + "<span class='category-date-text'><br>(" + categoryDates[i - 1] + ")</span>";
 
       if (categoryNames[i - 1].length > 45) {
+        categoryNameElement.className = "xxxs-h-category-name";
+      } else if (categoryNames[i - 1].length > 32) {
         categoryNameElement.className = "xxs-h-category-name";
-      } else if (categoryNames[i - 1].length > 34) {
-        categoryNameElement.className = "xs-h-category-name";
       } else if (categoryNames[i - 1].length > 24) {
+        categoryNameElement.className = "xs-h-category-name";
+      } else {
         categoryNameElement.className = "s-h-category-name";
       }
     } else {
@@ -199,7 +201,7 @@ function setCategoryNames(categoryNames) {
 
       if (categoryNames[i - 1].length > 45) {
         categoryNameElement.className = "xxs-c-category-text";
-      } else if (categoryNames[i - 1].length > 34) {
+      } else if (categoryNames[i - 1].length > 32) {
         categoryNameElement.className = "xs-c-category-text";
       } else if (categoryNames[i - 1].length > 24) {
         categoryNameElement.className = "s-c-category-text";

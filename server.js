@@ -65,7 +65,7 @@ io.on("connection", function(socket) {
   });
 
   socket.on("start_game", function() {
-    io.in("session").emit("load_game", categoryNames, boardController, players[boardController].nickname);
+    io.in("session").emit("load_game", categoryNames, categoryDates, boardController, players[boardController].nickname);
   });
 
   socket.on("request_clue", function(clueRequest) {
@@ -131,6 +131,7 @@ io.on("connection", function(socket) {
 
       setTimeout(function() {
         if (correct) {
+          boardController = socket.id;
           io.in("session").emit("reveal_scores");
           reset();
           setTimeout(function() {
@@ -178,6 +179,7 @@ io.on("connection", function(socket) {
 let js = require("jservice-node");
 
 let categoryNames = [];
+let categoryDates = [];
 let clues = {};
 
 function getCategories() {
@@ -220,6 +222,7 @@ function loadCategory(category) {
 
   if (categoryNames.length < 6) {
     categoryNames.push(category[0]["category"]["title"]);
+    categoryDates.push(category[0]["airdate"].slice(0, 4));
 
     for (let i = 1; i < 6; i++) {
       let id = "category-" + categoryNames.length + "-price-" + i;

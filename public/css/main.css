@@ -168,7 +168,7 @@ button {
 
   font-size: 4.5vh;
 
-  line-height: 5vh;
+  line-height: 4vh;
 }
 
 .s-h-category-name {
@@ -181,7 +181,7 @@ button {
 
   font-size: 4vh;
 
-  line-height: 4.5vh;
+  line-height: 4vh;
 }
 
 .xs-h-category-name {
@@ -192,9 +192,9 @@ button {
   color: white;
   text-shadow: .5vh .5vh black;
 
-  font-size: 3vh;
+  font-size: 4vh;
 
-  line-height: 3.5vh;
+  line-height: 4vh;
 }
 
 .xxs-h-category-name {
@@ -208,6 +208,28 @@ button {
   font-size: 2vh;
 
   line-height: 2.5vh;
+}
+
+.xxxs-h-category-name {
+  font-family: board;
+
+  word-wrap: break-word;
+
+  color: white;
+  text-shadow: .3vh .3vh black;
+
+  font-size: 1.5vh;
+
+  line-height: 2vh;
+}
+
+.category-date-text {
+  color: #D69F4C;
+  text-shadow: .4vh .4vh black;
+
+  font-size: 2.5vh;
+
+  line-height: 0;
 }
 
 .h-price-text {
