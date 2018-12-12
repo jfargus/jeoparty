@@ -181,7 +181,7 @@ button {
   color: white;
   text-shadow: .6vh .6vh black;
 
-  font-size: 4vh;
+  font-size: 3.8vh;
 
   line-height: 4vh;
 }
@@ -377,7 +377,6 @@ button {
 }
 
 .h-timer.animate {
-  transition: linear transform 5s;
   transform: scaleX(0);
 }
 
@@ -777,7 +776,6 @@ button {
 }
 
 .c-timer.animate {
-  transition: linear transform 5s;
   transform: scaleX(0);
 }
 

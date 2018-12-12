@@ -35,7 +35,6 @@ let usedClueArray = {
 
 // Timeout/interval handlers
 let buzzerTimeout;
-let answerTimeout;
 
 io.on("connection", function(socket) {
   socket.join("session");
@@ -103,13 +102,8 @@ io.on("connection", function(socket) {
       buzzWinnerId = socket.id;
       buzzersReady = false;
       answerReady = true;
-      io.in("session").emit("answer", players[buzzWinnerId]);
 
-      // Safety answer timer
-      answerTimeout = setTimeout(function() {
-        answerReady = false;
-        io.in("session").emit("answer_submitted", ["", false]);
-      }, 16000);
+      io.in("session").emit("answer", players[buzzWinnerId]);
     }
   });
 
@@ -119,7 +113,6 @@ io.on("connection", function(socket) {
 
   socket.on("submit_answer", function(answer) {
     if (answerReady) {
-      clearTimeout(answerTimeout);
       answerReady = false;
       playersAnswered.push(socket.id);
 

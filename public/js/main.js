@@ -112,11 +112,11 @@ socket.on("buzzers_ready", function(playersAnswered) {
 
 // HOST + CONTROLLER
 socket.on("answer", function(player) {
-  clearTimeout(timerTimeout);
+  try {
+    clearTimeout(timerTimeout);
+  } catch (e) {}
   disableTimer();
-  setTimeout(function() {
-    startTimerAnimation(15);
-  }, 100);
+  startTimerAnimation(15);
 
   buzzWinner = player;
 
@@ -180,7 +180,7 @@ socket.on("reveal_board", function(newUsedClueArray, boardController, boardContr
   if (isHost) {
     changeScreen("h-board-screen");
     document.getElementById("clue-screen").classList.remove("animate");
-    voice(getRandomBoardControllerIntro() + boardControllerNickname, .5);
+    voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
   } else {
     if (socket.id == boardController) {
       changeScreen("c-board-screen");
@@ -623,15 +623,18 @@ function startTimerAnimation(time) {
   timer.classList.remove("inactive");
   timerFrame.classList.remove("inactive");
 
+  timer.style.transition = "linear transform " + time + "s";
+
   setTimeout(function() {
     timer.classList.add("animate");
-    timer.style.transition = "linear transform " + time + "s";
-  }, 1);
+  }, 100);
 
   timerTimeout = setTimeout(function() {
     timer.classList.add("inactive");
     timer.classList.remove("animate");
     timerFrame.classList.add("inactive");
+
+    timer.style.transition = "linear transform 0s";
   }, (time * 1000));
 }
 
@@ -653,9 +656,11 @@ function disableTimer() {
   let timer = document.getElementById(timerId);
   let timerFrame = document.getElementById(timerFrameId);
 
-  timer.classList.add("inactive");
-  timer.classList.remove("animate");
-  timerFrame.classList.add("inactive");
+  try {
+    timer.classList.add("inactive");
+    timer.classList.remove("animate");
+    timerFrame.classList.add("inactive");
+  } catch (e) {}
 
   timer.offsetHeight;
 }
@@ -665,9 +670,10 @@ function buzz() {
    */
 
   socket.emit("buzz");
-  scrapeAnswerTimeout = setTimeout(function() {
-    submitAnswer();
-  }, 15000);
+  try {
+    clearTimeout(scrapeAnswerTimeout);
+  } catch (e) {}
+  scrapeAnswerTimeout = setTimeout(submitAnswer, 15000);
 }
 
 function setupPlayerLivefeed(player, screenQuestion) {
