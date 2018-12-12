@@ -17,14 +17,16 @@
   <!-- Jeoparty! modules -->
   <script src="/js/main.js"></script>
   <link rel="stylesheet" href="/css/main.css">
+  <script src="/js/sketchpad.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/sketchpad.css">
 </head>
 
-<body ontouchstart>
+<body ontouchstart onload="init()">
   <!-- Host -->
   <div id="host" class="inactive">
 
     <!-- Landing screen -->
-    <div id="h-landing-screen" class="h-landing-screen">
+    <div id="h-landing-screen" class="h-landing-screen" onclick="declareAudioFiles()">
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12">
@@ -44,22 +46,40 @@
       <div class="container-fluid">
         <div class="row h-board-row">
           <div class="col-2 justify-content-center category-border category">
-            <span id="category-1-name" class="xs-h-category-name"></span>
+            <span id="category-1-name" class="h-category-name"></span>
+            <div id="category-1-date-wrapper" class="category-date-wrapper">
+              <span id="category-1-date" class="category-date-text"></span>
+            </div>
           </div>
           <div class="col-2 justify-content-center category-border category">
-            <span id="category-2-name" class="xs-h-category-name"></span>
+            <span id="category-2-name" class="h-category-name"></span>
+            <div id="category-2-date-wrapper" class="category-date-wrapper">
+              <span id="category-2-date" class="category-date-text"></span>
+            </div>
           </div>
           <div class="col-2 justify-content-center category-border category">
-            <span id="category-3-name" class="s-h-category-name"></span>
+            <span id="category-3-name" class="h-category-name"></span>
+            <div id="category-3-date-wrapper" class="category-date-wrapper">
+              <span id="category-3-date" class="category-date-text"></span>
+            </div>
           </div>
           <div class="col-2 justify-content-center category-border category">
-            <span id="category-4-name" class="s-h-category-name"></span>
+            <span id="category-4-name" class="h-category-name"></span>
+            <div id="category-4-date-wrapper" class="category-date-wrapper">
+              <span id="category-4-date" class="category-date-text"></span>
+            </div>
           </div>
           <div class="col-2 justify-content-center category-border category">
-            <span id="category-5-name" class="s-h-category-name"></span>
+            <span id="category-5-name" class="h-category-name"></span>
+            <div id="category-5-date-wrapper" class="category-date-wrapper">
+              <span id="category-5-date" class="category-date-text"></span>
+            </div>
           </div>
           <div class="col-2 justify-content-center category-border category">
-            <span id="category-6-name" class="s-h-category-name"></span>
+            <span id="category-6-name" class="h-category-name"></span>
+            <div id="category-6-date-wrapper" class="category-date-wrapper">
+              <span id="category-6-date" class="category-date-text"></span>
+            </div>
           </div>
         </div>
         <div class="row h-board-row">
@@ -181,7 +201,7 @@
     <!-- Clue screen -->
     <div id="clue-screen" class="inactive clue-screen">
       <div class="container-fluid">
-        <div class="row justify-content-center clue-text-row">
+        <div id="clue-text-row" class="row justify-content-center clue-text-row">
           <div class="col-1"></div>
           <div class="col-10 align-self-center">
             <span id="clue-text" class="clue-text"></span>
@@ -214,7 +234,7 @@
             </div>
             <div class="row signature-column justify-content-center">
               <div id="player-1-signature" class="signature-display">
-                <canvas id="player-1-signature-canvas" class="signature" height="200" width="200"></canvas>
+                <canvas id="player-1-signature-canvas" class="signature" height="250" width="250"></canvas>
               </div>
             </div>
           </div>
@@ -231,7 +251,7 @@
             </div>
             <div class="row signature-column justify-content-center">
               <div id="player-2-signature" class="signature-display">
-                <canvas id="player-2-signature-canvas" class="signature" height="200" width="200"></canvas>
+                <canvas id="player-2-signature-canvas" class="signature" height="250" width="250"></canvas>
               </div>
             </div>
           </div>
@@ -248,7 +268,7 @@
             </div>
             <div class="row signature-column justify-content-center">
               <div id="player-3-signature" class="signature-display">
-                <canvas id="player-3-signature-canvas" class="signature" height="200" width="200"></canvas>
+                <canvas id="player-3-signature-canvas" class="signature" height="250" width="250"></canvas>
               </div>
             </div>
           </div>
@@ -274,6 +294,23 @@
             <span class="c-logo-text">JEOPARTY!</span>
           </div>
         </div>
+        <div class="row justify-content-center">
+          <div class="col-12">
+            <span class="c-landing-screen-text">NICKNAME</span>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <input type="text" id="nickname-form" class="nickname-form" />
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-12">
+            <span class="c-landing-screen-text">SIGNATURE</span>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <canvas id="sketchpad" height="250" width="250"></canvas>
+        </div>
+        <div class="small-spacer"></div>
         <div class="row justify-content-center">
           <div class="join-button" onclick="joinGame()">JOIN GAME</div>
         </div>

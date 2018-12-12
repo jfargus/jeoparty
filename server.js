@@ -10,7 +10,7 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-server.listen(3000, "18.40.44.75");
+server.listen(3000, "18.40.48.43");
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -47,11 +47,12 @@ io.on("connection", function(socket) {
     hostSocket = socket;
   });
 
-  socket.on("join_game", function() {
+  socket.on("join_game", function(nickname, signature) {
     let player = new Object();
     player.id = socket.id;
     player.playerNumber = Object.keys(players).length + 1;
-    player.nickname = "default";
+    player.nickname = nickname;
+    player.signature = signature;
     player.score = 0;
 
     players[socket.id] = player;
@@ -75,24 +76,24 @@ io.on("connection", function(socket) {
     usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
 
     lastClueRequest = clueRequest;
+  });
 
-    setTimeout(function() {
-      io.in("session").emit("buzzers_ready", playersAnswered);
-      buzzersReady = true;
+  socket.on("activate_buzzers", function() {
+    io.in("session").emit("buzzers_ready", playersAnswered);
+    buzzersReady = true;
 
-      // Safety buzz timer
-      buzzerTimeout = setTimeout(function() {
-        buzzersReady = false;
-        io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
+    // Safety buzz timer
+    buzzerTimeout = setTimeout(function() {
+      buzzersReady = false;
+      io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], true);
+      setTimeout(function() {
+        io.in("session").emit("reveal_scores");
+        reset();
         setTimeout(function() {
-          io.in("session").emit("reveal_scores");
-          reset();
-          setTimeout(function() {
-            io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
-          }, 5000);
+          io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
         }, 5000);
       }, 5000);
-    }, 3000);
+    }, 5000);
   });
 
   socket.on("buzz", function() {
@@ -138,7 +139,7 @@ io.on("connection", function(socket) {
             io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
           }, 5000);
         } else if (playersAnswered.length == Object.keys(players).length) {
-          io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
+          io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], false);
           setTimeout(function() {
             io.in("session").emit("reveal_scores");
             reset();
@@ -153,7 +154,7 @@ io.on("connection", function(socket) {
           // Safety buzz timer
           buzzerTimeout = setTimeout(function() {
             buzzersReady = false;
-            io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"]);
+            io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], true);
             setTimeout(function() {
               io.in("session").emit("reveal_scores");
               reset();
@@ -209,7 +210,10 @@ function approveCategory(category) {
    */
 
   for (let i = 0; i < 5; i++) {
-    if (category[i]["invalid_count"] != null) {
+    let rawQuestion = formatRawText(category[i]["question"]);
+    let rawCategory = formatRawText(category[i]["category"]["title"]);
+
+    if (category[i]["invalid_count"] != null || rawQuestion.length == 0 || rawQuestion.includes("seenhere") || rawQuestion.includes("video") || rawCategory.includes("logo") || rawCategory.includes("video")) {
       return false;
     }
   }

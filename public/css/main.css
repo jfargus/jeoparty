@@ -35,8 +35,6 @@ body {
   font-size: 10vh;
 
   -webkit-font-smoothing: antialiased;
-
-  background-image: url("/graphics/background.png");
 }
 
 button {
@@ -66,6 +64,10 @@ button {
 
 .spacer {
   height: 5vh;
+}
+
+.small-spacer {
+  height: 3vh;
 }
 
 .player-livefeed-spacer {
@@ -192,7 +194,7 @@ button {
   color: white;
   text-shadow: .5vh .5vh black;
 
-  font-size: 4vh;
+  font-size: 3vh;
 
   line-height: 4vh;
 }
@@ -205,7 +207,7 @@ button {
   color: white;
   text-shadow: .3vh .3vh black;
 
-  font-size: 2vh;
+  font-size: 2.5vh;
 
   line-height: 2.5vh;
 }
@@ -218,18 +220,27 @@ button {
   color: white;
   text-shadow: .3vh .3vh black;
 
-  font-size: 1.5vh;
+  font-size: 2vh;
 
   line-height: 2vh;
 }
 
+.category-date-wrapper {
+  position: absolute;
+  height: 110%;
+}
+
 .category-date-text {
+  font-family: board;
   color: #D69F4C;
   text-shadow: .4vh .4vh black;
 
-  font-size: 2.5vh;
+  font-size: 2vh;
 
   line-height: 0;
+
+  vertical-align: text-bottom;
+  bottom: 1vh;
 }
 
 .h-price-text {
@@ -297,7 +308,6 @@ button {
 
   font-family: clue;
   font-size: 8vh;
-  font-weight: bolder;
 }
 
 .s-clue-text {
@@ -308,7 +318,6 @@ button {
 
   font-family: clue;
   font-size: 6vh;
-  font-weight: bolder;
 }
 
 .xs-clue-text {
@@ -319,7 +328,6 @@ button {
 
   font-family: clue;
   font-size: 5vh;
-  font-weight: bolder;
 }
 
 .xxs-clue-text {
@@ -330,7 +338,6 @@ button {
 
   font-family: clue;
   font-size: 4vh;
-  font-weight: bolder;
 }
 
 .xxxs-clue-text {
@@ -341,7 +348,6 @@ button {
 
   font-family: clue;
   font-size: 2.5vh;
-  font-weight: bolder;
 }
 
 .player-answer {
@@ -352,7 +358,6 @@ button {
 
   font-family: clue;
   font-size: 8vh;
-  font-weight: bolder;
 }
 
 /* Timer */
@@ -555,6 +560,8 @@ button {
   animation-iteration-count: infinite;
 
   background-color: red;
+
+  line-height: 8vh;
 }
 
 .c-logo-text {
@@ -563,8 +570,30 @@ button {
   font-size: 10vh;
 }
 
+.c-landing-screen-text {
+  font-size: 4vh;
+}
+
+.nickname-form {
+  width: 70vw;
+  height: 8vh;
+
+  padding: 4.5vh;
+  padding-left: 1vh;
+  padding-right: 1vh;
+
+  font-size: 4vh;
+
+  color: black;
+
+  border: none;
+
+  text-transform: uppercase;
+}
+
 .join-button {
-  padding: 1vh;
+  padding-left: 1vh;
+  padding-right: 1vh;
 
   font-size: 3vh;
 
@@ -797,6 +826,8 @@ button {
   color: black;
 
   text-transform: uppercase;
+
+  border: none;
 }
 
 .submit-answer-button {

@@ -2,6 +2,8 @@
 
 let currentScreenId;
 let isHost;
+let audioAllowed = false;
+let audioFiles;
 let players;
 let lastCategoryWrapperId;
 let lastCategoryId;
@@ -12,6 +14,7 @@ let usedClueArray;
 let currentScreenQuestion;
 
 // Timeout/interval handlers
+let questionInterval;
 let timerTimeout;
 let livefeedInterval;
 let scrapeAnswerTimeout;
@@ -30,6 +33,7 @@ socket.on("connect_device", function() {
     isHost = false;
   } else {
     socket.emit("set_host_socket");
+    document.body.style.backgroundImage = "url('/graphics/background.png')";
     document.getElementById("host").className = "";
     currentScreenId = "h-landing-screen";
     isHost = true;
@@ -59,8 +63,12 @@ socket.on("load_game", function(categoryNames, categoryDates, boardController, b
   setCategoryText(categoryNames, categoryDates);
 
   if (isHost) {
+    if (audioAllowed) {
+      audioFiles["landing_screen_theme"].pause();
+    }
+    voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
     changeScreen("h-board-screen");
-    updateScoreboard();
+    updateScoreboard(players);
   } else {
     if (socket.id == boardController) {
       changeScreen("c-board-screen");
@@ -73,6 +81,9 @@ socket.on("load_game", function(categoryNames, categoryDates, boardController, b
 // HOST + CONTROLLER
 socket.on("display_clue", function(clueRequest, screenQuestion) {
   if (isHost) {
+    playAudio("clue_selected");
+    voice(screenQuestion, 1);
+    setTimeout(startQuestionInterval, 2000);
     displayClue(clueRequest, screenQuestion);
     currentScreenQuestion = screenQuestion;
   } else {
@@ -82,11 +93,20 @@ socket.on("display_clue", function(clueRequest, screenQuestion) {
 
 // HOST + CONTROLLER
 socket.on("buzzers_ready", function(playersAnswered) {
-  if (playersAnswered.includes(socket.id)) {
-    changeWaitScreen("OTHER PLAYERS");
-  } else {
-    changeScreen("buzzer-screen");
+  if (isHost) {
     startTimerAnimation(5);
+    if (playersAnswered.length > 0) {
+      document.getElementById("clue-text").innerHTML = currentScreenQuestion;
+      adjustClueFontSize(currentScreenQuestion, false);
+      clearPlayerAnswerText();
+    }
+  } else {
+    if (playersAnswered.includes(socket.id)) {
+      changeWaitScreen("OTHER PLAYERS");
+    } else {
+      changeScreen("buzzer-screen");
+      startTimerAnimation(5);
+    }
   }
 });
 
@@ -96,11 +116,12 @@ socket.on("answer", function(player) {
   disableTimer();
   setTimeout(function() {
     startTimerAnimation(15);
-  }, 1);
+  }, 100);
 
   buzzWinner = player;
 
   if (isHost) {
+    playAudio("buzzer");
     setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
   } else {
     if (socket.id == player.id) {
@@ -130,8 +151,12 @@ socket.on("answer_submitted", function(answer, correct) {
 });
 
 // HOST + CONTROLLER
-socket.on("display_correct_answer", function(correctAnswer) {
+socket.on("display_correct_answer", function(correctAnswer, timesUp) {
   if (isHost) {
+    if (timesUp) {
+      playAudio("times_up");
+    }
+    voice(getRandomAnswerIntro() + correctAnswer, .5);
     displayCorrectAnswer(correctAnswer);
   } else {
     changeWaitScreen("SCREEN");
@@ -144,7 +169,9 @@ socket.on("reveal_scores", function() {
     changeScreen("clue-screen");
     changeScreen("score-screen");
     clearPlayerAnswerText();
-    setTimeout(updateScoreboard, 1000);
+    setTimeout(function() {
+      updateScoreboard(players);
+    }, 1000);
   }
 });
 
@@ -153,11 +180,12 @@ socket.on("reveal_board", function(newUsedClueArray, boardController, boardContr
   if (isHost) {
     changeScreen("h-board-screen");
     document.getElementById("clue-screen").classList.remove("animate");
+    voice(getRandomBoardControllerIntro() + boardControllerNickname, .5);
   } else {
     if (socket.id == boardController) {
+      changeScreen("c-board-screen");
       resetClueButtons();
       resetCluePriceButtons();
-      changeScreen("c-board-screen");
     } else {
       changeWaitScreen(boardControllerNickname.toUpperCase());
     }
@@ -168,11 +196,48 @@ socket.on("reveal_board", function(newUsedClueArray, boardController, boardContr
 
 // Jeoparty! functions
 
+function declareAudioFiles() {
+  /*
+   */
+
+  audioAllowed = true;
+  audioFiles = {
+    "landing_screen_theme": new Audio("/audio/landing_screen_theme.mp3"),
+    "clue_selected": new Audio("/audio/clue_selected.mp3"),
+    "buzzer": new Audio("/audio/buzzer.wav"),
+    "times_up": new Audio("/audio/times_up.mp3"),
+    "applause": new Audio("/audio/applause.mp3"),
+    "aww": new Audio("/audio/aww.mp3"),
+    "daily_double": new Audio("/audio/daily_double.mp3"),
+    "final_jeoparty_category": new Audio("/audio/final_jeoparty_category.mp3"),
+    "main_theme": new Audio("/audio/main_theme.mp3"),
+    "big_applause": new Audio("/audio/big_applause.mp3"),
+  };
+
+  if (currentScreenId == "h-landing-screen") {
+    playAudio("landing_screen_theme");
+  }
+}
+
+function playAudio(filename) {
+  /*
+   */
+
+  if (audioAllowed) {
+    if (audioFiles[filename].paused) {
+      audioFiles[filename].play();
+    }
+  }
+}
+
 function joinGame() {
   /*
    */
 
-  socket.emit("join_game");
+  let nickname = document.getElementById("nickname-form").value;
+  let signature = document.getElementById("sketchpad").toDataURL("image/png");
+
+  socket.emit("join_game", nickname, signature);
 }
 
 function setCategoryText(categoryNames, categoryDates) {
@@ -184,7 +249,9 @@ function setCategoryText(categoryNames, categoryDates) {
   for (let i = 1; i < 7; i++) {
     if (isHost) {
       categoryNameElement = document.getElementById("category-" + i + "-name");
-      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase() + "<span class='category-date-text'><br>(" + categoryDates[i - 1] + ")</span>";
+      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
+
+      document.getElementById("category-" + i + "-date").innerHTML = "(" + categoryDates[i - 1] + ")";
 
       if (categoryNames[i - 1].length > 45) {
         categoryNameElement.className = "xxxs-h-category-name";
@@ -192,8 +259,10 @@ function setCategoryText(categoryNames, categoryDates) {
         categoryNameElement.className = "xxs-h-category-name";
       } else if (categoryNames[i - 1].length > 24) {
         categoryNameElement.className = "xs-h-category-name";
-      } else {
+      } else if (categoryNames[i - 1].length > 10) {
         categoryNameElement.className = "s-h-category-name";
+      } else {
+        categoryNameElement.className = "h-category-name";
       }
     } else {
       categoryNameElement = document.getElementById("category-" + i + "-text");
@@ -201,9 +270,9 @@ function setCategoryText(categoryNames, categoryDates) {
 
       if (categoryNames[i - 1].length > 45) {
         categoryNameElement.className = "xxs-c-category-text";
-      } else if (categoryNames[i - 1].length > 32) {
+      } else if (categoryNames[i - 1].length > 30) {
         categoryNameElement.className = "xs-c-category-text";
-      } else if (categoryNames[i - 1].length > 24) {
+      } else if (categoryNames[i - 1].length > 13) {
         categoryNameElement.className = "s-c-category-text";
       }
     }
@@ -226,16 +295,67 @@ function changeScreen(newScreen) {
   currentScreenId = newScreen;
 }
 
+function voice(text, delay) {
+  /*
+   */
+
+  if (audioAllowed) {
+    setTimeout(function() {
+      if (window.speechSynthesis.getVoices().length == 0) {
+        window.speechSynthesis.onvoiceschanged = function() {
+          textToSpeech(text);
+        };
+      } else {
+        textToSpeech(text);
+      }
+
+      function textToSpeech(text) {
+        let msg = new SpeechSynthesisUtterance();
+        let voices = window.speechSynthesis.getVoices();
+        if (voices.length > 48) {
+          msg.voice = voices[50];
+        } else {
+          msg.voice = voices[5];
+        }
+        msg.voiceURI = 'native';
+        msg.volume = 1;
+        msg.rate = 1;
+        msg.pitch = 1;
+        msg.text = text;
+        msg.lang = 'en-US';
+
+        if (!speechSynthesis.speaking) {
+          speechSynthesis.speak(msg);
+        }
+      }
+    }, (delay * 1000));
+  }
+}
+
+function startQuestionInterval() {
+  /*
+   */
+
+  questionInterval = setInterval(function() {
+    if (!window.speechSynthesis.speaking) {
+      clearInterval(questionInterval);
+      socket.emit("activate_buzzers");
+    }
+  }, 1);
+}
+
 function changeWaitScreen(waitingFor) {
   /*
    */
 
-  document.getElementById(currentScreenId).classList.add("inactive");
-  document.getElementById("c-waiting-screen").classList.remove("inactive");
+  if (currentScreenId != "c-waiting-screen") {
+    document.getElementById(currentScreenId).classList.add("inactive");
+    document.getElementById("c-waiting-screen").classList.remove("inactive");
+
+    currentScreenId = "c-waiting-screen";
+  }
 
   document.getElementById("c-waiting-screen-text").innerHTML = "WAITING FOR " + waitingFor.toUpperCase();
-
-  currentScreenId = "c-waiting-screen";
 }
 
 function adjustMobileStyle() {
@@ -300,6 +420,10 @@ function updateCategoryOptions() {
 
       categoryButton.disabled = true;
       categoryButtonText.innerHTML = "";
+
+      if (isHost) {
+        document.getElementById("category-" + i + "-date-wrapper").classList.add("inactive");
+      }
     }
   }
 }
@@ -342,6 +466,26 @@ function resetCluePriceButtons() {
   }
 }
 
+function getRandomBoardControllerIntro() {
+  /*
+   */
+
+  let intros = [
+    "Pick a category ",
+    "It's your choice",
+    "You control the board ",
+    "Make a selection ",
+    "The choice is yours ",
+    "Take your pick ",
+    "Pick a clue ",
+    "Select a clue "
+  ];
+
+  let intro = intros[Math.floor(Math.random() * intros.length)];
+
+  return intro;
+}
+
 function sendClueRequest() {
   /*
    */
@@ -381,26 +525,35 @@ function adjustClueFontSize(question, livefeed) {
    */
 
   let clueText = document.getElementById("clue-text");
+  let clueTextRow = document.getElementById("clue-text-row");
 
   if (livefeed) {
     if (question.length > 300) {
       clueText.className = "xxxs-clue-text";
+      clueTextRow.style.lineHeight = "5vh";
     } else if (question.length > 200) {
       clueText.className = "xxs-clue-text";
+      clueTextRow.style.lineHeight = "6vh";
     } else if (question.length > 145) {
       clueText.className = "xs-clue-text";
+      clueTextRow.style.lineHeight = "8vh";
     } else {
       clueText.className = "s-clue-text";
+      clueTextRow.style.lineHeight = "10vh";
     }
   } else {
     if (question.length > 300) {
       clueText.className = "xxs-clue-text";
+      clueTextRow.style.lineHeight = "6vh";
     } else if (question.length > 200) {
       clueText.className = "xs-clue-text";
+      clueTextRow.style.lineHeight = "8vh";
     } else if (question.length > 145) {
       clueText.className = "s-clue-text";
+      clueTextRow.style.lineHeight = "10vh";
     } else {
       clueText.className = "clue-text";
+      clueTextRow.style.lineHeight = "12vh";
     }
   }
 }
@@ -467,13 +620,12 @@ function startTimerAnimation(time) {
   let timer = document.getElementById(timerId);
   let timerFrame = document.getElementById(timerFrameId);
 
-  timer.style.transitionDuration = time + "s";
-
   timer.classList.remove("inactive");
   timerFrame.classList.remove("inactive");
 
   setTimeout(function() {
     timer.classList.add("animate");
+    timer.style.transition = "linear transform " + time + "s";
   }, 1);
 
   timerTimeout = setTimeout(function() {
@@ -504,6 +656,8 @@ function disableTimer() {
   timer.classList.add("inactive");
   timer.classList.remove("animate");
   timerFrame.classList.add("inactive");
+
+  timer.offsetHeight;
 }
 
 function buzz() {
@@ -575,11 +729,31 @@ function displayPlayerAnswer(player, answer, correct) {
 
   setTimeout(function() {
     if (correct) {
+      playAudio("applause");
       playerAnswer.style.color = "#39FF14";
     } else {
+      playAudio("aww");
       playerAnswer.style.color = "red";
     }
   }, 1000);
+}
+
+function getRandomAnswerIntro() {
+  /*
+   */
+
+  let intros = [
+    "The correct answer is ",
+    "The correct response is",
+    "The answer is ",
+    "The answer we were looking for is ",
+    "The response we were looking for is ",
+    "How about ",
+  ];
+
+  let intro = intros[Math.floor(Math.random() * intros.length)];
+
+  return intro;
 }
 
 function displayCorrectAnswer(correctAnswer) {
@@ -610,15 +784,20 @@ function resetClueButtons() {
   /*
    */
 
-  document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
-  document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
+  // Player's wrapper variables may still be undefined
+  try {
+    document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
+    document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
+  } catch (e) {}
 }
 
-function updateScoreboard() {
+function updateScoreboard(players) {
   /*
    */
 
-  let playersLength = Object.keys(players).length;
+  let clone = JSON.parse(JSON.stringify(players));
+
+  let playersLength = Object.keys(clone).length;
 
   let podiumOne = document.getElementById("podium-1");
   let podiumTwo = document.getElementById("podium-2");
@@ -640,37 +819,68 @@ function updateScoreboard() {
     podiumOne.className = "col-4";
     podiumTwo.className = "col-4";
     podiumThree.className = "col-4";
+  } else {
     overflow.classList.remove("inactive");
+
+    let keys = Object.keys(clone);
+    keys.sort(function(a, b) {
+      return clone[b].score - clone[a].score;
+    });
+    let newClone = [clone[keys[1]], clone[keys[0]], clone[keys[2]]];
+    for (let j = 0; j < playersLength - 3; j++) {
+      newClone.push(clone[keys[j + 3]]);
+    }
+    clone = newClone;
   }
 
   let i = 1;
 
-  for (let id in players) {
+  for (let id in clone) {
     if (i <= 3) {
       let nicknameText = document.getElementById("player-" + i + "-nickname");
-      nicknameText.innerHTML = players[id].nickname.toUpperCase();
-      if (players[id].nickname.length > 15) {
+      nicknameText.innerHTML = clone[id].nickname.toUpperCase();
+      if (clone[id].nickname.length > 15) {
         nicknameText.className = "xs-nickname-text";
-      } else if (players[id].nickname.length > 8) {
+      } else if (clone[id].nickname.length > 8) {
         nicknameText.className = "s-nickname-text";
       } else {
         nicknameText.className = "nickname-text";
       }
 
       let scoreText = document.getElementById("player-" + i + "-score-text");
-      if (players[id].score < 0) {
-        scoreText.innerHTML = "-$" + Math.abs(players[id].score);
+      if (clone[id].score < 0) {
+        scoreText.innerHTML = "-$" + Math.abs(clone[id].score);
         scoreText.style.color = "red";
       } else {
-        scoreText.innerHTML = "$" + players[id].score;
+        scoreText.innerHTML = "$" + clone[id].score;
         scoreText.style.color = "white";
       }
+
+      let signatureCanvas = document.getElementById("player-" + i + "-signature-canvas");
+      let ctx = signatureCanvas.getContext('2d');
+      let signature = new Image();
+
+      signature.onload = function() {
+        signatureCanvas.width = signatureCanvas.width;
+
+        // Draw color
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, 250, 250);
+
+        // Set composite mode
+        ctx.globalCompositeOperation = "destination-in";
+
+        // Draw image
+        ctx.drawImage(signature, 0, 0);
+      };
+      signature.src = clone[id].signature;
+
     } else {
-      overflow.innerHTML += players[id].nickname.toUpperCase() + ": ";
-      if (players[id].score < 0) {
-        overflow.innerHTML += "<span class='red-overflow-text'>-$" + Math.abs(players[id].score) + "</span>";
+      overflow.innerHTML += clone[id].nickname.toUpperCase() + ": ";
+      if (clone[id].score < 0) {
+        overflow.innerHTML += "<span class='red-overflow-text'>-$" + Math.abs(clone[id].score) + "</span>";
       } else {
-        overflow.innerHTML += "$" + players[id].score;
+        overflow.innerHTML += "$" + clone[id].score;
       }
       if (playersLength > 4) {
         overflow.innerHTML += " ... ";
