@@ -207,7 +207,7 @@ button {
   color: white;
   text-shadow: .3vh .3vh black;
 
-  font-size: 2.5vh;
+  font-size: 2.8vh;
 
   line-height: 2.5vh;
 }
@@ -220,9 +220,9 @@ button {
   color: white;
   text-shadow: .3vh .3vh black;
 
-  font-size: 2.4vh;
+  font-size: 2.7vh;
 
-  line-height: 2vh;
+  line-height: 3vh;
 }
 
 .category-date-wrapper {
@@ -643,7 +643,7 @@ button {
   color: white;
   text-shadow: .7vh .7vh black;
 
-  font-size: 3.5vh;
+  font-size: 3.2vh;
   line-height: 3.5vh;
 }
 
@@ -667,8 +667,8 @@ button {
   color: white;
   text-shadow: .5vh .5vh black;
 
-  font-size: 2vh;
-  line-height: 2vh;
+  font-size: 2.8vh;
+  line-height: 3.2vh;
 }
 
 .c-price-text {

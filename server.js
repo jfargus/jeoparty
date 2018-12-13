@@ -23,6 +23,8 @@ let playersAnswered = [];
 let buzzersReady = false;
 let answerReady = false;
 let buzzWinnerId;
+let doubleJeoparty = false;
+
 let usedClueIds = [];
 let usedClueArray = {
   "category-1": [],
@@ -60,7 +62,9 @@ io.on("connection", function(socket) {
       boardController = socket.id;
     }
 
-    socket.emit("join_success", categoryNames, boardController);
+    io.in("session").emit("update_players_connected", Object.keys(players).length);
+
+    io.in("session").emit("join_success", categoryNames, boardController);
     io.in("session").emit("players", players);
   });
 
@@ -88,7 +92,11 @@ io.on("connection", function(socket) {
       setTimeout(function() {
         io.in("session").emit("reveal_scores");
         reset();
+
         setTimeout(function() {
+          if (doubleJeoparty) {
+            io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+          }
           io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
         }, 5000);
       }, 5000);
@@ -128,7 +136,11 @@ io.on("connection", function(socket) {
           boardController = socket.id;
           io.in("session").emit("reveal_scores");
           reset();
+
           setTimeout(function() {
+            if (doubleJeoparty) {
+              io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+            }
             io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
           }, 5000);
         } else if (playersAnswered.length == Object.keys(players).length) {
@@ -136,7 +148,11 @@ io.on("connection", function(socket) {
           setTimeout(function() {
             io.in("session").emit("reveal_scores");
             reset();
+
             setTimeout(function() {
+              if (doubleJeoparty) {
+                io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+              }
               io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
             }, 5000);
           }, 5000);
@@ -151,7 +167,11 @@ io.on("connection", function(socket) {
             setTimeout(function() {
               io.in("session").emit("reveal_scores");
               reset();
+
               setTimeout(function() {
+                if (doubleJeoparty) {
+                  io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+                }
                 io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
               }, 5000);
             }, 5000);
@@ -165,6 +185,7 @@ io.on("connection", function(socket) {
     socket.leave("session");
     delete players[socket.id];
     io.in("session").emit("players", players);
+    io.in("session").emit("update_players_connected", Object.keys(players).length);
   });
 });
 
@@ -172,6 +193,7 @@ io.on("connection", function(socket) {
 
 let js = require("jservice-node");
 
+let usedCategoryIds = [];
 let categoryNames = [];
 let categoryDates = [];
 let clues = {};
@@ -179,8 +201,6 @@ let clues = {};
 function getCategories() {
   /*
    */
-
-  let usedCategoryIds = [];
 
   for (let i = 0; i < 20; i++) {
     let categoryId = Math.floor(Math.random() * 18418) + 1;
@@ -319,10 +339,18 @@ function updateScore(id, correct, multiplier) {
   /*
    */
 
-  if (correct) {
-    players[id].score += (200 * multiplier);
+  let base;
+
+  if (doubleJeoparty) {
+    base = 400;
   } else {
-    players[id].score -= (200 * multiplier);
+    base = 200;
+  }
+
+  if (correct) {
+    players[id].score += (base * multiplier);
+  } else {
+    players[id].score -= (base * multiplier);
   }
 }
 
@@ -331,4 +359,25 @@ function reset() {
    */
 
   playersAnswered = [];
+
+  if (usedClueIds.length == 1 && !doubleJeoparty) {
+    doubleJeoparty = true;
+
+    usedClueIds = [];
+
+    usedClueArray = {
+      "category-1": [],
+      "category-2": [],
+      "category-3": [],
+      "category-4": [],
+      "category-5": [],
+      "category-6": [],
+    };
+
+    categoryNames = [];
+    categoryDates = [];
+    clues = {};
+
+    getCategories();
+  }
 }

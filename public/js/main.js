@@ -12,6 +12,7 @@ let lastPriceId;
 let buzzWinner;
 let usedClueArray;
 let currentScreenQuestion;
+let doubleJeoparty = false;
 
 // Timeout/interval handlers
 let questionInterval;
@@ -37,6 +38,19 @@ socket.on("connect_device", function() {
     document.getElementById("host").className = "";
     currentScreenId = "h-landing-screen";
     isHost = true;
+  }
+});
+
+// HOST
+socket.on("update_players_connected", function(playersConnected) {
+  if (isHost) {
+    let playersConnectedText = document.getElementById("players-connected");
+
+    if (playersConnected == 1) {
+      playersConnectedText.innerHTML = playersConnected + " PLAYER CONNECTED";
+    } else {
+      playersConnectedText.innerHTML = playersConnected + " PLAYERS CONNECTED";
+    }
   }
 });
 
@@ -104,7 +118,6 @@ socket.on("buzzers_ready", function(playersAnswered) {
     if (playersAnswered.includes(socket.id)) {
       changeWaitScreen("OTHER PLAYERS");
     } else {
-      changeBuzzerLightColor(false, undefined);
       changeScreen("buzzer-screen");
       toggleBlinkingBuzzerLight(true);
       startTimerAnimation(5);
@@ -117,10 +130,11 @@ socket.on("answer", function(player) {
   try {
     clearTimeout(timerTimeout);
   } catch (e) {}
-  disableTimer();
-  startTimerAnimation(15.5);
 
   buzzWinner = player;
+
+  disableTimer();
+  startTimerAnimation(15.5);
 
   if (isHost) {
     playAudio("buzzer");
@@ -132,11 +146,13 @@ socket.on("answer", function(player) {
       setTimeout(function() {
         changeScreen("answer-screen");
         startLivefeedInterval();
+        changeBuzzerLightColor(false, false);
       }, 500);
     } else {
       changeBuzzerLightColor(true, false);
       setTimeout(function() {
         changeWaitScreen(player.nickname);
+        changeBuzzerLightColor(false, false);
       }, 500);
     }
   }
@@ -168,6 +184,9 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
     voice(getRandomAnswerIntro() + correctAnswer, .5);
     displayCorrectAnswer(correctAnswer);
   } else {
+    if (timesUp) {
+      toggleBlinkingBuzzerLight(false);
+    }
     changeWaitScreen("SCREEN");
   }
 });
@@ -177,7 +196,6 @@ socket.on("reveal_scores", function() {
   if (isHost) {
     changeScreen("clue-screen");
     changeScreen("score-screen");
-    clearPlayerAnswerText();
     setTimeout(function() {
       updateScoreboard(players);
     }, 1000);
@@ -201,6 +219,12 @@ socket.on("reveal_board", function(newUsedClueArray, boardController, boardContr
   }
   usedClueArray = newUsedClueArray;
   updateCategoryOptions();
+});
+
+// HOST + CONTROLLER
+socket.on("setup_double_jeoparty", function(categoryNames, categoryDates) {
+  setDoubleJeopartyPriceText();
+  setCategoryText(categoryNames, categoryDates);
 });
 
 // Jeoparty! functions
@@ -292,7 +316,11 @@ function startGame() {
   /*
    */
 
-  socket.emit("start_game");
+  let start = confirm("Are you sure everyone is connected to the game?");
+
+  if (start) {
+    socket.emit("start_game");
+  }
 }
 
 function changeScreen(newScreen) {
@@ -459,13 +487,25 @@ function resetCluePriceButtons() {
   /*
    */
 
-  let prices = {
-    1: "$200",
-    2: "$400",
-    3: "$600",
-    4: "$800",
-    5: "$1K",
-  };
+  let prices;
+
+  if (doubleJeoparty) {
+    prices = {
+      1: "$400",
+      2: "$800",
+      3: "$1.2K",
+      4: "$1.6K",
+      5: "$2K",
+    };
+  } else {
+    prices = {
+      1: "$200",
+      2: "$400",
+      3: "$600",
+      4: "$800",
+      5: "$1K",
+    };
+  }
 
   for (let i = 1; i < 6; i++) {
     document.getElementById("price-" + i).disabled = false;
@@ -714,7 +754,7 @@ function buzz() {
   try {
     clearTimeout(scrapeAnswerTimeout);
   } catch (e) {}
-  scrapeAnswerTimeout = setTimeout(submitAnswer, 15000);
+  scrapeAnswerTimeout = setTimeout(submitAnswer, 15500);
 }
 
 function setupPlayerLivefeed(player, screenQuestion) {
@@ -725,6 +765,7 @@ function setupPlayerLivefeed(player, screenQuestion) {
 
   document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
   document.getElementById("player-livefeed-nickname").innerHTML = player.nickname.toUpperCase() + ":<br>";
+  clearPlayerAnswerText();
 }
 
 function startLivefeedInterval() {
@@ -822,7 +863,7 @@ function clearPlayerAnswerText() {
    */
 
   let playerAnswer = document.getElementById("player-answer");
-  playerAnswer.classList.add("inactive");
+  playerAnswer.className = "inactive clue-text"
   playerAnswer.innerHTML = "";
   playerAnswer.style.color = "white";
 }
@@ -934,5 +975,36 @@ function updateScoreboard(players) {
       }
     }
     i++;
+  }
+}
+
+function setDoubleJeopartyPriceText() {
+  /*
+   */
+
+  doubleJeoparty = true;
+
+  let priceText;
+
+  if (isHost) {
+    for (let i = 1; i <= 6; i++) {
+      for (let j = 1; j <= 5; j++) {
+        priceText = document.getElementById("category-" + i + "-price-" + j + "-text");
+        priceText.innerHTML = "$" + (j * 400);
+      }
+    }
+  } else {
+    for (let i = 1; i <= 5; i++) {
+      priceText = document.getElementById("price-" + i + "-text");
+      if ((i * 400) == 1200) {
+        priceText.innerHTML = "$1.2K";
+      } else if ((i * 400) == 1600) {
+        priceText.innerHTML = "$1.6K";
+      } else if ((i * 400) == 2000) {
+        priceText.innerHTML = "2K";
+      } else {
+        priceText.innerHTML = "$" + (i * 400);
+      }
+    }
   }
 }
