@@ -104,7 +104,9 @@ socket.on("buzzers_ready", function(playersAnswered) {
     if (playersAnswered.includes(socket.id)) {
       changeWaitScreen("OTHER PLAYERS");
     } else {
+      changeBuzzerLightColor(false, undefined);
       changeScreen("buzzer-screen");
+      toggleBlinkingBuzzerLight(true);
       startTimerAnimation(5);
     }
   }
@@ -116,7 +118,7 @@ socket.on("answer", function(player) {
     clearTimeout(timerTimeout);
   } catch (e) {}
   disableTimer();
-  startTimerAnimation(15);
+  startTimerAnimation(15.5);
 
   buzzWinner = player;
 
@@ -124,11 +126,18 @@ socket.on("answer", function(player) {
     playAudio("buzzer");
     setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
   } else {
+    toggleBlinkingBuzzerLight(false);
     if (socket.id == player.id) {
-      changeScreen("answer-screen");
-      startLivefeedInterval();
+      changeBuzzerLightColor(true, true);
+      setTimeout(function() {
+        changeScreen("answer-screen");
+        startLivefeedInterval();
+      }, 500);
     } else {
-      changeWaitScreen(player.nickname)
+      changeBuzzerLightColor(true, false);
+      setTimeout(function() {
+        changeWaitScreen(player.nickname);
+      }, 500);
     }
   }
 });
@@ -663,6 +672,38 @@ function disableTimer() {
   } catch (e) {}
 
   timer.offsetHeight;
+}
+
+function toggleBlinkingBuzzerLight(blinking) {
+  /*
+   */
+
+  let blinkingBuzzerLight = document.getElementById("blinking-buzzer-light");
+
+  if (blinking) {
+    blinkingBuzzerLight.classList.remove("inactive");
+  } else {
+    blinkingBuzzerLight.classList.add("inactive");
+  }
+}
+
+function changeBuzzerLightColor(active, correct) {
+  /*
+   */
+
+  let buzzerLight = document.getElementById("buzzer-light");
+
+  if (active) {
+    buzzerLight.classList.remove("inactive");
+    if (correct) {
+      buzzerLight.style.backgroundColor = "#39FF14";
+    } else {
+      buzzerLight.style.backgroundColor = "red";
+    }
+  } else {
+    buzzerLight.classList.add("inactive");
+    buzzerLight.style.backgroundColor = "transparent";
+  }
 }
 
 function buzz() {
