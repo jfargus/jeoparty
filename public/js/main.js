@@ -98,10 +98,25 @@ socket.on("display_clue", function(clueRequest, screenQuestion) {
     playAudio("clue_selected");
     voice(screenQuestion, 1);
     setTimeout(startQuestionInterval, 2000);
-    displayClue(clueRequest, screenQuestion);
+    clearPlayerAnswerText();
+    displayClue(clueRequest, screenQuestion, false);
     currentScreenQuestion = screenQuestion;
   } else {
     changeScreen("buzzer-screen");
+  }
+});
+
+// HOST + CONTROLLER
+socket.on("daily_double", function(clueRequest, screenQuestion, boardController, boardControllerNickname) {
+  if (isHost) {
+    clearPlayerAnswerText();
+    displayClue(clueRequest, screenQuestion, true);
+  } else {
+    if (socket.id == boardController) {
+
+    } else {
+      changeWaitScreen(boardControllerNickname.toUpperCase());
+    }
   }
 });
 
@@ -225,6 +240,9 @@ socket.on("reveal_board", function(newUsedClueArray, boardController, boardContr
 socket.on("setup_double_jeoparty", function(categoryNames, categoryDates) {
   setDoubleJeopartyPriceText();
   setCategoryText(categoryNames, categoryDates);
+  if (isHost) {
+    clearPlayerAnswerText();
+  }
 });
 
 // Jeoparty! functions
@@ -337,6 +355,8 @@ function voice(text, delay) {
    */
 
   if (audioAllowed) {
+    speechSynthesis.cancel();
+
     setTimeout(function() {
       if (window.speechSynthesis.getVoices().length == 0) {
         window.speechSynthesis.onvoiceschanged = function() {
@@ -352,7 +372,7 @@ function voice(text, delay) {
         if (voices.length > 48) {
           msg.voice = voices[50];
         } else {
-          msg.voice = voices[5];
+          msg.voice = voices[0];
         }
         msg.voiceURI = 'native';
         msg.volume = 1;
@@ -548,7 +568,7 @@ function sendClueRequest() {
   }
 }
 
-function displayClue(clueRequest, screenQuestion) {
+function displayClue(clueRequest, screenQuestion, dailyDouble) {
   /*
    */
 
@@ -558,13 +578,24 @@ function displayClue(clueRequest, screenQuestion) {
 
   moveClueScreen(clueRequest);
 
-  document.getElementById("clue-text").innerHTML = screenQuestion;
-  adjustClueFontSize(screenQuestion, false);
+  let clueText = document.getElementById("clue-text");
+
+  if (dailyDouble) {
+    clueText.className = "daily-double-text";
+    clueText.innerHTML = "DAILY DOUBLE";
+  } else {
+    clueText.innerHTML = screenQuestion;
+    adjustClueFontSize(screenQuestion, false);
+  }
 
   setTimeout(function() {
     document.getElementById(clueRequest + "-text").innerHTML = "";
     clueElement.classList.remove("highlighted");
     displayClueScreen();
+    if (dailyDouble) {
+      document.getElementById("daily-double-wrapper").className = "daily-double-wrapper-screen";
+      document.getElementById("clue-screen").className = "daily-double-screen";
+    }
     setTimeout(animateClueScreen, 10);
   }, 1000);
 }

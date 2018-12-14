@@ -1,4 +1,5 @@
-let test1 = [1, 2, 3];
-let test2 = [];
+for (let i = 0; i < 100; i++) {
+  let categoryNum = Math.random() * (6) + 1;
 
-console.log(test1 + test2);
+  console.log(Math.floor(categoryNum));
+}

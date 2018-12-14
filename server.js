@@ -24,6 +24,7 @@ let buzzersReady = false;
 let answerReady = false;
 let buzzWinnerId;
 let doubleJeoparty = false;
+let setupDoubleJeoparty = false;
 
 let usedClueIds = [];
 let usedClueArray = {
@@ -45,6 +46,10 @@ io.on("connection", function(socket) {
 
   socket.on("set_host_socket", function() {
     getCategories();
+    if (!setDailyDoubles) {
+      setDailyDoubles = true;
+      setDailyDoubleIds();
+    }
     hostSocket = socket;
   });
 
@@ -73,7 +78,11 @@ io.on("connection", function(socket) {
   });
 
   socket.on("request_clue", function(clueRequest) {
-    io.in("session").emit("display_clue", clueRequest, clues[clueRequest]["screen_question"]);
+    if (dailyDoubleIds.includes(clueRequest)) {
+      io.in("session").emit("daily_double", clueRequest, clues[clueRequest]["screen_question"], boardController, players[boardController].nickname);
+    } else {
+      io.in("session").emit("display_clue", clueRequest, clues[clueRequest]["screen_question"]);
+    }
 
     usedClueIds.push(clueRequest);
     usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
@@ -94,7 +103,8 @@ io.on("connection", function(socket) {
         reset();
 
         setTimeout(function() {
-          if (doubleJeoparty) {
+          if (doubleJeoparty && !setupDoubleJeoparty) {
+            setupDoubleJeoparty = true;
             io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
           }
           io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
@@ -138,7 +148,8 @@ io.on("connection", function(socket) {
           reset();
 
           setTimeout(function() {
-            if (doubleJeoparty) {
+            if (doubleJeoparty && !setupDoubleJeoparty) {
+              setupDoubleJeoparty = true;
               io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
             }
             io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
@@ -150,7 +161,8 @@ io.on("connection", function(socket) {
             reset();
 
             setTimeout(function() {
-              if (doubleJeoparty) {
+              if (doubleJeoparty && !setupDoubleJeoparty) {
+                setupDoubleJeoparty = true;
                 io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
               }
               io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
@@ -169,7 +181,8 @@ io.on("connection", function(socket) {
               reset();
 
               setTimeout(function() {
-                if (doubleJeoparty) {
+                if (doubleJeoparty && !setupDoubleJeoparty) {
+                  setupDoubleJeoparty = true;
                   io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
                 }
                 io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
@@ -197,6 +210,8 @@ let usedCategoryIds = [];
 let categoryNames = [];
 let categoryDates = [];
 let clues = {};
+let setDailyDoubles = false;
+let dailyDoubleIds = [];
 
 function getCategories() {
   /*
@@ -250,6 +265,34 @@ function loadCategory(category) {
       clues[id]["screen_answer"] = formatScreenAnswer(clues[id]["answer"]);
     }
   }
+}
+
+function setDailyDoubleIds() {
+  /*
+   */
+
+  let categoryNums = [1, 2, 3, 4, 5, 6];
+
+  for (let i = 0; i < 3; i++) {
+    let index = Math.floor(Math.random() * categoryNums.length);
+    let categoryNum = categoryNums[index];
+    categoryNums.splice(index, 1);
+
+    let priceNum;
+    let rng = Math.random();
+
+    // Simple bell curve structure for weighted randomization
+    if (rng < .15) {
+      priceNum = 3;
+    } else if (rng > .85) {
+      priceNum = 4;
+    } else {
+      priceNum = 5;
+    }
+
+    dailyDoubleIds.push("category-" + categoryNum + "-price-" + priceNum);
+  }
+  console.log(dailyDoubleIds);
 }
 
 function formatScreenQuestion(original) {
@@ -360,7 +403,7 @@ function reset() {
 
   playersAnswered = [];
 
-  if (usedClueIds.length == 1 && !doubleJeoparty) {
+  if (usedClueIds.length == 30 && !doubleJeoparty) {
     doubleJeoparty = true;
 
     usedClueIds = [];
