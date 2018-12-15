@@ -13,12 +13,16 @@ let buzzWinner;
 let usedClueArray;
 let currentScreenQuestion;
 let doubleJeoparty = false;
+let maxWager;
+let dailyDouble = false;
 
 // Timeout/interval handlers
 let questionInterval;
 let timerTimeout;
 let livefeedInterval;
+let wagerLivefeedInterval;
 let scrapeAnswerTimeout;
+let scrapeWagerTimeout;
 
 // Socket.io functions
 
@@ -107,15 +111,82 @@ socket.on("display_clue", function(clueRequest, screenQuestion) {
 });
 
 // HOST + CONTROLLER
-socket.on("daily_double", function(clueRequest, screenQuestion, boardController, boardControllerNickname) {
+socket.on("daily_double_request", function(clueRequest, screenQuestion, boardController, boardControllerNickname) {
   if (isHost) {
     clearPlayerAnswerText();
     displayClue(clueRequest, screenQuestion, true);
+    currentScreenQuestion = screenQuestion;
+    setTimeout(function() {
+      socket.emit("daily_double")
+    }, 3000);
   } else {
     if (socket.id == boardController) {
-
+      changeWaitScreen("SCREEN");
     } else {
       changeWaitScreen(boardControllerNickname.toUpperCase());
+    }
+  }
+});
+
+// HOST + CONTROLLER
+socket.on("request_daily_double_wager", function(categoryName, player, newMaxWager) {
+  dailyDouble = true;
+  if (isHost) {
+    startTimerAnimation(15);
+    requestDailyDoubleWager(categoryName, player.nickname, player.score);
+  } else {
+    if (socket.id == player.id) {
+      toggleWagerForm(true);
+      changeScreen("answer-screen");
+      startTimerAnimation(15);
+      maxWager = newMaxWager;
+      startWagerLivefeedInterval();
+      scrapeWagerTimeout = setTimeout(function() {
+        submitWager(true);
+      }, 15000);
+    }
+  }
+});
+
+socket.on("display_daily_double_clue", function(screenQuestion) {
+  if (isHost) {
+    disableTimer();
+
+    let clueText = document.getElementById("clue-text");
+
+    clueText.innerHTML = screenQuestion;
+    adjustClueFontSize(screenQuestion, false);
+
+    voice(screenQuestion, 1);
+    setTimeout(startQuestionInterval, 2000);
+    clearPlayerAnswerText();
+
+    document.getElementById("player-livefeed-wrapper").classList.add("inactive");
+  }
+});
+
+// HOST + CONTROLLER
+socket.on("answer_daily_double", function(player) {
+  try {
+    clearTimeout(timerTimeout);
+  } catch (e) {}
+
+  buzzWinner = player;
+
+  if (isHost) {
+    startTimerAnimation(15);
+    setupPlayerLivefeed(player, currentScreenQuestion);
+    clearPlayerAnswerText();
+  } else {
+    if (socket.id == player.id) {
+      disableTimer();
+      startTimerAnimation(15);
+      scrapeAnswerTimeout = setTimeout(submitAnswer, 15000);
+      changeScreen("answer-screen");
+      toggleWagerForm(false);
+      startLivefeedInterval();
+    } else {
+      changeWaitScreen(player.nickname);
     }
   }
 });
@@ -180,6 +251,20 @@ socket.on("livefeed", function(livefeed) {
   }
 });
 
+// HOST
+socket.on("wager_livefeed", function(wagerLivefeed) {
+  if (isHost) {
+    let wager;
+
+    if (wagerLivefeed.length == "") {
+      wager = "0";
+    } else {
+      wager = wagerLivefeed;
+    }
+    document.getElementById("player-livefeed").innerHTML = "$" + wager.toUpperCase();
+  }
+});
+
 // HOST + CONTROLLER
 socket.on("answer_submitted", function(answer, correct) {
   disableTimer();
@@ -219,6 +304,8 @@ socket.on("reveal_scores", function() {
 
 // HOST + CONTROLLER
 socket.on("reveal_board", function(newUsedClueArray, boardController, boardControllerNickname) {
+  dailyDouble = false;
+
   if (isHost) {
     changeScreen("h-board-screen");
     document.getElementById("clue-screen").classList.remove("animate");
@@ -288,7 +375,11 @@ function joinGame() {
   let nickname = document.getElementById("nickname-form").value;
   let signature = document.getElementById("sketchpad").toDataURL("image/png");
 
-  socket.emit("join_game", nickname, signature);
+  if (nickname.length <= 25) {
+    socket.emit("join_game", nickname, signature);
+  } else {
+    alert("Your nickname is too long");
+  }
 }
 
 function setCategoryText(categoryNames, categoryDates) {
@@ -396,7 +487,11 @@ function startQuestionInterval() {
   questionInterval = setInterval(function() {
     if (!window.speechSynthesis.speaking) {
       clearInterval(questionInterval);
-      socket.emit("activate_buzzers");
+      if (dailyDouble) {
+        socket.emit("answer_daily_double");
+      } else {
+        socket.emit("activate_buzzers");
+      }
     }
   }, 1);
 }
@@ -574,30 +669,35 @@ function displayClue(clueRequest, screenQuestion, dailyDouble) {
 
   let clueElement = document.getElementById(clueRequest);
 
-  clueElement.classList.add("highlighted");
-
   moveClueScreen(clueRequest);
 
   let clueText = document.getElementById("clue-text");
 
   if (dailyDouble) {
+    document.getElementById(clueRequest + "-text").innerHTML = "";
+
+    document.getElementById("daily-double-wrapper").className = "daily-double-wrapper-screen";
+    document.getElementById("clue-screen").className = "daily-double-screen";
+
+    setTimeout(animateClueScreen, 10);
+
     clueText.className = "daily-double-text";
     clueText.innerHTML = "DAILY DOUBLE";
   } else {
+    clueElement.classList.add("highlighted");
+
     clueText.innerHTML = screenQuestion;
     adjustClueFontSize(screenQuestion, false);
   }
 
-  setTimeout(function() {
-    document.getElementById(clueRequest + "-text").innerHTML = "";
-    clueElement.classList.remove("highlighted");
-    displayClueScreen();
-    if (dailyDouble) {
-      document.getElementById("daily-double-wrapper").className = "daily-double-wrapper-screen";
-      document.getElementById("clue-screen").className = "daily-double-screen";
-    }
-    setTimeout(animateClueScreen, 10);
-  }, 1000);
+  if (!dailyDouble) {
+    setTimeout(function() {
+      document.getElementById(clueRequest + "-text").innerHTML = "";
+      clueElement.classList.remove("highlighted");
+      displayClueScreen();
+      setTimeout(animateClueScreen, 10);
+    }, 1000);
+  }
 }
 
 function adjustClueFontSize(question, livefeed) {
@@ -680,6 +780,106 @@ function animateClueScreen() {
   clueScreen.style.left = "0vw";
   clueScreen.style.bottom = "0vh";
   clueScreen.classList.add("animate");
+}
+
+function toggleWagerForm(on) {
+  /*
+   */
+
+  let answerFormWrapper = document.getElementById("answer-form-wrapper");
+  let wagerFormWrapper = document.getElementById("wager-form-wrapper");
+
+  if (on) {
+    answerFormWrapper.classList.add("inactive");
+    wagerFormWrapper.classList.remove("inactive");
+  } else {
+    answerFormWrapper.classList.remove("inactive");
+    wagerFormWrapper.classList.add("inactive");
+
+    document.getElementById("submit-wager-button").classList.add("inactive");
+  }
+}
+
+function requestDailyDoubleWager(categoryName, nickname, score) {
+  /*
+   */
+
+  document.getElementById("daily-double-wrapper").className = "";
+  document.getElementById("clue-screen").className = "clue-screen animate";
+
+  let clueText = document.getElementById("clue-text");
+  clueText.className = "xs-clue-text";
+
+  clueText.innerHTML = "CATEGORY:<br>" + categoryName.toUpperCase();
+
+  if (score < 0) {
+    clueText.innerHTML += "<br>" + nickname.toUpperCase() + "'S MONEY:<br>-$" + Math.abs(score);
+  } else {
+    clueText.innerHTML += "<br>" + nickname.toUpperCase() + "'S MONEY:<br>$" + score;
+  }
+
+  document.getElementById("player-livefeed-spacer").style.height = "6vh";
+  document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
+  document.getElementById("player-livefeed-nickname").innerHTML = nickname.toUpperCase() + ":<br>";
+}
+
+function startWagerLivefeedInterval() {
+  /*
+   */
+
+  let wagerForm = document.getElementById("wager-form");
+
+  wagerLivefeedInterval = setInterval(function() {
+    socket.emit("wager_livefeed", wagerForm.value);
+    if (wagerForm.value.length > 0) {
+      document.getElementById("submit-wager-button").classList.remove("inactive");
+    }
+  }, 1);
+}
+
+
+function submitWager(timesUp) {
+  /*
+   */
+
+  let wagerForm = document.getElementById("wager-form");
+  let wager = wagerForm.value;
+
+  let minWager;
+
+  if (dailyDouble) {
+    minWager = 5;
+  } else {
+    minWager = 0;
+  }
+
+  if (timesUp) {
+    clearInterval(wagerLivefeedInterval);
+    clearTimeout(scrapeWagerTimeout);
+    changeWaitScreen("SCREEN");
+    if (!isNaN(wager) && Number(wager) > minWager && Number(wager) < maxWager) {
+      socket.emit("daily_double_wager", Number(wager));
+    } else {
+      socket.emit("daily_double_wager", 5);
+    }
+    wagerForm.value = "";
+  } else {
+    if (isNaN(wager)) {
+      alert("Enter a number");
+    } else {
+      if (Number(wager) < minWager) {
+        alert("Minimum wager is $" + minWager);
+      } else if (Number(wager) > maxWager) {
+        alert("Maximum wager is $" + maxWager);
+      } else {
+        clearInterval(wagerLivefeedInterval);
+        clearTimeout(scrapeWagerTimeout);
+        socket.emit("daily_double_wager", Number(wager));
+        changeWaitScreen("SCREEN");
+        wagerForm.value = "";
+      }
+    }
+  }
 }
 
 function startTimerAnimation(time) {
@@ -820,11 +1020,18 @@ function submitAnswer() {
   let answerForm = document.getElementById("answer-form");
 
   clearInterval(livefeedInterval);
-  clearTimeout(scrapeAnswerTimeout);
+  try {
+    clearTimeout(scrapeAnswerTimeout);
+  } catch (e) {}
 
-  document.getElementById("submit-answer-button").classList.add("inactive");
+  document.getElementById("submit-answer-button").className = "inactive submit-answer-button";
 
-  socket.emit("submit_answer", answerForm.value);
+  if (dailyDouble) {
+    socket.emit("submit_daily_double_answer", answerForm.value);
+  } else {
+    socket.emit("submit_answer", answerForm.value);
+  }
+
   answerForm.value = "";
 
   changeWaitScreen("SCREEN");

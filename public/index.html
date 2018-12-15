@@ -208,7 +208,7 @@
               <span id="clue-text" class="clue-text"></span>
               <span id="player-answer" class="inactive player-answer"></span>
               <div id="player-livefeed-wrapper" class="inactive">
-                <div class="player-livefeed-spacer"></div>
+                <div id="player-livefeed-spacer" class="player-livefeed-spacer"></div>
                 <span id="player-livefeed-nickname" class="clue-text"></span>
                 <span id="player-livefeed" class="clue-text"></span>
               </div>
@@ -430,12 +430,16 @@
     <div id="answer-screen" class="inactive answer-screen">
       <div class="container-fluid">
         <div class="answer-form-spacer"></div>
-        <div class="row justify-content-center">
+        <div id="answer-form-wrapper" class="row justify-content-center">
           <input type="text" id="answer-form" class="answer-form" />
+        </div>
+        <div id="wager-form-wrapper" class="row justify-content-center inactive">
+          <input type="tel" id="wager-form" class="wager-form" />
         </div>
         <div class="row spacer"></div>
         <div class="row justify-content-center">
           <div id="submit-answer-button" class="inactive submit-answer-button" onclick="submitAnswer()">SUBMIT</div>
+          <div id="submit-wager-button" class="inactive submit-answer-button" onclick="submitWager(false)">WAGER</div>
         </div>
       </div>
     </div>

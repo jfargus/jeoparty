@@ -1,5 +1,3 @@
-for (let i = 0; i < 100; i++) {
-  let categoryNum = Math.random() * (6) + 1;
+let test = "5";
 
-  console.log(Math.floor(categoryNum));
-}
+console.log(isNaN(test));

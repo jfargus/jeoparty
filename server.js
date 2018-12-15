@@ -60,6 +60,7 @@ io.on("connection", function(socket) {
     player.nickname = nickname;
     player.signature = signature;
     player.score = 0;
+    player.wager = 0;
 
     players[socket.id] = player;
 
@@ -78,8 +79,8 @@ io.on("connection", function(socket) {
   });
 
   socket.on("request_clue", function(clueRequest) {
-    if (dailyDoubleIds.includes(clueRequest)) {
-      io.in("session").emit("daily_double", clueRequest, clues[clueRequest]["screen_question"], boardController, players[boardController].nickname);
+    if ((!doubleJeoparty && clueRequest == dailyDoubleIds[0]) || (doubleJeoparty && (clueRequest == dailyDoubleIds[1] || clueRequest == dailyDoubleIds[2]))) {
+      io.in("session").emit("daily_double_request", clueRequest, clues[clueRequest]["screen_question"], boardController, players[boardController].nickname);
     } else {
       io.in("session").emit("display_clue", clueRequest, clues[clueRequest]["screen_question"]);
     }
@@ -88,6 +89,19 @@ io.on("connection", function(socket) {
     usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
 
     lastClueRequest = clueRequest;
+  });
+
+  socket.on("daily_double", function() {
+    io.in("session").emit("request_daily_double_wager", clues[lastClueRequest]["category"]["title"], players[boardController], getMaxWager(players[boardController].score));
+  });
+
+  socket.on("daily_double_wager", function(wager) {
+    players[boardController].wager = wager;
+    io.in("session").emit("display_daily_double_clue", clues[lastClueRequest]["screen_question"]);
+  });
+
+  socket.on("answer_daily_double", function() {
+    io.in("session").emit("answer_daily_double", players[boardController]);
   });
 
   socket.on("activate_buzzers", function() {
@@ -129,6 +143,10 @@ io.on("connection", function(socket) {
     io.in("session").emit("livefeed", livefeed);
   });
 
+  socket.on("wager_livefeed", function(wagerLivefeed) {
+    io.in("session").emit("wager_livefeed", wagerLivefeed);
+  });
+
   socket.on("submit_answer", function(answer) {
     if (answerReady) {
       answerReady = false;
@@ -136,7 +154,7 @@ io.on("connection", function(socket) {
 
       let correct = evaluateAnswer(answer);
 
-      updateScore(socket.id, correct, lastClueRequest[lastClueRequest.length - 1]);
+      updateScore(socket.id, correct, lastClueRequest[lastClueRequest.length - 1], false);
 
       io.in("session").emit("answer_submitted", answer, correct);
       io.in("session").emit("players", players);
@@ -192,6 +210,44 @@ io.on("connection", function(socket) {
         }
       }, 5000);
     }
+  });
+
+  socket.on("submit_daily_double_answer", function(answer) {
+    let correct = evaluateAnswer(answer);
+
+    updateScore(socket.id, correct, 1, true);
+
+    io.in("session").emit("answer_submitted", answer, correct);
+    io.in("session").emit("players", players);
+
+    setTimeout(function() {
+      if (correct) {
+        io.in("session").emit("reveal_scores");
+        reset();
+
+        setTimeout(function() {
+          if (doubleJeoparty && !setupDoubleJeoparty) {
+            setupDoubleJeoparty = true;
+            io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+          }
+          io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
+        }, 5000);
+      } else {
+        io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], false);
+        setTimeout(function() {
+          io.in("session").emit("reveal_scores");
+          reset();
+
+          setTimeout(function() {
+            if (doubleJeoparty && !setupDoubleJeoparty) {
+              setupDoubleJeoparty = true;
+              io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+            }
+            io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
+          }, 5000);
+        }, 5000);
+      }
+    }, 5000);
   });
 
   socket.on("disconnecting", function() {
@@ -378,7 +434,7 @@ function evaluateAnswer(answer) {
   }
 }
 
-function updateScore(id, correct, multiplier) {
+function updateScore(id, correct, multiplier, dailyDouble) {
   /*
    */
 
@@ -386,6 +442,8 @@ function updateScore(id, correct, multiplier) {
 
   if (doubleJeoparty) {
     base = 400;
+  } else if (dailyDouble) {
+    base = players[id].wager;
   } else {
     base = 200;
   }
@@ -423,4 +481,27 @@ function reset() {
 
     getCategories();
   }
+}
+
+function getMaxWager(score) {
+  /*
+   */
+
+  let maxWager;
+
+  if (doubleJeoparty) {
+    if (score > 2000) {
+      maxWager = score;
+    } else {
+      maxWager = 2000;
+    }
+  } else {
+    if (score > 1000) {
+      maxWager = score;
+    } else {
+      maxWager = 1000;
+    }
+  }
+
+  return maxWager;
 }

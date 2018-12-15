@@ -403,11 +403,6 @@ button {
   animation-iteration-count: 2;
 
   background-image: url("/graphics/daily_double.jpg");
-
-  transform: translateZ(0);
-  -webkit-font-smoothing: antialiased;
-  -webkit-filter: blur(0.000001px);
-  backface-visibility: hidden;
 }
 
 .daily-double-text {
@@ -927,7 +922,24 @@ button {
 
 .answer-form {
   width: 80vw;
-  height: 10vh;
+  height: 8vh;
+
+  padding: 3vh;
+  padding-left: 1vh;
+  padding-right: 1vh;
+
+  font-size: 4vh;
+
+  color: black;
+
+  text-transform: uppercase;
+
+  border: none;
+}
+
+.wager-form {
+  width: 30vw;
+  height: 8vh;
 
   padding: 3vh;
   padding-left: 1vh;
