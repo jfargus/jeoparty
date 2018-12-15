@@ -10,8 +10,8 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-// TODO: Remove the hardcoded IP address so it's automatically this device's IP
-server.listen(3000, "18.40.48.43");
+let ip = require("ip");
+server.listen(3000, ip.address());
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));

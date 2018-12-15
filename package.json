@@ -4,6 +4,7 @@
   "description": "A local multiplayer Jeopardy! game",
   "dependencies": {
     "express": "^4.15.2",
+    "ip": "^1.1.5",
     "socket.io": "^1.7.3"
   }
 }
