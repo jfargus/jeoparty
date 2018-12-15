@@ -1,8 +1,8 @@
 "use strict";
 
-// Socket.io functions
+// Socket logic
 
-// Setup basic express server
+// Setup express server
 let express = require("express");
 let app = express();
 let path = require("path");
@@ -10,12 +10,12 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
+// TODO: Remove the hardcoded IP address so it's automatically this device's IP
 server.listen(3000, "18.40.48.43");
 
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
 
-let hostSocket = undefined;
 let players = {};
 let boardController;
 let lastClueRequest;
@@ -40,6 +40,11 @@ let usedClueArray = {
 let buzzerTimeout;
 
 io.on("connection", function(socket) {
+  /*
+  Input:
+  socket: Socket.io object
+   */
+
   socket.join("session");
 
   socket.emit("connect_device");
@@ -50,10 +55,15 @@ io.on("connection", function(socket) {
       setDailyDoubles = true;
       setDailyDoubleIds();
     }
-    hostSocket = socket;
   });
 
   socket.on("join_game", function(nickname, signature) {
+    /*
+    Input:
+    nickname: string
+    signature: image
+     */
+
     let player = new Object();
     player.id = socket.id;
     player.playerNumber = Object.keys(players).length + 1;
@@ -79,6 +89,11 @@ io.on("connection", function(socket) {
   });
 
   socket.on("request_clue", function(clueRequest) {
+    /*
+    Input:
+    clueRequest: string ("category-x-price-y")
+     */
+
     if ((!doubleJeoparty && clueRequest == dailyDoubleIds[0]) || (doubleJeoparty && (clueRequest == dailyDoubleIds[1] || clueRequest == dailyDoubleIds[2]))) {
       io.in("session").emit("daily_double_request", clueRequest, clues[clueRequest]["screen_question"], boardController, players[boardController].nickname);
     } else {
@@ -86,6 +101,7 @@ io.on("connection", function(socket) {
     }
 
     usedClueIds.push(clueRequest);
+    // Splits ("category-x-price-y"), so that usedClueArray["category-x"].push("price-y")
     usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
 
     lastClueRequest = clueRequest;
@@ -96,6 +112,11 @@ io.on("connection", function(socket) {
   });
 
   socket.on("daily_double_wager", function(wager) {
+    /*
+    Input:
+    wager: number
+     */
+
     players[boardController].wager = wager;
     io.in("session").emit("display_daily_double_clue", clues[lastClueRequest]["screen_question"]);
   });
@@ -108,7 +129,7 @@ io.on("connection", function(socket) {
     io.in("session").emit("buzzers_ready", playersAnswered);
     buzzersReady = true;
 
-    // Safety buzz timer
+    // Gets called if none of the players buzz in
     buzzerTimeout = setTimeout(function() {
       buzzersReady = false;
       io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], true);
@@ -140,14 +161,29 @@ io.on("connection", function(socket) {
   });
 
   socket.on("livefeed", function(livefeed) {
+    /*
+    Input:
+    livefeed: string
+     */
+
     io.in("session").emit("livefeed", livefeed);
   });
 
   socket.on("wager_livefeed", function(wagerLivefeed) {
+    /*
+    Input:
+    wagerLivefeed: string number (i.e. '5' or '250')
+     */
+
     io.in("session").emit("wager_livefeed", wagerLivefeed);
   });
 
   socket.on("submit_answer", function(answer) {
+    /*
+    Input:
+    answer: string
+     */
+
     if (answerReady) {
       answerReady = false;
       playersAnswered.push(socket.id);
@@ -173,6 +209,8 @@ io.on("connection", function(socket) {
             io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
           }, 5000);
         } else if (playersAnswered.length == Object.keys(players).length) {
+          // This branch runs if all of the players in the game
+          // have attempted to answer
           io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], false);
           setTimeout(function() {
             io.in("session").emit("reveal_scores");
@@ -187,10 +225,12 @@ io.on("connection", function(socket) {
             }, 5000);
           }, 5000);
         } else {
+          // This branch runs if there are still players in the game
+          // who are able to answer
           io.in("session").emit("buzzers_ready", playersAnswered);
           buzzersReady = true;
 
-          // Safety buzz timer
+          // Gets called if none of the players buzz in
           buzzerTimeout = setTimeout(function() {
             buzzersReady = false;
             io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], true);
@@ -213,6 +253,11 @@ io.on("connection", function(socket) {
   });
 
   socket.on("submit_daily_double_answer", function(answer) {
+    /*
+    Input:
+    answer: string
+     */
+
     let correct = evaluateAnswer(answer);
 
     updateScore(socket.id, correct, 1, true);
@@ -258,7 +303,7 @@ io.on("connection", function(socket) {
   });
 });
 
-// Jeoparty! functions
+// Game logic
 
 let js = require("jservice-node");
 
@@ -271,8 +316,12 @@ let dailyDoubleIds = [];
 
 function getCategories() {
   /*
+  Result:
+  Grabs random categories from jservice.io database
    */
 
+  // Using a while loop that runs until 6 categories are approved
+  // froze the browser so I'm using this cheap fix instead
   for (let i = 0; i < 20; i++) {
     let categoryId = Math.floor(Math.random() * 18418) + 1;
 
@@ -291,6 +340,11 @@ function getCategories() {
 
 function approveCategory(category) {
   /*
+  Input:
+  category: JSON object
+
+  Output:
+  Returns true if all category questions meet criteria, else returns false
    */
 
   for (let i = 0; i < 5; i++) {
@@ -306,6 +360,12 @@ function approveCategory(category) {
 
 function loadCategory(category) {
   /*
+  Input:
+  category: JSON object
+
+  Result:
+  Adds category and its relevant data to a few global variables
+  for use throughout the game
    */
 
   if (categoryNames.length < 6) {
@@ -316,7 +376,7 @@ function loadCategory(category) {
       let id = "category-" + categoryNames.length + "-price-" + i;
 
       clues[id] = category[i - 1];
-      clues[id]["screen_question"] = formatScreenQuestion(clues[id]["question"]);
+      clues[id]["screen_question"] = clues[id]["question"].toUpperCase();
       clues[id]["raw_answer"] = formatRawText(clues[id]["answer"]);
       clues[id]["screen_answer"] = formatScreenAnswer(clues[id]["answer"]);
     }
@@ -325,11 +385,15 @@ function loadCategory(category) {
 
 function setDailyDoubleIds() {
   /*
+  Result:
+  Selects 3 random clue ids to be daily double clues
    */
 
   let categoryNums = [1, 2, 3, 4, 5, 6];
 
   for (let i = 0; i < 3; i++) {
+    // Changing categoryNums with each iteration stops the same
+    // category number from having more than 1 daily double
     let index = Math.floor(Math.random() * categoryNums.length);
     let categoryNum = categoryNums[index];
     categoryNums.splice(index, 1);
@@ -337,7 +401,7 @@ function setDailyDoubleIds() {
     let priceNum;
     let rng = Math.random();
 
-    // Simple bell curve structure for weighted randomization
+    // Simple bell curve structure for "weighted" randomization
     if (rng < .15) {
       priceNum = 3;
     } else if (rng > .85) {
@@ -351,20 +415,19 @@ function setDailyDoubleIds() {
   console.log(dailyDoubleIds);
 }
 
-function formatScreenQuestion(original) {
-  /*
-   */
-
-  let formattedQuestion = original.toUpperCase();
-  return (formattedQuestion);
-}
-
 function formatRawText(original) {
   /*
+  Input:
+  original: string
+
+  Output:
+  Removes formatting and punctuation from original, then returns it
    */
 
   let rawAnswer = original.toLowerCase();
 
+  // Additional space so that replacing 'a ' always works
+  // when 'a' is the last letter of original
   rawAnswer = rawAnswer + " ";
 
   // HTML tags
@@ -390,6 +453,11 @@ function formatRawText(original) {
 
 function formatScreenAnswer(original) {
   /*
+  Input:
+  original: string
+
+  Output:
+  Removes formatting and certain punctuations from original, then returns it
    */
 
   // Uppercase everything
@@ -409,8 +477,42 @@ function formatScreenAnswer(original) {
   return (screenAnswer);
 }
 
+function getMaxWager(score) {
+  /*
+  Input:
+  score: number
+
+  Output:
+  Returns the highest value the player can wager
+   */
+
+  let maxWager;
+
+  if (doubleJeoparty) {
+    if (score > 2000) {
+      maxWager = score;
+    } else {
+      maxWager = 2000;
+    }
+  } else {
+    if (score > 1000) {
+      maxWager = score;
+    } else {
+      maxWager = 1000;
+    }
+  }
+
+  return maxWager;
+}
+
 function evaluateAnswer(answer) {
   /*
+  Input:
+  answer: string
+
+  Output:
+  Returns true if the answer is correct (or is relatively close to correct),
+  else returns false
    */
 
   let correctAnswer = clues[lastClueRequest]["raw_answer"];
@@ -422,6 +524,9 @@ function evaluateAnswer(answer) {
   if (playerAnswer == correctAnswer) {
     return true;
   } else {
+    // This check prevents players from trying to take advantage of a question like
+    // "This man named Jack was a blah blah blah" by only answering with "Jack",
+    // if they do this, they need to have the answer completely correct
     if (question.includes(playerAnswer) || categoryName.includes(playerAnswer) || answer.length <= 2) {
       return false;
     } else {
@@ -436,6 +541,14 @@ function evaluateAnswer(answer) {
 
 function updateScore(id, correct, multiplier, dailyDouble) {
   /*
+  Input:
+  id: string (Socket id)
+  correct: boolean
+  multiplier: number
+  dailyDouble: boolean
+
+  Result:
+  Changes the score variable of the given player object
    */
 
   let base;
@@ -457,10 +570,13 @@ function updateScore(id, correct, multiplier, dailyDouble) {
 
 function reset() {
   /*
+  Result:
+  Resets variables between each round
    */
 
   playersAnswered = [];
 
+  // Resets board variables when Single Jeoparty board is empty
   if (usedClueIds.length == 30 && !doubleJeoparty) {
     doubleJeoparty = true;
 
@@ -481,27 +597,4 @@ function reset() {
 
     getCategories();
   }
-}
-
-function getMaxWager(score) {
-  /*
-   */
-
-  let maxWager;
-
-  if (doubleJeoparty) {
-    if (score > 2000) {
-      maxWager = score;
-    } else {
-      maxWager = 2000;
-    }
-  } else {
-    if (score > 1000) {
-      maxWager = score;
-    } else {
-      maxWager = 1000;
-    }
-  }
-
-  return maxWager;
 }
