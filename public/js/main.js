@@ -15,6 +15,8 @@ let currentScreenQuestion;
 let doubleJeoparty = false;
 let maxWager;
 let dailyDouble = false;
+let finalJeoparty = false;
+let finalJeopartyClue;
 
 // Timeout/interval handlers
 let questionInterval;
@@ -402,23 +404,25 @@ socket.on("reveal_board", function(newUsedClueArray, boardController, boardContr
   boardControllerNickname: string
    */
 
-  dailyDouble = false;
+  if (!finalJeoparty) {
+    dailyDouble = false;
 
-  if (isHost) {
-    changeScreen("h-board-screen");
-    document.getElementById("clue-screen").classList.remove("animate");
-    voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
-  } else {
-    if (socket.id == boardController) {
-      changeScreen("c-board-screen");
-      resetClueButtons();
-      resetCluePriceButtons();
+    if (isHost) {
+      changeScreen("h-board-screen");
+      document.getElementById("clue-screen").classList.remove("animate");
+      voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
     } else {
-      changeWaitScreen(boardControllerNickname.toUpperCase());
+      if (socket.id == boardController) {
+        changeScreen("c-board-screen");
+        resetClueButtons();
+        resetCluePriceButtons();
+      } else {
+        changeWaitScreen(boardControllerNickname.toUpperCase());
+      }
     }
+    usedClueArray = newUsedClueArray;
+    updateCategoryOptions();
   }
-  usedClueArray = newUsedClueArray;
-  updateCategoryOptions();
 });
 
 // HOST & CONTROLLER
@@ -434,6 +438,23 @@ socket.on("setup_double_jeoparty", function(categoryNames, categoryDates) {
   updateCategoryOptions();
   if (isHost) {
     clearPlayerAnswerText();
+  }
+});
+
+// HOST & CONTROLLER
+socket.on("setup_final_jeoparty", function(clue) {
+  /*
+   */
+
+  finalJeoparty = true;
+  finalJeopartyClue = clue;
+
+  if (isHost) {
+    document.getElementById("clue-screen").className = "static-clue-screen";
+    displayFinalJeopartyCategory(clue["category"]["title"]);
+    clearPlayerAnswerText();
+  } else {
+    changeWaitScreen("FINAL JEOPARTY CATEGORY");
   }
 });
 
@@ -1560,4 +1581,14 @@ function setDoubleJeopartyPriceText() {
       }
     }
   }
+}
+
+function displayFinalJeopartyCategory(categoryName) {
+  /*
+   */
+
+  let clueText = document.getElementById("clue-text");
+  clueText.className = "clue-text";
+
+  clueText.innerHTML = categoryName.toUpperCase();
 }

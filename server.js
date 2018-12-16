@@ -25,6 +25,8 @@ let answerReady = false;
 let buzzWinnerId;
 let doubleJeoparty = false;
 let setupDoubleJeoparty = false;
+let finalJeoparty = false;
+let setupFinalJeoparty = false;
 
 let usedClueIds = [];
 let usedClueArray = {
@@ -141,6 +143,9 @@ io.on("connection", function(socket) {
           if (doubleJeoparty && !setupDoubleJeoparty) {
             setupDoubleJeoparty = true;
             io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+          } else if (finalJeoparty && !setupFinalJeoparty) {
+            setupFinalJeoparty = true;
+            io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
           }
           io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
         }, 5000);
@@ -205,6 +210,9 @@ io.on("connection", function(socket) {
             if (doubleJeoparty && !setupDoubleJeoparty) {
               setupDoubleJeoparty = true;
               io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+            } else if (finalJeoparty && !setupFinalJeoparty) {
+              setupFinalJeoparty = true;
+              io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
             }
             io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
           }, 5000);
@@ -220,6 +228,9 @@ io.on("connection", function(socket) {
               if (doubleJeoparty && !setupDoubleJeoparty) {
                 setupDoubleJeoparty = true;
                 io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+              } else if (finalJeoparty && !setupFinalJeoparty) {
+                setupFinalJeoparty = true;
+                io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
               }
               io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
             }, 5000);
@@ -242,6 +253,9 @@ io.on("connection", function(socket) {
                 if (doubleJeoparty && !setupDoubleJeoparty) {
                   setupDoubleJeoparty = true;
                   io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+                } else if (finalJeoparty && !setupFinalJeoparty) {
+                  setupFinalJeoparty = true;
+                  io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
                 }
                 io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
               }, 5000);
@@ -274,6 +288,9 @@ io.on("connection", function(socket) {
           if (doubleJeoparty && !setupDoubleJeoparty) {
             setupDoubleJeoparty = true;
             io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+          } else if (finalJeoparty && !setupFinalJeoparty) {
+            setupFinalJeoparty = true;
+            io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
           }
           io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
         }, 5000);
@@ -287,6 +304,9 @@ io.on("connection", function(socket) {
             if (doubleJeoparty && !setupDoubleJeoparty) {
               setupDoubleJeoparty = true;
               io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
+            } else if (finalJeoparty && !setupFinalJeoparty) {
+              setupFinalJeoparty = true;
+              io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
             }
             io.in("session").emit("reveal_board", usedClueArray, boardController, players[boardController].nickname);
           }, 5000);
@@ -313,6 +333,7 @@ let categoryDates = [];
 let clues = {};
 let setDailyDoubles = false;
 let dailyDoubleIds = [];
+let finalJeopartyClue = undefined;
 
 function getCategories() {
   /*
@@ -380,6 +401,8 @@ function loadCategory(category) {
       clues[id]["raw_answer"] = formatRawText(clues[id]["answer"]);
       clues[id]["screen_answer"] = formatScreenAnswer(clues[id]["answer"]);
     }
+  } else if (finalJeopartyClue == undefined) {
+    finalJeopartyClue = category[4];
   }
 }
 
@@ -577,7 +600,7 @@ function reset() {
   playersAnswered = [];
 
   // Resets board variables when Single Jeoparty board is empty
-  if (usedClueIds.length == 30 && !doubleJeoparty) {
+  if (usedClueIds.length == 1 && !doubleJeoparty) {
     doubleJeoparty = true;
 
     usedClueIds = [];
@@ -596,5 +619,7 @@ function reset() {
     clues = {};
 
     getCategories();
+  } else if (usedClueIds.length == 1 && doubleJeoparty) {
+    finalJeoparty = true;
   }
 }
