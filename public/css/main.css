@@ -30,7 +30,9 @@
 
 body {
   text-align: center;
+
   color: white;
+
   font-family: 'Nunito', sans-serif;
   font-size: 10vh;
 
@@ -45,9 +47,8 @@ button {
   width: 100%;
   height: 100%;
 
-  background-color: transparent;
-
   border: none;
+  background-color: transparent;
 
   font-size: 5vh;
 }
@@ -130,6 +131,7 @@ button {
 
 .h-logo-text {
   color: white;
+
   font-family: logo;
   font-size: 30vh;
 }
@@ -137,11 +139,11 @@ button {
 /* Board screen */
 
 .h-board-screen {
-  display: flex;
-  align-items: center;
-
   position: absolute;
   z-index: -1;
+
+  display: flex;
+  align-items: center;
 
   width: 100vw;
   height: 100vh;
@@ -161,96 +163,86 @@ button {
 }
 
 .h-category-name {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .7vh .7vh black;
 
+  font-family: board;
   font-size: 4.5vh;
-
   line-height: 4vh;
 }
 
 .s-h-category-name {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .6vh .6vh black;
 
+  font-family: board;
   font-size: 3.8vh;
-
   line-height: 4vh;
 }
 
 .xs-h-category-name {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .5vh .5vh black;
 
+  font-family: board;
   font-size: 3vh;
-
   line-height: 3vh;
 }
 
 .xxs-h-category-name {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .3vh .3vh black;
 
+  font-family: board;
   font-size: 2.8vh;
-
   line-height: 2.5vh;
 }
 
 .xxxs-h-category-name {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .3vh .3vh black;
 
+  font-family: board;
   font-size: 2.7vh;
-
   line-height: 3vh;
 }
 
 .category-date-wrapper {
   position: absolute;
+
   height: 110%;
 }
 
 .category-date-text {
-  font-family: board;
+  bottom: 1vh;
+
+  vertical-align: text-bottom;
+
   color: #D69F4C;
   text-shadow: .4vh .4vh black;
 
+  font-family: board;
   font-size: 2vh;
-
   line-height: 0;
-
-  vertical-align: text-bottom;
-  bottom: 1vh;
 }
 
 .h-price-text {
-  font-family: board;
-
   letter-spacing: .2vh;
 
   color: #D69F4C;
   text-shadow: 1vh 1vh black;
 
+  font-family: board;
   font-size: 10vh;
 }
 
@@ -285,8 +277,8 @@ button {
   height: 100%;
 
   transform: scale(.13);
-  opacity: .1;
 
+  opacity: .1;
   background-image: url("/graphics/background.png");
 }
 
@@ -299,6 +291,7 @@ button {
 
 .clue-text-row {
   height: 100vh;
+
   line-height: 12vh;
 }
 
@@ -314,40 +307,36 @@ button {
   color: white;
   text-shadow: .6vh .6vh #000000;
 
-  line-height: 4vh;
-
   font-family: clue;
   font-size: 6vh;
+  line-height: 4vh;
 }
 
 .xs-clue-text {
   color: white;
   text-shadow: .5vh .5vh #000000;
 
-  line-height: 3vh;
-
   font-family: clue;
   font-size: 5vh;
+  line-height: 3vh;
 }
 
 .xxs-clue-text {
   color: white;
   text-shadow: .4vh .4vh #000000;
 
-  line-height: 2vh;
-
   font-family: clue;
   font-size: 4vh;
+  line-height: 2vh;
 }
 
 .xxxs-clue-text {
   color: white;
   text-shadow: .3vh .3vh #000000;
 
-  line-height: 0;
-
   font-family: clue;
   font-size: 3vh;
+  line-height: 0;
 }
 
 .player-answer {
@@ -472,11 +461,11 @@ button {
 /* Score screen */
 
 .score-screen {
-  display: flex;
-  align-items: center;
-
   position: absolute;
   z-index: -1;
+
+  display: flex;
+  align-items: center;
 
   width: 100vw;
   height: 100vh;
@@ -511,8 +500,6 @@ button {
   height: 60%;
 }
 
-/* TODO */
-
 .nickname-display {
   width: 24vw;
 
@@ -520,33 +507,33 @@ button {
 }
 
 .nickname-text {
+  letter-spacing: .2vh;
+  word-wrap: break-word;
+
   color: white;
   text-shadow: .7vh .7vh black;
 
   font-size: 12vh;
-  letter-spacing: .2vh;
-
-  word-wrap: break-word;
 }
 
 .s-nickname-text {
+  letter-spacing: .2vh;
+  word-wrap: break-word;
+
   color: white;
   text-shadow: .7vh .7vh black;
 
   font-size: 7vh;
-  letter-spacing: .2vh;
-
-  word-wrap: break-word;
 }
 
 .xs-nickname-text {
+  letter-spacing: .2vh;
+  word-wrap: break-word;
+
   color: white;
   text-shadow: .7vh .7vh black;
 
   font-size: 3.5vh;
-  letter-spacing: .2vh;
-
-  word-wrap: break-word;
 }
 
 .score-display {
@@ -564,11 +551,11 @@ button {
   width: 100%;
 
   text-align: center;
+  letter-spacing: .2vh;
 
   color: white;
   text-shadow: .6vh .6vh black;
 
-  letter-spacing: .2vh;
   font-size: 10vh;
 }
 
@@ -592,16 +579,13 @@ button {
   height: 5vh;
 }
 
-.overflow-divider {
-
-}
-
 .overflow-text {
+  letter-spacing: .2vh;
+
   color: white;
   text-shadow: .7vh .7vh black;
 
   font-size: 4vh;
-  letter-spacing: .2vh;
 }
 
 .red-overflow-text {
@@ -633,6 +617,7 @@ button {
 
 .c-logo-text {
   color: white;
+
   font-family: logo;
   font-size: 10vh;
 }
@@ -644,29 +629,27 @@ button {
 .nickname-form {
   width: 70vw;
   height: 8vh;
-
   padding: 4.5vh;
-  padding-left: 1vh;
   padding-right: 1vh;
-
-  font-size: 4vh;
-
-  color: black;
-
-  border: none;
+  padding-left: 1vh;
 
   text-transform: uppercase;
+
+  color: black;
+  border: none;
+
+  font-size: 4vh;
 }
 
 .join-button {
-  padding-left: 1vh;
   padding-right: 1vh;
-
-  font-size: 3vh;
+  padding-left: 1vh;
 
   color: black;
   border-radius: 1vh;
   background-color: white;
+
+  font-size: 3vh;
 }
 
 /* Board screen */
@@ -692,98 +675,90 @@ button {
 }
 
 .c-category-text {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .8vh .8vh black;
 
+  font-family: board;
   font-size: 4vh;
   line-height: 4vh;
 }
 
 .s-c-category-text {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .7vh .7vh black;
 
+  font-family: board;
   font-size: 3.2vh;
   line-height: 3.5vh;
 }
 
 .xs-c-category-text {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .6vh .6vh black;
 
+  font-family: board;
   font-size: 3vh;
   line-height: 3vh;
 }
 
 .xxs-c-category-text {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .5vh .5vh black;
 
+  font-family: board;
   font-size: 2.8vh;
   line-height: 3.2vh;
 }
 
 .c-price-text {
-  font-family: board;
-
   letter-spacing: .2vh;
 
   color: #D69F4C;
   text-shadow: .8vh .8vh black;
 
+  font-family: board;
   font-size: 6.5vh;
 }
 
 .clue-request-text {
-  font-family: board;
-
   word-wrap: break-word;
 
   color: white;
   text-shadow: .8vh .8vh black;
 
+  font-family: board;
   font-size: 6vh;
-
   line-height: 6vh;
 }
 
 .black-border {
   width: 100%;
   height: 100%;
+  padding-top: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
 
   color: black;
   border-width: .5vh;
   border-style: solid;
-
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
 }
 
 /* Buzzer screen */
 
 .buzzer-screen {
-  width: 100vw;
-
   position: absolute;
   z-index: -1;
+
+  width: 100vw;
 
   background-color: #060CE9;
 }
@@ -796,11 +771,10 @@ button {
 .buzzer {
   position:absolute;
   z-index: 3;
+  top: 27vh;
 
   width: 30vh;
   height: 30vh;
-
-  top: 27vh;
 
   -webkit-transition: all 0.1s;
   -moz-transition: all 0.1s;
@@ -819,7 +793,6 @@ button {
 
 .buzzer:active {
   position:absolute;
-
   top: 28vh;
 
   -webkit-box-shadow: 0 .2vh 0  #84261a;
@@ -829,31 +802,28 @@ button {
 
 .buzzer-light {
   position: absolute;
+  top: 26.5vh;
 
   width: 34vh;
   height: 34vh;
 
-  top: 26.5vh;
-
   border-radius: 25vh;
-
   background-color: transparent;
 }
 
 .blinking-buzzer-light {
   position: absolute;
+  top: 26.5vh;
 
   width: 34vh;
   height: 34vh;
 
-  top: 26.5vh;
-
-  border-radius: 25vh;
-  background-color: transparent;
-
   animation-name: blink;
   animation-duration: .25s;
   animation-iteration-count: infinite;
+
+  border-radius: 25vh;
+  background-color: transparent;
 }
 
 @keyframes blink {
@@ -912,10 +882,10 @@ button {
 /* Answer screen */
 
 .answer-screen {
-  width: 100vw;
-
   position: absolute;
   z-index: -1;
+
+  width: 100vw;
 
   background-color: #060CE9;
 }
@@ -923,43 +893,39 @@ button {
 .answer-form {
   width: 80vw;
   height: 8vh;
-
   padding: 3vh;
-  padding-left: 1vh;
   padding-right: 1vh;
-
-  font-size: 4vh;
-
-  color: black;
+  padding-left: 1vh;
 
   text-transform: uppercase;
 
+  color: black;
   border: none;
+
+  font-size: 4vh;
 }
 
 .wager-form {
   width: 30vw;
   height: 8vh;
-
   padding: 3vh;
-  padding-left: 1vh;
   padding-right: 1vh;
-
-  font-size: 4vh;
-
-  color: black;
+  padding-left: 1vh;
 
   text-transform: uppercase;
 
+  color: black;
   border: none;
+
+  font-size: 4vh;
 }
 
 .submit-answer-button {
   padding: 1.5vh;
 
-  font-size: 4vh;
-
   color: white;
   border-radius: 1vh;
   background-color: #cb3b27;
+
+  font-size: 4vh;
 }

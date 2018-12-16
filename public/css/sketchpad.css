@@ -1,7 +1,6 @@
-/* SKETCHPAD (SIGNATURE) STYLESHEET */
-
-/* This stying was modified from:
-  https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
+/*
+Source:
+https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
 */
 
 #sketchpadapp {
@@ -9,7 +8,6 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  /* Prevent nearby text being highlighted when accidentally dragging mouse outside confines of the canvas */
 
   -webkit-touch-callout: none;
   -khtml-user-select: none;
@@ -20,6 +18,5 @@
   height: 250px;
 
   border-radius: 10px;
-
   background-color: white;
 }

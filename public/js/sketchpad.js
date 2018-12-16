@@ -1,8 +1,5 @@
-/* SKETCHPAD SCRIPT */
-
-/* This script was modified from:
-  https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
-*/
+// Source:
+// https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
 
 // Variables for referencing the canvas and 2dcanvas context
 var canvas, ctx;
