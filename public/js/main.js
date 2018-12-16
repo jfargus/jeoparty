@@ -152,6 +152,7 @@ socket.on("daily_double_request", function(clueRequest, screenQuestion, boardCon
 
   if (isHost) {
     clearPlayerAnswerText();
+    playAudio("daily_double");
     displayClue(clueRequest, screenQuestion, true);
     currentScreenQuestion = screenQuestion;
     setTimeout(function() {
@@ -292,6 +293,7 @@ socket.on("answer", function(player) {
   if (isHost) {
     playAudio("buzzer");
     setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
+    clearPlayerAnswerText();
   } else {
     toggleBlinkingBuzzerLight(false);
     if (socket.id == player.id) {
@@ -429,6 +431,7 @@ socket.on("setup_double_jeoparty", function(categoryNames, categoryDates) {
 
   setDoubleJeopartyPriceText();
   setCategoryText(categoryNames, categoryDates);
+  updateCategoryOptions();
   if (isHost) {
     clearPlayerAnswerText();
   }
@@ -728,15 +731,21 @@ function updateCategoryOptions() {
   }
 
   for (let i = 1; i < 7; i++) {
-    if (usedClueArray["category-" + i].length == 5) {
-      let categoryButton = document.getElementById("category-" + i);
-      let categoryButtonText = document.getElementById("category-" + i + idSuffix);
+    let categoryButton = document.getElementById("category-" + i);
+    let categoryButtonText = document.getElementById("category-" + i + idSuffix);
 
+    if (usedClueArray["category-" + i].length == 5) {
       categoryButton.disabled = true;
       categoryButtonText.innerHTML = "";
 
       if (isHost) {
-        document.getElementById("category-" + i + "-date-wrapper").classList.add("inactive");
+        document.getElementById("category-" + i + "-date-wrapper").className = "inactive category-date-wrapper";
+      }
+    } else {
+      categoryButton.disabled = false;
+
+      if (isHost) {
+        document.getElementById("category-" + i + "-date-wrapper").className = "category-date-wrapper";
       }
     }
   }
