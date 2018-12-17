@@ -24,7 +24,7 @@ simultaneously.
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- Jeoparty! modules -->
-  <script src="/js/main.js"></script>
+  <script src="/js/bundle.js"></script>
   <link rel="stylesheet" href="/css/main.css">
   <script src="/js/sketchpad.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/sketchpad.css">
@@ -197,14 +197,14 @@ simultaneously.
     <!-- Timer -->
     <div id="h-timer" class="inactive h-timer"></div>
     <div id="h-timer-frame" class="inactive h-timer-frame">
-      <div class="h-timer-frame-divider"></div>
-      <div class="h-timer-frame-divider"></div>
-      <div class="h-timer-frame-divider"></div>
-      <div class="h-timer-frame-divider"></div>
-      <div class="h-timer-frame-divider"></div>
-      <div class="h-timer-frame-divider"></div>
-      <div class="h-timer-frame-divider"></div>
-      <div class="h-timer-frame-divider"></div>
+      <div id="divider-1" class="h-timer-frame-divider"></div>
+      <div id="divider-2" class="h-timer-frame-divider"></div>
+      <div id="divider-3" class="h-timer-frame-divider"></div>
+      <div id="divider-4" class="h-timer-frame-divider"></div>
+      <div id="divider-5" class="h-timer-frame-divider"></div>
+      <div id="divider-6" class="h-timer-frame-divider"></div>
+      <div id="divider-7" class="h-timer-frame-divider"></div>
+      <div id="divider-8" class="h-timer-frame-divider"></div>
     </div>
 
     <!-- Clue screen -->
@@ -319,6 +319,7 @@ simultaneously.
           </div>
         </div>
         <div class="row justify-content-center">
+          <div id="erase" class="erase" onclick="clearCanvas(canvas, ctx);">X</div>
           <canvas id="sketchpad" height="250" width="250"></canvas>
         </div>
         <div class="small-spacer"></div>
@@ -338,7 +339,8 @@ simultaneously.
         </div>
         <div class="spacer"></div>
         <div class="row justify-content-center">
-          <div class="join-button" onclick="startGame()">START GAME</div>
+          <div id="start-game-button" class="join-button" onclick="startGame()">START GAME</div>
+          <div id="rejoin-game-button" class="inactive join-button" onclick="rejoinGame()">REJOIN GAME</div>
         </div>
       </div>
     </div>

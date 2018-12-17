@@ -5,6 +5,7 @@
   "dependencies": {
     "express": "^4.15.2",
     "ip": "^1.1.5",
+    "nosleep.js": "^0.9.0",
     "socket.io": "^1.7.3"
   }
 }

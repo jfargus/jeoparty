@@ -16,7 +16,10 @@ server.listen(3000, ip.address());
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
 
+let gameActive = false;
+let disconnectedPlayers = {};
 let players = {};
+let finalJeopartyPlayers = {};
 let boardController;
 let lastClueRequest;
 let playersAnswered = [];
@@ -49,7 +52,11 @@ io.on("connection", function(socket) {
 
   socket.join("session");
 
-  socket.emit("connect_device");
+  if (Object.keys(disconnectedPlayers).includes(socket.conn.remoteAddress)) {
+    socket.emit("reconnect_device");
+  } else {
+    socket.emit("connect_device");
+  }
 
   socket.on("set_host_socket", function() {
     getCategories();
@@ -66,27 +73,44 @@ io.on("connection", function(socket) {
     signature: image
      */
 
-    let player = new Object();
-    player.id = socket.id;
-    player.playerNumber = Object.keys(players).length + 1;
-    player.nickname = nickname;
-    player.signature = signature;
-    player.score = 0;
-    player.wager = 0;
+    if (!doubleJeoparty) {
+      let player = new Object();
+      player.id = socket.id;
+      player.ip = socket.conn.remoteAddress;
+      player.playerNumber = Object.keys(players).length + 1;
+      player.nickname = nickname;
+      player.signature = signature;
+      player.score = 0;
+      player.wager = 0;
+      player.maxWager = 0;
 
-    players[socket.id] = player;
+      // Final Jeoparty variables
+      player.answer = "";
+      player.correct = false;
 
-    if (Object.keys(players).length == 1) {
-      boardController = socket.id;
+      players[socket.id] = player;
+
+      if (Object.keys(players).length == 1) {
+        boardController = socket.id;
+      }
+
+      io.in("session").emit("update_players_connected", Object.keys(players).length);
+      io.in("session").emit("players", players);
     }
 
-    io.in("session").emit("update_players_connected", Object.keys(players).length);
+    socket.emit("join_success", categoryNames, boardController, gameActive, doubleJeoparty);
+  });
 
-    io.in("session").emit("join_success", categoryNames, boardController);
-    io.in("session").emit("players", players);
+  socket.on("rejoin_game", function() {
+    let player = JSON.parse(JSON.stringify(disconnectedPlayers[socket.conn.remoteAddress]));
+    players[socket.id] = player;
+    delete disconnectedPlayers[socket.conn.remoteAddress];
+
+    socket.emit("join_success", categoryNames, boardController, gameActive, doubleJeoparty);
   });
 
   socket.on("start_game", function() {
+    gameActive = true;
     io.in("session").emit("load_game", categoryNames, categoryDates, boardController, players[boardController].nickname);
   });
 
@@ -315,9 +339,62 @@ io.on("connection", function(socket) {
     }, 5000);
   });
 
+  socket.on("displayed_final_jeoparty_category", function() {
+    for (let id in players) {
+      if (players[id].score > 0) {
+        players[id].maxWager = getMaxWager(players[id].score);
+        finalJeopartyPlayers[id] = players[id];
+      }
+    }
+
+    io.in("session").emit("request_final_jeoparty_wager", finalJeopartyPlayers);
+
+    setTimeout(function() {
+      io.in("session").emit("display_final_jeoparty_clue");
+    }, 15000);
+  });
+
+  socket.on("final_jeoparty_wager", function(wager) {
+    finalJeopartyPlayers[socket.id].wager = wager;
+  });
+
+  socket.on("answer_final_jeoparty", function() {
+    io.in("session").emit("answer_final_jeoparty");
+    setTimeout(function() {
+      io.in("session").emit("display_final_jeoparty_answer", finalJeopartyPlayers);
+    }, 30000);
+  });
+
+  socket.on("submit_final_jeoparty_answer", function(answer) {
+    finalJeopartyPlayers[socket.id].answer = answer;
+    finalJeopartyPlayers[socket.id].correct = evaluateAnswer(answer);
+    if (evaluateAnswer(answer)) {
+      players[socket.id].score += finalJeopartyPlayers[socket.id].wager;
+    } else {
+      players[socket.id].score -= finalJeopartyPlayers[socket.id].wager;
+    }
+  });
+
+  socket.on("request_players", function() {
+    io.in("session").emit("players", players);
+  });
+
   socket.on("disconnecting", function() {
+    try {
+      let player = JSON.parse(JSON.stringify(players[socket.id]));
+      disconnectedPlayers[socket.conn.remoteAddress] = player;
+    } catch (e) {
+
+    }
+
     socket.leave("session");
     delete players[socket.id];
+    if (finalJeoparty) {
+      try {
+        delete finalJeopartyPlayers[socket.id];
+      } catch (e) {}
+    }
+
     io.in("session").emit("players", players);
     io.in("session").emit("update_players_connected", Object.keys(players).length);
   });
@@ -403,6 +480,9 @@ function loadCategory(category) {
     }
   } else if (finalJeopartyClue == undefined) {
     finalJeopartyClue = category[4];
+    finalJeopartyClue["screen_question"] = finalJeopartyClue["question"].toUpperCase();
+    finalJeopartyClue["raw_answer"] = formatRawText(finalJeopartyClue["answer"]);
+    finalJeopartyClue["screen_answer"] = formatScreenAnswer(finalJeopartyClue["answer"]);
   }
 }
 
@@ -435,7 +515,6 @@ function setDailyDoubleIds() {
 
     dailyDoubleIds.push("category-" + categoryNum + "-price-" + priceNum);
   }
-  console.log(dailyDoubleIds);
 }
 
 function formatRawText(original) {
@@ -538,7 +617,13 @@ function evaluateAnswer(answer) {
   else returns false
    */
 
-  let correctAnswer = clues[lastClueRequest]["raw_answer"];
+  let correctAnswer;
+
+  if (finalJeoparty) {
+    correctAnswer = finalJeopartyClue["raw_answer"];
+  } else {
+    correctAnswer = clues[lastClueRequest]["raw_answer"];
+  }
   let playerAnswer = formatRawText(answer);
 
   let question = formatRawText(clues[lastClueRequest]["question"]);
@@ -600,7 +685,7 @@ function reset() {
   playersAnswered = [];
 
   // Resets board variables when Single Jeoparty board is empty
-  if (usedClueIds.length == 1 && !doubleJeoparty) {
+  if (usedClueIds.length == 30 && !doubleJeoparty) {
     doubleJeoparty = true;
 
     usedClueIds = [];
@@ -619,7 +704,7 @@ function reset() {
     clues = {};
 
     getCategories();
-  } else if (usedClueIds.length == 1 && doubleJeoparty) {
+  } else if (usedClueIds.length == 30 && doubleJeoparty) {
     finalJeoparty = true;
   }
 }
