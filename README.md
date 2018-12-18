@@ -2,7 +2,7 @@
 A local multiplayer Jeopardy! game. Run the board screen on your laptop and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with a limitless number of friends!
 
 # How to Play
-I'm planning to publish this game to its own website online, but in the meantime, this is the only way to play the game.
+I'm planning to publish this game to its own website online, but in the meantime, this is the only way to play :(
 
 ## 1. Download the repository
 Download this repository onto your computer by clicking the green
