@@ -51,7 +51,7 @@ The Jeopardy! game show and all elements thereof, including but not limited to c
 
 # Credits
 Libraries used:
-* [Socket.io](socket.io)
-* [Express.js](expressjs.com)
-* [Node.js](nodejs.com)
-* [Node IP](github.com/indutny/node-ip)
+* Socket.io
+* Express.js
+* Node.js
+* Node IP
