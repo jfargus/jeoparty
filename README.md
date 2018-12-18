@@ -44,7 +44,7 @@ smoothly.
 Go to the same URL as you did on your computer with your mobile device and join the game. Plug your laptop into a TV or monitor for maximum enjoyment.
 
 # Copyright
-The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
+The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
 
 # Credits
 Libraries used:
