@@ -22,7 +22,7 @@ This game requires a few packages from Node.js in order to function so now we
 need to install all of the things the game needs in the game folder.
 
 In terminal:
-```
+```https://www.socket.io
 npm install
 ```
 
@@ -51,7 +51,7 @@ The Jeopardy! game show and all elements thereof, including but not limited to c
 
 # Credits
 Libraries used:
-* [Socket.io](https://www.socket.io)
-* [Express.js](https://www.expressjs.com)
-* [Node.js](https://www.nodejs.com)
-* [Node IP](https://github.com/indutny/node-ip)
+* [Socket.io](socket.io)
+* [Express.js](expressjs.com)
+* [Node.js](nodejs.com)
+* [Node IP](github.com/indutny/node-ip)
