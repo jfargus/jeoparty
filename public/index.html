@@ -34,24 +34,39 @@ HTML documents for both the Host and Controller screens are stored here
     <!-- Landing screen -->
     <div id="h-landing-screen" class="h-landing-screen" onclick="declareAudioFiles()">
       <div class="container-fluid">
+        <!--
         <div class="row justify-content-center">
-          <div id="unmute-text" class="unmute-text col-12">
-            <span>CLICK ANYWHERE ON SCREEN FOR AUDIO</span>
+          <div id="unmute-text" class="unmute-text col-2">
+            <span>CLICK FOR AUDIO</span>
           </div>
         </div>
+      -->
         <div class="row justify-content-center">
           <div class="col-12">
             <span class="h-logo-text">JEOPARTY!</span>
           </div>
         </div>
         <div class="row justify-content-center">
-          <div class="col-12">
-            <span id="players-connected">0 PLAYERS CONNECTED</span>
+          <div class="header-text col-12">
+            URL
+          </div>
+          <div class="footer-text col-12">
+            <span id="url-text"></span>
           </div>
         </div>
+        <div class="small-spacer"></div>
         <div class="row justify-content-center">
-          <div class="url-text col-12">
-            <span id="url-text"></span>
+          <div class="header-text col-12">
+            SESSION ID
+          </div>
+          <div class="footer-text col-12">
+            <span id="session-id-text"></span>
+          </div>
+        </div>
+        <div class="small-spacer"></div>
+        <div class="row justify-content-center">
+          <div class="col-12">
+            <span id="players-connected">0 PLAYERS JOINED</span>
           </div>
         </div>
       </div>
@@ -304,8 +319,27 @@ HTML documents for both the Host and Controller screens are stored here
   <!-- Controller -->
   <div id="controller" class="inactive">
 
+    <!-- Join session screen -->
+    <div id="join-session-screen" class="c-landing-screen">
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <div class="col-12">
+            <span class="c-logo-text">JEOPARTY!</span>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div id="session-id-form-wrapper" class="row justify-content-center">
+          <input type="text" id="session-id-form" class="session-id-form" />
+        </div>
+        <div class="spacer"></div>
+        <div class="row justify-content-center">
+          <div id="start-game-button" class="join-button" onclick="joinSession()">JOIN SESSION</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Landing screen -->
-    <div id="c-landing-screen" class="c-landing-screen">
+    <div id="c-landing-screen" class="inactive c-landing-screen">
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12">

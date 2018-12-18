@@ -117,7 +117,6 @@ button {
 
 .h-landing-screen {
   display: flex;
-  align-items: center;
 
   width: 100vw;
   height: 100vh;
@@ -132,22 +131,24 @@ button {
 .unmute-text {
   position: absolute;
   top: 0;
+  right: 0;
 
   font-size: 6vh;
 }
 
-.url-text {
-  position: absolute;
-  bottom: 0;
-
+.header-text {
   font-size: 6vh;
+}
+
+.footer-text {
+  font-size: 10vh;
 }
 
 .h-logo-text {
   color: white;
 
   font-family: logo;
-  font-size: 30vh;
+  font-size: 20vh;
 }
 
 /* Board screen */
@@ -624,6 +625,23 @@ button {
 
 .c-ui-text {
   font-size: 3vh;
+}
+
+/* Join session screen */
+
+.session-id-form {
+  width: 33vw;
+  height: 8vh;
+  padding: 3vh;
+  padding-right: 1vh;
+  padding-left: 1vh;
+
+  text-transform: uppercase;
+
+  color: black;
+  border: none;
+
+  font-size: 4vh;
 }
 
 /* Landing screen */

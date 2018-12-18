@@ -2,6 +2,8 @@
 
 // Socket logic
 
+let js = require("jservice-node");
+
 // Setup express server
 let express = require("express");
 let app = express();
@@ -13,50 +15,61 @@ let io = require("socket.io")(server);
 let ip = require("ip");
 server.listen(3000, ip.address());
 
-console.log("Game URL: " + ip.address() + ":3000");
-
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
 
-let gameActive = false;
-let disconnectedPlayers = {};
-let players = {};
-let finalJeopartyPlayers = {};
-let boardController;
-let lastClueRequest;
-let playersAnswered = [];
-let buzzersReady = false;
-let answerReady = false;
-let buzzWinnerId;
-let doubleJeoparty = false;
-let setupDoubleJeoparty = false;
-let finalJeoparty = false;
-let setupFinalJeoparty = false;
+function session() {
+  this.gameActive = false;
+  this.disconnectedPlayers = {};
+  this.players = {};
+  this.finalJeopartyPlayers = {};
+  this.boardController;
+  this.lastClueRequest;
+  this.playersAnswered = [];
+  this.buzzersReady = false;
+  this.answerReady = false;
+  this.buzzWinnerId;
+  this.doubleJeoparty = false;
+  this.setupDoubleJeoparty = false;
+  this.finalJeoparty = false;
+  this.setupFinalJeoparty = false;
 
-let remainingClueIds = [
-  "category-1-price-1", "category-1-price-2", "category-1-price-3", "category-1-price-4", "category-1-price-5",
-  "category-2-price-1", "category-2-price-2", "category-2-price-3", "category-2-price-4", "category-2-price-5",
-  "category-3-price-1", "category-3-price-2", "category-3-price-3", "category-3-price-4", "category-3-price-5",
-  "category-4-price-1", "category-4-price-2", "category-4-price-3", "category-4-price-4", "category-4-price-5",
-  "category-5-price-1", "category-5-price-2", "category-5-price-3", "category-5-price-4", "category-5-price-5",
-  "category-6-price-1", "category-6-price-2", "category-6-price-3", "category-6-price-4", "category-6-price-5",
-];
-let usedClueIds = [];
-let usedClueArray = {
-  "category-1": [],
-  "category-2": [],
-  "category-3": [],
-  "category-4": [],
-  "category-5": [],
-  "category-6": [],
-};
+  this.remainingClueIds = [
+    "category-1-price-1", "category-1-price-2", "category-1-price-3", "category-1-price-4", "category-1-price-5",
+    "category-2-price-1", "category-2-price-2", "category-2-price-3", "category-2-price-4", "category-2-price-5",
+    "category-3-price-1", "category-3-price-2", "category-3-price-3", "category-3-price-4", "category-3-price-5",
+    "category-4-price-1", "category-4-price-2", "category-4-price-3", "category-4-price-4", "category-4-price-5",
+    "category-5-price-1", "category-5-price-2", "category-5-price-3", "category-5-price-4", "category-5-price-5",
+    "category-6-price-1", "category-6-price-2", "category-6-price-3", "category-6-price-4", "category-6-price-5",
+  ];
+  this.usedClueIds = [];
+  this.usedClueArray = {
+    "category-1": [],
+    "category-2": [],
+    "category-3": [],
+    "category-4": [],
+    "category-5": [],
+    "category-6": [],
+  };
 
-// Gamestates
-let requesting = false;
-let answering = false;
+  // Gamestates
+  this.requesting = false;
+  this.answering = false;
 
-// Timeout/interval handlers
-let buzzerTimeout;
+  // Timeout/interval handlers
+  this.buzzerTimeout;
+
+  // Game data
+  this.usedCategoryIds = [];
+  this.categoryNames = [];
+  this.categoryDates = [];
+  this.clues = {};
+  this.setDailyDoubles = false;
+  this.dailyDoubleIds = [];
+  this.finalJeopartyClue = undefined;
+}
+
+let sessions = {};
 
 io.on("connection", function(socket) {
   /*
@@ -64,19 +77,40 @@ io.on("connection", function(socket) {
   socket: Socket.io object
    */
 
-  socket.join("session");
+  socket.emit("connect_device", ip.address());
 
-  if (Object.keys(disconnectedPlayers).includes(socket.conn.remoteAddress)) {
-    socket.emit("reconnect_device");
+  if (socket.sessionId) {
+    if (Object.keys(sessions[socket.sessionId].disconnectedPlayers).includes(socket.conn.remoteAddress)) {
+      socket.emit("reconnect_device");
+    } else {
+      socket.emit("connect_device", ip.address());
+    }
   } else {
     socket.emit("connect_device", ip.address());
   }
 
   socket.on("set_host_socket", function() {
-    getCategories();
-    if (!setDailyDoubles) {
-      setDailyDoubles = true;
-      setDailyDoubleIds();
+    let sessionId = Math.random().toString(36).substr(2, 5).toUpperCase();
+    sessions[sessionId] = new session();
+    sessions[sessionId].sessionId = sessionId;
+    socket.sessionId = sessionId;
+
+    socket.join(sessionId);
+
+    socket.emit("update_session_id", sessionId);
+
+    getCategories(socket);
+    if (!sessions[sessionId].setDailyDoubles) {
+      sessions[sessionId].setDailyDoubles = true;
+      setDailyDoubleIds(socket);
+    }
+  });
+
+  socket.on("join_session", function(sessionId) {
+    if (sessions[sessionId]) {
+      socket.sessionId = sessionId;
+      socket.join(sessionId);
+      socket.emit("join_session_success");
     }
   });
 
@@ -87,11 +121,11 @@ io.on("connection", function(socket) {
     signature: image
      */
 
-    if (!doubleJeoparty) {
+    if (!sessions[socket.sessionId].doubleJeoparty) {
       let player = new Object();
       player.id = socket.id;
       player.ip = socket.conn.remoteAddress;
-      player.playerNumber = Object.keys(players).length + 1;
+      player.playerNumber = Object.keys(sessions[socket.sessionId].players).length + 1;
       if (nickname.slice(nickname.length - 1) == " ") {
         player.nickname = nickname.slice(0, nickname.length - 1);
       } else {
@@ -106,32 +140,32 @@ io.on("connection", function(socket) {
       player.answer = "";
       player.correct = false;
 
-      players[socket.id] = player;
+      sessions[socket.sessionId].players[socket.id] = player;
 
-      if (Object.keys(players).length == 1) {
-        boardController = socket.id;
+      if (Object.keys(sessions[socket.sessionId].players).length == 1) {
+        sessions[socket.sessionId].boardController = socket.id;
       }
 
-      io.in("session").emit("update_players_connected", Object.keys(players).length);
-      io.in("session").emit("players", players);
+      io.in(socket.sessionId).emit("update_players_connected", Object.keys(sessions[socket.sessionId].players).length);
+      io.in(socket.sessionId).emit("players", sessions[socket.sessionId].players);
     }
 
-    socket.emit("join_success", categoryNames, boardController, gameActive, doubleJeoparty);
+    socket.emit("join_success", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].boardController, sessions[socket.sessionId].gameActive, sessions[socket.sessionId].doubleJeoparty);
   });
 
   socket.on("rejoin_game", function() {
-    let player = JSON.parse(JSON.stringify(disconnectedPlayers[socket.conn.remoteAddress]));
-    players[socket.id] = player;
-    players[socket.id].id = socket.id;
-    delete disconnectedPlayers[socket.conn.remoteAddress];
+    let player = JSON.parse(JSON.stringify(sessions[socket.sessionId].disconnectedPlayers[socket.conn.remoteAddress]));
+    sessions[socket.sessionId].players[socket.id] = player;
+    sessions[socket.sessionId].players[socket.id].id = socket.id;
+    delete sessions[socket.sessionId].disconnectedPlayers[socket.conn.remoteAddress];
 
-    socket.emit("join_success", categoryNames, boardController, gameActive, doubleJeoparty);
+    socket.emit("join_success", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].boardController, sessions[socket.sessionId].gameActive, sessions[socket.sessionId].doubleJeoparty);
   });
 
   socket.on("start_game", function() {
-    gameActive = true;
-    requesting = true;
-    io.in("session").emit("load_game", categoryNames, categoryDates, boardController, players[boardController].nickname);
+    sessions[socket.sessionId].gameActive = true;
+    sessions[socket.sessionId].requesting = true;
+    io.in(socket.sessionId).emit("load_game", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
   });
 
   socket.on("request_clue", function(clueRequest) {
@@ -140,25 +174,25 @@ io.on("connection", function(socket) {
     clueRequest: string ("category-x-price-y")
      */
 
-    requesting = false;
+    sessions[socket.sessionId].requesting = false;
 
-    if ((!doubleJeoparty && clueRequest == dailyDoubleIds[0]) || (doubleJeoparty && (clueRequest == dailyDoubleIds[1] || clueRequest == dailyDoubleIds[2]))) {
-      io.in("session").emit("daily_double_request", clueRequest, clues[clueRequest]["screen_question"], boardController, players[boardController].nickname);
+    if ((!sessions[socket.sessionId].doubleJeoparty && clueRequest == sessions[socket.sessionId].dailyDoubleIds[0]) || (sessions[socket.sessionId].doubleJeoparty && (clueRequest == sessions[socket.sessionId].dailyDoubleIds[1] || clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]))) {
+      io.in(socket.sessionId).emit("daily_double_request", clueRequest, sessions[socket.sessionId].clues[clueRequest]["screen_question"], sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
     } else {
-      io.in("session").emit("display_clue", clueRequest, clues[clueRequest]["screen_question"]);
+      io.in(socket.sessionId).emit("display_clue", clueRequest, sessions[socket.sessionId].clues[clueRequest]["screen_question"]);
     }
 
-    remainingClueIds.splice(remainingClueIds.indexOf(clueRequest), 1);
-    usedClueIds.push(clueRequest);
-    // Splits ("category-x-price-y"), so that usedClueArray["category-x"].push("price-y")
-    usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
+    sessions[socket.sessionId].remainingClueIds.splice(sessions[socket.sessionId].remainingClueIds.indexOf(clueRequest), 1);
+    sessions[socket.sessionId].usedClueIds.push(clueRequest);
+    // Splits ("category-x-price-y"), so that sessions[socket.sessionId].usedClueArray["category-x"].push("price-y")
+    sessions[socket.sessionId].usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
 
-    lastClueRequest = clueRequest;
+    sessions[socket.sessionId].lastClueRequest = clueRequest;
   });
 
   socket.on("daily_double", function() {
-    answering = true;
-    io.in("session").emit("request_daily_double_wager", clues[lastClueRequest]["category"]["title"], players[boardController], getMaxWager(players[boardController].score));
+    sessions[socket.sessionId].answering = true;
+    io.in(socket.sessionId).emit("request_daily_double_wager", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["category"]["title"], sessions[socket.sessionId].players[sessions[socket.sessionId].boardController], getMaxWager(sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].score, socket));
   });
 
   socket.on("daily_double_wager", function(wager) {
@@ -167,51 +201,51 @@ io.on("connection", function(socket) {
     wager: number
      */
 
-    players[boardController].wager = wager;
-    io.in("session").emit("display_daily_double_clue", clues[lastClueRequest]["screen_question"]);
+    sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].wager = wager;
+    io.in(socket.sessionId).emit("display_daily_double_clue", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_question"]);
   });
 
   socket.on("answer_daily_double", function() {
-    io.in("session").emit("answer_daily_double", players[boardController]);
+    io.in(socket.sessionId).emit("answer_daily_double", sessions[socket.sessionId].players[sessions[socket.sessionId].boardController]);
   });
 
   socket.on("activate_buzzers", function() {
-    io.in("session").emit("buzzers_ready", playersAnswered);
-    buzzersReady = true;
+    io.in(socket.sessionId).emit("buzzers_ready", sessions[socket.sessionId].playersAnswered);
+    sessions[socket.sessionId].buzzersReady = true;
 
     // Gets called if none of the players buzz in
-    buzzerTimeout = setTimeout(function() {
-      buzzersReady = false;
-      io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], true);
+    sessions[socket.sessionId].buzzerTimeout = setTimeout(function() {
+      sessions[socket.sessionId].buzzersReady = false;
+      io.in(socket.sessionId).emit("display_correct_answer", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_answer"], true);
       setTimeout(function() {
-        io.in("session").emit("reveal_scores");
-        reset();
+        io.in(socket.sessionId).emit("reveal_scores");
+        reset(socket);
 
         setTimeout(function() {
-          if (doubleJeoparty && !setupDoubleJeoparty) {
-            setupDoubleJeoparty = true;
-            io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
-          } else if (finalJeoparty && !setupFinalJeoparty) {
-            setupFinalJeoparty = true;
-            io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
+          if (sessions[socket.sessionId].doubleJeoparty && !sessions[socket.sessionId].setupDoubleJeoparty) {
+            sessions[socket.sessionId].setupDoubleJeoparty = true;
+            io.in(socket.sessionId).emit("setup_double_jeoparty", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates);
+          } else if (sessions[socket.sessionId].finalJeoparty && !sessions[socket.sessionId].setupFinalJeoparty) {
+            sessions[socket.sessionId].setupFinalJeoparty = true;
+            io.in(socket.sessionId).emit("setup_final_jeoparty", sessions[socket.sessionId].finalJeopartyClue);
           }
-          io.in("session").emit("reveal_board", usedClueArray, remainingClueIds, boardController, players[boardController].nickname);
+          io.in(socket.sessionId).emit("reveal_board", sessions[socket.sessionId].usedClueArray, sessions[socket.sessionId].remainingClueIds, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
         }, 5000);
       }, 5000);
     }, 5000);
   });
 
   socket.on("buzz", function() {
-    if (buzzersReady) {
-      clearTimeout(buzzerTimeout);
+    if (sessions[socket.sessionId].buzzersReady) {
+      clearTimeout(sessions[socket.sessionId].buzzerTimeout);
 
-      buzzWinnerId = socket.id;
-      buzzersReady = false;
-      answerReady = true;
+      sessions[socket.sessionId].buzzWinnerId = socket.id;
+      sessions[socket.sessionId].buzzersReady = false;
+      sessions[socket.sessionId].answerReady = true;
 
-      io.in("session").emit("answer", players[buzzWinnerId]);
+      io.in(socket.sessionId).emit("answer", sessions[socket.sessionId].players[sessions[socket.sessionId].buzzWinnerId]);
 
-      answering = true;
+      sessions[socket.sessionId].answering = true;
     }
   });
 
@@ -221,7 +255,7 @@ io.on("connection", function(socket) {
     livefeed: string
      */
 
-    io.in("session").emit("livefeed", livefeed);
+    io.in(socket.sessionId).emit("livefeed", livefeed);
   });
 
   socket.on("wager_livefeed", function(wagerLivefeed) {
@@ -230,7 +264,7 @@ io.on("connection", function(socket) {
     wagerLivefeed: string number (i.e. '5' or '250')
      */
 
-    io.in("session").emit("wager_livefeed", wagerLivefeed);
+    io.in(socket.sessionId).emit("wager_livefeed", wagerLivefeed);
   });
 
   socket.on("submit_answer", function(answer) {
@@ -239,77 +273,77 @@ io.on("connection", function(socket) {
     answer: string
      */
 
-    answering = false;
+    sessions[socket.sessionId].answering = false;
 
-    if (answerReady) {
-      answerReady = false;
-      playersAnswered.push(socket.id);
+    if (sessions[socket.sessionId].answerReady) {
+      sessions[socket.sessionId].answerReady = false;
+      sessions[socket.sessionId].playersAnswered.push(socket.id);
 
-      let correct = evaluateAnswer(answer);
+      let correct = evaluateAnswer(answer, socket);
 
-      updateScore(socket.id, correct, lastClueRequest[lastClueRequest.length - 1], false);
+      updateScore(socket.id, correct, sessions[socket.sessionId].lastClueRequest[sessions[socket.sessionId].lastClueRequest.length - 1], false, socket);
 
-      io.in("session").emit("answer_submitted", answer, correct);
-      io.in("session").emit("players", players);
+      io.in(socket.sessionId).emit("answer_submitted", answer, correct);
+      io.in(socket.sessionId).emit("players", sessions[socket.sessionId].players);
 
       setTimeout(function() {
         if (correct) {
-          boardController = socket.id;
-          io.in("session").emit("reveal_scores");
-          reset();
+          sessions[socket.sessionId].boardController = socket.id;
+          io.in(socket.sessionId).emit("reveal_scores");
+          reset(socket);
 
           setTimeout(function() {
-            if (doubleJeoparty && !setupDoubleJeoparty) {
-              setupDoubleJeoparty = true;
-              io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
-            } else if (finalJeoparty && !setupFinalJeoparty) {
-              setupFinalJeoparty = true;
-              io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
+            if (sessions[socket.sessionId].doubleJeoparty && !sessions[socket.sessionId].setupDoubleJeoparty) {
+              sessions[socket.sessionId].setupDoubleJeoparty = true;
+              io.in(socket.sessionId).emit("setup_double_jeoparty", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates);
+            } else if (sessions[socket.sessionId].finalJeoparty && !sessions[socket.sessionId].setupFinalJeoparty) {
+              sessions[socket.sessionId].setupFinalJeoparty = true;
+              io.in(socket.sessionId).emit("setup_final_jeoparty", sessions[socket.sessionId].finalJeopartyClue);
             }
-            io.in("session").emit("reveal_board", usedClueArray, remainingClueIds, boardController, players[boardController].nickname);
+            io.in(socket.sessionId).emit("reveal_board", sessions[socket.sessionId].usedClueArray, sessions[socket.sessionId].remainingClueIds, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
           }, 5000);
-        } else if (playersAnswered.length == Object.keys(players).length) {
+        } else if (sessions[socket.sessionId].playersAnswered.length == Object.keys(sessions[socket.sessionId].players).length) {
           // This branch runs if all of the players in the game
           // have attempted to answer
-          io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], false);
+          io.in(socket.sessionId).emit("display_correct_answer", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_answer"], false);
           setTimeout(function() {
-            io.in("session").emit("reveal_scores");
-            reset();
+            io.in(socket.sessionId).emit("reveal_scores");
+            reset(socket);
 
             setTimeout(function() {
-              if (doubleJeoparty && !setupDoubleJeoparty) {
-                setupDoubleJeoparty = true;
-                io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
-              } else if (finalJeoparty && !setupFinalJeoparty) {
-                setupFinalJeoparty = true;
-                io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
+              if (sessions[socket.sessionId].doubleJeoparty && !sessions[socket.sessionId].setupDoubleJeoparty) {
+                sessions[socket.sessionId].setupDoubleJeoparty = true;
+                io.in(socket.sessionId).emit("setup_double_jeoparty", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates);
+              } else if (sessions[socket.sessionId].finalJeoparty && !sessions[socket.sessionId].setupFinalJeoparty) {
+                sessions[socket.sessionId].setupFinalJeoparty = true;
+                io.in(socket.sessionId).emit("setup_final_jeoparty", sessions[socket.sessionId].finalJeopartyClue);
               }
-              io.in("session").emit("reveal_board", usedClueArray, remainingClueIds, boardController, players[boardController].nickname);
+              io.in(socket.sessionId).emit("reveal_board", sessions[socket.sessionId].usedClueArray, sessions[socket.sessionId].remainingClueIds, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
             }, 5000);
           }, 5000);
         } else {
           // This branch runs if there are still players in the game
           // who are able to answer
-          io.in("session").emit("buzzers_ready", playersAnswered);
-          buzzersReady = true;
+          io.in(socket.sessionId).emit("buzzers_ready", sessions[socket.sessionId].playersAnswered);
+          sessions[socket.sessionId].buzzersReady = true;
 
           // Gets called if none of the players buzz in
-          buzzerTimeout = setTimeout(function() {
-            buzzersReady = false;
-            io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], true);
+          sessions[socket.sessionId].buzzerTimeout = setTimeout(function() {
+            sessions[socket.sessionId].buzzersReady = false;
+            io.in(socket.sessionId).emit("display_correct_answer", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_answer"], true);
             setTimeout(function() {
-              io.in("session").emit("reveal_scores");
-              reset();
+              io.in(socket.sessionId).emit("reveal_scores");
+              reset(socket);
 
               setTimeout(function() {
-                if (doubleJeoparty && !setupDoubleJeoparty) {
-                  setupDoubleJeoparty = true;
-                  io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
-                } else if (finalJeoparty && !setupFinalJeoparty) {
-                  setupFinalJeoparty = true;
-                  io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
+                if (sessions[socket.sessionId].doubleJeoparty && !sessions[socket.sessionId].setupDoubleJeoparty) {
+                  sessions[socket.sessionId].setupDoubleJeoparty = true;
+                  io.in(socket.sessionId).emit("setup_double_jeoparty", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates);
+                } else if (sessions[socket.sessionId].finalJeoparty && !sessions[socket.sessionId].setupFinalJeoparty) {
+                  sessions[socket.sessionId].setupFinalJeoparty = true;
+                  io.in(socket.sessionId).emit("setup_final_jeoparty", sessions[socket.sessionId].finalJeopartyClue);
                 }
-                io.in("session").emit("reveal_board", usedClueArray, remainingClueIds, boardController, players[boardController].nickname);
+                io.in(socket.sessionId).emit("reveal_board", sessions[socket.sessionId].usedClueArray, sessions[socket.sessionId].remainingClueIds, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
               }, 5000);
             }, 5000);
           }, 5000);
@@ -324,45 +358,45 @@ io.on("connection", function(socket) {
     answer: string
      */
 
-    answering = false;
+    sessions[socket.sessionId].answering = false;
 
-    let correct = evaluateAnswer(answer);
+    let correct = evaluateAnswer(answer, socket);
 
-    updateScore(socket.id, correct, 1, true);
+    updateScore(socket.id, correct, 1, true, socket);
 
-    io.in("session").emit("answer_submitted", answer, correct);
-    io.in("session").emit("players", players);
+    io.in(socket.sessionId).emit("answer_submitted", answer, correct);
+    io.in(socket.sessionId).emit("players", sessions[socket.sessionId].players);
 
     setTimeout(function() {
       if (correct) {
-        io.in("session").emit("reveal_scores");
-        reset();
+        io.in(socket.sessionId).emit("reveal_scores");
+        reset(socket);
 
         setTimeout(function() {
-          if (doubleJeoparty && !setupDoubleJeoparty) {
-            setupDoubleJeoparty = true;
-            io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
-          } else if (finalJeoparty && !setupFinalJeoparty) {
-            setupFinalJeoparty = true;
-            io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
+          if (sessions[socket.sessionId].doubleJeoparty && !sessions[socket.sessionId].setupDoubleJeoparty) {
+            sessions[socket.sessionId].setupDoubleJeoparty = true;
+            io.in(socket.sessionId).emit("setup_double_jeoparty", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates);
+          } else if (sessions[socket.sessionId].finalJeoparty && !sessions[socket.sessionId].setupFinalJeoparty) {
+            sessions[socket.sessionId].setupFinalJeoparty = true;
+            io.in(socket.sessionId).emit("setup_final_jeoparty", sessions[socket.sessionId].finalJeopartyClue);
           }
-          io.in("session").emit("reveal_board", usedClueArray, remainingClueIds, boardController, players[boardController].nickname);
+          io.in(socket.sessionId).emit("reveal_board", sessions[socket.sessionId].usedClueArray, sessions[socket.sessionId].remainingClueIds, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
         }, 5000);
       } else {
-        io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], false);
+        io.in(socket.sessionId).emit("display_correct_answer", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_answer"], false);
         setTimeout(function() {
-          io.in("session").emit("reveal_scores");
-          reset();
+          io.in(socket.sessionId).emit("reveal_scores");
+          reset(socket);
 
           setTimeout(function() {
-            if (doubleJeoparty && !setupDoubleJeoparty) {
-              setupDoubleJeoparty = true;
-              io.in("session").emit("setup_double_jeoparty", categoryNames, categoryDates);
-            } else if (finalJeoparty && !setupFinalJeoparty) {
-              setupFinalJeoparty = true;
-              io.in("session").emit("setup_final_jeoparty", finalJeopartyClue);
+            if (sessions[socket.sessionId].doubleJeoparty && !sessions[socket.sessionId].setupDoubleJeoparty) {
+              sessions[socket.sessionId].setupDoubleJeoparty = true;
+              io.in(socket.sessionId).emit("setup_double_jeoparty", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates);
+            } else if (sessions[socket.sessionId].finalJeoparty && !sessions[socket.sessionId].setupFinalJeoparty) {
+              sessions[socket.sessionId].setupFinalJeoparty = true;
+              io.in(socket.sessionId).emit("setup_final_jeoparty", sessions[socket.sessionId].finalJeopartyClue);
             }
-            io.in("session").emit("reveal_board", usedClueArray, remainingClueIds, boardController, players[boardController].nickname);
+            io.in(socket.sessionId).emit("reveal_board", sessions[socket.sessionId].usedClueArray, sessions[socket.sessionId].remainingClueIds, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
           }, 5000);
         }, 5000);
       }
@@ -370,17 +404,17 @@ io.on("connection", function(socket) {
   });
 
   socket.on("displayed_final_jeoparty_category", function() {
-    for (let id in players) {
-      if (players[id].score > 0) {
-        players[id].maxWager = getMaxWager(players[id].score);
-        finalJeopartyPlayers[id] = players[id];
+    for (let id in sessions[socket.sessionId].players) {
+      if (sessions[socket.sessionId].players[id].score > 0) {
+        sessions[socket.sessionId].players[id].maxWager = getMaxWager(sessions[socket.sessionId].players[id].score, socket);
+        sessions[socket.sessionId].finalJeopartyPlayers[id] = sessions[socket.sessionId].players[id];
       }
     }
 
-    io.in("session").emit("request_final_jeoparty_wager", finalJeopartyPlayers);
+    io.in(socket.sessionId).emit("request_final_jeoparty_wager", sessions[socket.sessionId].finalJeopartyPlayers);
 
     setTimeout(function() {
-      io.in("session").emit("display_final_jeoparty_clue");
+      io.in(socket.sessionId).emit("display_final_jeoparty_clue");
     }, 15000);
   });
 
@@ -390,13 +424,13 @@ io.on("connection", function(socket) {
     wager: number
      */
 
-    finalJeopartyPlayers[socket.id].wager = wager;
+    sessions[socket.sessionId].finalJeopartyPlayers[socket.id].wager = wager;
   });
 
   socket.on("answer_final_jeoparty", function() {
-    io.in("session").emit("answer_final_jeoparty");
+    io.in(socket.sessionId).emit("answer_final_jeoparty");
     setTimeout(function() {
-      io.in("session").emit("display_final_jeoparty_answer", finalJeopartyPlayers);
+      io.in(socket.sessionId).emit("display_final_jeoparty_answer", sessions[socket.sessionId].finalJeopartyPlayers);
     }, 30000);
   });
 
@@ -406,58 +440,72 @@ io.on("connection", function(socket) {
     answer: string
      */
 
-    finalJeopartyPlayers[socket.id].answer = answer;
-    finalJeopartyPlayers[socket.id].correct = evaluateAnswer(answer);
-    if (evaluateAnswer(answer)) {
-      finalJeopartyPlayers[socket.id].score += finalJeopartyPlayers[socket.id].wager;
+    sessions[socket.sessionId].finalJeopartyPlayers[socket.id].answer = answer;
+    sessions[socket.sessionId].finalJeopartyPlayers[socket.id].correct = evaluateAnswer(answer, socket);
+    if (evaluateAnswer(answer, socket)) {
+      sessions[socket.sessionId].finalJeopartyPlayers[socket.id].score += sessions[socket.sessionId].finalJeopartyPlayers[socket.id].wager;
     } else {
-      finalJeopartyPlayers[socket.id].score -= finalJeopartyPlayers[socket.id].wager;
+      sessions[socket.sessionId].finalJeopartyPlayers[socket.id].score -= sessions[socket.sessionId].finalJeopartyPlayers[socket.id].wager;
     }
   });
 
   socket.on("request_players", function() {
-    io.in("session").emit("players", players);
+    io.in(socket.sessionId).emit("players", sessions[socket.sessionId].players);
   });
 
   socket.on("disconnecting", function() {
+    let sessionId;
+
     try {
-      // This gives players an opportunity to rejoin the game if they
-      // did not intend to disconnect from the game
-      let player = JSON.parse(JSON.stringify(players[socket.id]));
-      disconnectedPlayers[socket.conn.remoteAddress] = player;
+      sessionId = (' ' + socket.sessionId).slice(1);
     } catch (e) {
-      // If player hasn't joined the game yet and wouldn't have a position
-      // inside of the players object
+      // In case player hasn't joined session yet
     }
 
-    socket.leave("session");
-    delete players[socket.id];
-    if (finalJeoparty) {
+    if (sessions[sessionId]) {
       try {
-        delete finalJeopartyPlayers[socket.id];
+        // This gives players an opportunity to rejoin the game if they
+        // did not intend to disconnect from the game
+        let player = JSON.parse(JSON.stringify(sessions[sessionId].players[socket.id]));
+        sessions[sessionId].disconnectedPlayers[socket.conn.remoteAddress] = player;
       } catch (e) {
-        // If player was not added to finalJeopartyPlayers because
-        // they didn't have enough money
-      }
-    }
-
-    io.in("session").emit("players", players);
-    io.in("session").emit("update_players_connected", Object.keys(players).length);
-
-    if (gameActive) {
-      if (requesting && (boardController == socket.id)) {
-        boardController = Object.keys(players)[0];
-        io.in("session").emit("change_board_controller", boardController, players[boardController].nickname);
+        // If player hasn't joined the game yet and wouldn't have a position
+        // inside of the players object
       }
 
-      if (answering && (boardController == socket.id || buzzWinnerId == socket.id)) {
-        io.in("session").emit("display_correct_answer", clues[lastClueRequest]["screen_answer"], false);
-        setTimeout(function() {
-          io.in("session").emit("reveal_scores");
+      socket.leave(sessionId);
+
+      try {
+        delete sessions[sessionId].players[socket.id];
+      } catch (e) {}
+
+      if (sessions[sessionId].finalJeoparty) {
+        try {
+          delete sessions[sessionId].finalJeopartyPlayers[socket.id];
+        } catch (e) {
+          // If player was not added to sessions[socket.sessionId].finalJeopartyPlayers because
+          // they didn't have enough money
+        }
+      }
+
+      io.in(socket.sessionId).emit("players", sessions[socket.sessionId].players);
+      io.in(socket.sessionId).emit("update_players_connected", Object.keys(sessions[sessionId].players).length);
+
+      if (sessions[sessionId].gameActive) {
+        if (sessions[sessionId].requesting && (sessions[sessionId].boardController == socket.id)) {
+          sessions[sessionId].boardController = Object.keys(sessions[sessionId].players)[0];
+          io.in(socket.sessionId).emit("change_board_controller", sessions[sessionId].boardController, sessions[sessionId].players[sessions[sessionId].boardController].nickname);
+        }
+
+        if (sessions[sessionId].answering && (sessions[sessionId].boardController == socket.id || sessions[sessionId].buzzWinnerId == socket.id)) {
+          io.in(socket.sessionId).emit("display_correct_answer", sessions[sessionId].clues[sessions[sessionId].lastClueRequest]["screen_answer"], false);
           setTimeout(function() {
-            io.in("session").emit("reveal_board", usedClueArray, remainingClueIds, boardController, players[boardController].nickname);
+            io.in(socket.sessionId).emit("reveal_scores");
+            setTimeout(function() {
+              io.in(socket.sessionId).emit("reveal_board", sessions[sessionId].usedClueArray, sessions[sessionId].remainingClueIds, sessions[sessionId].boardController, sessions[sessionId].players[sessions[sessionId].boardController].nickname);
+            }, 5000);
           }, 5000);
-        }, 5000);
+        }
       }
     }
   });
@@ -465,17 +513,7 @@ io.on("connection", function(socket) {
 
 // Game logic
 
-let js = require("jservice-node");
-
-let usedCategoryIds = [];
-let categoryNames = [];
-let categoryDates = [];
-let clues = {};
-let setDailyDoubles = false;
-let dailyDoubleIds = [];
-let finalJeopartyClue = undefined;
-
-function getCategories() {
+function getCategories(socket) {
   /*
   Result:
   Grabs random categories from jservice.io database
@@ -492,9 +530,9 @@ function getCategories() {
     };
 
     js.clues(options, function(error, response, json) {
-      if (!error && response.statusCode == 200 && !usedCategoryIds.includes(categoryId) && approveCategory(json)) {
-        usedCategoryIds.push(categoryId);
-        loadCategory(json);
+      if (!error && response.statusCode == 200 && !sessions[socket.sessionId].usedCategoryIds.includes(categoryId) && approveCategory(json)) {
+        sessions[socket.sessionId].usedCategoryIds.push(categoryId);
+        loadCategory(json, socket);
       }
     });
   }
@@ -520,7 +558,7 @@ function approveCategory(category) {
   return true;
 }
 
-function loadCategory(category) {
+function loadCategory(category, socket) {
   /*
   Input:
   category: JSON object
@@ -530,30 +568,30 @@ function loadCategory(category) {
   for use throughout the game
    */
 
-  if (categoryNames.length < 6) {
-    categoryNames.push(category[0]["category"]["title"]);
-    categoryDates.push(category[0]["airdate"].slice(0, 4));
+  if (sessions[socket.sessionId].categoryNames.length < 6) {
+    sessions[socket.sessionId].categoryNames.push(category[0]["category"]["title"]);
+    sessions[socket.sessionId].categoryDates.push(category[0]["airdate"].slice(0, 4));
 
     for (let i = 1; i < 6; i++) {
-      let id = "category-" + categoryNames.length + "-price-" + i;
+      let id = "category-" + sessions[socket.sessionId].categoryNames.length + "-price-" + i;
 
-      clues[id] = category[i - 1];
-      clues[id]["screen_question"] = clues[id]["question"].toUpperCase();
-      clues[id]["raw_answer"] = formatRawText(clues[id]["answer"]);
-      clues[id]["screen_answer"] = formatScreenAnswer(clues[id]["answer"]);
+      sessions[socket.sessionId].clues[id] = category[i - 1];
+      sessions[socket.sessionId].clues[id]["screen_question"] = sessions[socket.sessionId].clues[id]["question"].toUpperCase();
+      sessions[socket.sessionId].clues[id]["raw_answer"] = formatRawText(sessions[socket.sessionId].clues[id]["answer"]);
+      sessions[socket.sessionId].clues[id]["screen_answer"] = formatScreenAnswer(sessions[socket.sessionId].clues[id]["answer"]);
     }
-  } else if (finalJeopartyClue == undefined) {
-    finalJeopartyClue = category[4];
-    finalJeopartyClue["screen_question"] = finalJeopartyClue["question"].toUpperCase();
-    finalJeopartyClue["raw_answer"] = formatRawText(finalJeopartyClue["answer"]);
-    finalJeopartyClue["screen_answer"] = formatScreenAnswer(finalJeopartyClue["answer"]);
+  } else if (sessions[socket.sessionId].finalJeopartyClue == undefined) {
+    sessions[socket.sessionId].finalJeopartyClue = category[4];
+    sessions[socket.sessionId].finalJeopartyClue["screen_question"] = sessions[socket.sessionId].finalJeopartyClue["question"].toUpperCase();
+    sessions[socket.sessionId].finalJeopartyClue["raw_answer"] = formatRawText(sessions[socket.sessionId].finalJeopartyClue["answer"]);
+    sessions[socket.sessionId].finalJeopartyClue["screen_answer"] = formatScreenAnswer(sessions[socket.sessionId].finalJeopartyClue["answer"]);
   }
 }
 
-function setDailyDoubleIds() {
+function setDailyDoubleIds(socket) {
   /*
   Result:
-  Selects 3 random clue ids to be daily double clues
+  Selects 3 random clue ids to be daily double sessions[socket.sessionId].clues
    */
 
   let categoryNums = [1, 2, 3, 4, 5, 6];
@@ -577,7 +615,7 @@ function setDailyDoubleIds() {
       priceNum = 5;
     }
 
-    dailyDoubleIds.push("category-" + categoryNum + "-price-" + priceNum);
+    sessions[socket.sessionId].dailyDoubleIds.push("category-" + categoryNum + "-price-" + priceNum);
   }
 }
 
@@ -643,7 +681,7 @@ function formatScreenAnswer(original) {
   return (screenAnswer);
 }
 
-function getMaxWager(score) {
+function getMaxWager(score, socket) {
   /*
   Input:
   score: number
@@ -654,7 +692,7 @@ function getMaxWager(score) {
 
   let maxWager;
 
-  if (doubleJeoparty) {
+  if (sessions[socket.sessionId].doubleJeoparty) {
     if (score > 2000) {
       maxWager = score;
     } else {
@@ -671,7 +709,7 @@ function getMaxWager(score) {
   return maxWager;
 }
 
-function evaluateAnswer(answer) {
+function evaluateAnswer(answer, socket) {
   /*
   Input:
   answer: string
@@ -683,21 +721,21 @@ function evaluateAnswer(answer) {
 
   let correctAnswer;
 
-  if (finalJeoparty) {
-    correctAnswer = finalJeopartyClue["raw_answer"];
+  if (sessions[socket.sessionId].finalJeoparty) {
+    correctAnswer = sessions[socket.sessionId].finalJeopartyClue["raw_answer"];
   } else {
-    correctAnswer = clues[lastClueRequest]["raw_answer"];
+    correctAnswer = sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["raw_answer"];
   }
   let playerAnswer = formatRawText(answer);
 
-  let question = formatRawText(clues[lastClueRequest]["question"]);
-  let categoryName = formatRawText(clues[lastClueRequest]["category"]["title"]);
+  let question = formatRawText(sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["question"]);
+  let categoryName = formatRawText(sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["category"]["title"]);
 
   if (playerAnswer == correctAnswer) {
     return true;
   } else {
     // This check prevents players from trying to take advantage of a question like
-    // "This man named Jack was a blah blah blah" by only answering with "Jack",
+    // "This man named Jack was a blah blah blah" by only sessions[socket.sessionId].answering with "Jack",
     // if they do this, they need to have the answer completely correct
     if (question.includes(playerAnswer) || categoryName.includes(playerAnswer) || answer.length <= 2) {
       return false;
@@ -711,7 +749,7 @@ function evaluateAnswer(answer) {
   }
 }
 
-function updateScore(id, correct, multiplier, dailyDouble) {
+function updateScore(id, correct, multiplier, dailyDouble, socket) {
   /*
   Input:
   id: string (Socket id)
@@ -725,34 +763,34 @@ function updateScore(id, correct, multiplier, dailyDouble) {
 
   let base;
 
-  if (doubleJeoparty) {
+  if (sessions[socket.sessionId].doubleJeoparty) {
     base = 400;
   } else if (dailyDouble) {
-    base = players[id].wager;
+    base = sessions[socket.sessionId].players[id].wager;
   } else {
     base = 200;
   }
 
   if (correct) {
-    players[id].score += (base * multiplier);
+    sessions[socket.sessionId].players[id].score += (base * multiplier);
   } else {
-    players[id].score -= (base * multiplier);
+    sessions[socket.sessionId].players[id].score -= (base * multiplier);
   }
 }
 
-function reset() {
+function reset(socket) {
   /*
   Result:
   Resets variables between each round
    */
 
-  playersAnswered = [];
+  sessions[socket.sessionId].playersAnswered = [];
 
   // Resets board variables when Single Jeoparty board is empty
-  if (usedClueIds.length == 30 && !doubleJeoparty) {
-    doubleJeoparty = true;
+  if (sessions[socket.sessionId].usedClueIds.length == 30 && !sessions[socket.sessionId].doubleJeoparty) {
+    sessions[socket.sessionId].doubleJeoparty = true;
 
-    remainingClueIds = [
+    sessions[socket.sessionId].remainingClueIds = [
       "category-1-price-1", "category-1-price-2", "category-1-price-3", "category-1-price-4", "category-1-price-5",
       "category-2-price-1", "category-2-price-2", "category-2-price-3", "category-2-price-4", "category-2-price-5",
       "category-3-price-1", "category-3-price-2", "category-3-price-3", "category-3-price-4", "category-3-price-5",
@@ -760,8 +798,8 @@ function reset() {
       "category-5-price-1", "category-5-price-2", "category-5-price-3", "category-5-price-4", "category-5-price-5",
       "category-6-price-1", "category-6-price-2", "category-6-price-3", "category-6-price-4", "category-6-price-5",
     ];
-    usedClueIds = [];
-    usedClueArray = {
+    sessions[socket.sessionId].usedClueIds = [];
+    sessions[socket.sessionId].usedClueArray = {
       "category-1": [],
       "category-2": [],
       "category-3": [],
@@ -770,13 +808,23 @@ function reset() {
       "category-6": [],
     };
 
-    categoryNames = [];
-    categoryDates = [];
-    clues = {};
+    sessions[socket.sessionId].categoryNames = [];
+    sessions[socket.sessionId].categoryDates = [];
+    sessions[socket.sessionId].clues = {};
 
-    getCategories();
-  } else if (usedClueIds.length == 30 && doubleJeoparty) {
-    finalJeoparty = true;
-    doubleJeoparty = false;
+    let clone = JSON.parse(JSON.stringify(sessions[socket.sessionId].players));
+
+    let keys = Object.keys(clone);
+
+    keys.sort(function(a, b) {
+      return clone[a].score - clone[b].score;
+    });
+
+    sessions[socket.sessionId].boardController = keys[0];
+
+    getCategories(socket);
+  } else if (sessions[socket.sessionId].usedClueIds.length == 1 && !sessions[socket.sessionId].doubleJeoparty) {
+    sessions[socket.sessionId].finalJeoparty = true;
+    sessions[socket.sessionId].doubleJeoparty = false;
   }
 }

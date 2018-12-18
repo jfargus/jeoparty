@@ -35,19 +35,19 @@ let scrapeWagerTimeout;
 let socket = io();
 
 // HOST & CONTROLLER
-socket.on("connect_device", function(gameURL) {
+socket.on("connect_device", function(gameURL, hostConnected) {
   // Checks to see if this is a mobile device
   if (/Mobi/.test(navigator.userAgent)) {
     adjustMobileStyle();
     document.getElementById("controller").className = "";
-    currentScreenId = "c-landing-screen";
+    currentScreenId = "join-session-screen";
     isHost = false;
   } else {
     socket.emit("set_host_socket");
     document.body.style.backgroundImage = "url('/graphics/background.png')";
     document.getElementById("host").className = "";
     currentScreenId = "h-landing-screen";
-    document.getElementById("url-text").innerHTML = "GO TO: " + gameURL + ":3000";
+    document.getElementById("url-text").innerHTML = gameURL + ":3000";
     isHost = true;
   }
 });
@@ -60,6 +60,12 @@ socket.on("reconnect_device", function() {
   changeScreen("start-game-screen");
   toggleRejoinGameButton(true);
   isHost = false;
+});
+
+socket.on("join_session_success", function() {
+  if (!isHost) {
+    changeScreen("c-landing-screen");
+  }
 });
 
 // HOST & CONTROLLER
@@ -81,6 +87,10 @@ socket.on("change_board_controller", function(boardController, boardControllerNi
   }
 });
 
+socket.on("update_session_id", function(sessionId) {
+  document.getElementById("session-id-text").innerHTML = sessionId;
+});
+
 // HOST
 socket.on("update_players_connected", function(playersConnected) {
   /*
@@ -92,9 +102,9 @@ socket.on("update_players_connected", function(playersConnected) {
     let playersConnectedText = document.getElementById("players-connected");
 
     if (playersConnected == 1) {
-      playersConnectedText.innerHTML = playersConnected + " PLAYER CONNECTED";
+      playersConnectedText.innerHTML = playersConnected + " PLAYER JOINED";
     } else {
-      playersConnectedText.innerHTML = playersConnected + " PLAYERS CONNECTED";
+      playersConnectedText.innerHTML = playersConnected + " PLAYERS JOINED";
     }
   }
 });
@@ -670,28 +680,30 @@ function declareAudioFiles() {
   by a user input in order for the browser to allow any audio to be played
    */
 
-  document.getElementById("unmute-text").classList.add("inactive");
+  if (!audioAllowed) {
+    document.getElementById("unmute-text").classList.add("inactive");
 
-  audioAllowed = true;
-  audioFiles = {
-    "landing_screen_theme": new Audio("/audio/landing_screen_theme.mp3"),
-    "clue_selected": new Audio("/audio/clue_selected.mp3"),
-    "buzzer": new Audio("/audio/buzzer.mp3"),
-    "times_up": new Audio("/audio/times_up.mp3"),
-    "applause": new Audio("/audio/applause.mp3"),
-    "aww": new Audio("/audio/aww.mp3"),
-    "daily_double": new Audio("/audio/daily_double.mp3"),
-    "final_jeoparty_category": new Audio("/audio/final_jeoparty_category.mp3"),
-    "think_music": new Audio("/audio/think_music.mp3"),
-    "big_applause": new Audio("/audio/big_applause.mp3"),
-  };
+    audioAllowed = true;
+    audioFiles = {
+      "landing_screen_theme": new Audio("/audio/landing_screen_theme.mp3"),
+      "clue_selected": new Audio("/audio/clue_selected.mp3"),
+      "buzzer": new Audio("/audio/buzzer.mp3"),
+      "times_up": new Audio("/audio/times_up.mp3"),
+      "applause": new Audio("/audio/applause.mp3"),
+      "aww": new Audio("/audio/aww.mp3"),
+      "daily_double": new Audio("/audio/daily_double.mp3"),
+      "final_jeoparty_category": new Audio("/audio/final_jeoparty_category.mp3"),
+      "think_music": new Audio("/audio/think_music.mp3"),
+      "big_applause": new Audio("/audio/big_applause.mp3"),
+    };
 
-  if (currentScreenId == "h-landing-screen") {
-    playAudio("landing_screen_theme");
-    loopMusicTimeout = setTimeout(function loop() {
+    if (currentScreenId == "h-landing-screen") {
       playAudio("landing_screen_theme");
-      loopMusicTimeout = setTimeout(loop, audioFiles["landing_screen_theme"].duration * 1000);
-    }, audioFiles["landing_screen_theme"].duration * 1000);
+      loopMusicTimeout = setTimeout(function loop() {
+        playAudio("landing_screen_theme");
+        loopMusicTimeout = setTimeout(loop, audioFiles["landing_screen_theme"].duration * 1000);
+      }, audioFiles["landing_screen_theme"].duration * 1000);
+    }
   }
 }
 
@@ -711,6 +723,13 @@ function playAudio(filename) {
       audioFiles[filename].play();
     }
   }
+}
+
+function joinSession() {
+  /*
+   */
+
+  socket.emit("join_session", document.getElementById("session-id-form").value.toUpperCase());
 }
 
 // CONTROLLER
@@ -986,7 +1005,7 @@ function adjustMobileStyle() {
 
   document.body.style.position = "fixed";
 
-  let gameScreenIds = ["c-landing-screen", "c-waiting-screen", "start-game-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
+  let gameScreenIds = ["join-session-screen", "c-landing-screen", "c-waiting-screen", "start-game-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
 
   for (let i = 0; i < gameScreenIds.length; i++) {
     // This is neccessary because 100vh on iOS Safari extends past the visible
@@ -1851,7 +1870,7 @@ function updateScoreboard(players) {
   overflowRow.className = "inactive row overflow-row";
   overflow.innerHTML = "";
 
-  if (playersLength == 1) {
+  if (playersLength <= 1) {
     podiumOne.className = "col-12";
     podiumTwo.className = "inactive";
     podiumThree.className = "inactive";
@@ -1863,7 +1882,7 @@ function updateScoreboard(players) {
     podiumOne.className = "col-4";
     podiumTwo.className = "col-4";
     podiumThree.className = "col-4";
-  } else {
+  } else if (playersLength > 4) {
     overflowRow.classList.remove("inactive");
 
     let keys = Object.keys(clone);
