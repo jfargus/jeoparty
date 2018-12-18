@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 
-<html lang="en">
-
 <!--
-Both sets of HTML files (Host & Controller) are stored here.
-This is solely due to my lack of understanding of express.js servers
-and whether or not they can serve different HTML files to different devices
-simultaneously.
+HTML documents for both the Host and Controller screens are stored here
 -->
+
+<html lang="en">
 
 <head>
   <title>Jeoparty!</title>
@@ -24,7 +21,7 @@ simultaneously.
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- Jeoparty! modules -->
-  <script src="/js/bundle.js"></script>
+  <script src="/js/main.js"></script>
   <link rel="stylesheet" href="/css/main.css">
   <script src="/js/sketchpad.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/sketchpad.css">
@@ -38,6 +35,11 @@ simultaneously.
     <div id="h-landing-screen" class="h-landing-screen" onclick="declareAudioFiles()">
       <div class="container-fluid">
         <div class="row justify-content-center">
+          <div id="unmute-text" class="unmute-text col-12">
+            <span>CLICK ANYWHERE ON SCREEN FOR AUDIO</span>
+          </div>
+        </div>
+        <div class="row justify-content-center">
           <div class="col-12">
             <span class="h-logo-text">JEOPARTY!</span>
           </div>
@@ -45,6 +47,11 @@ simultaneously.
         <div class="row justify-content-center">
           <div class="col-12">
             <span id="players-connected">0 PLAYERS CONNECTED</span>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="url-text col-12">
+            <span id="url-text"></span>
           </div>
         </div>
       </div>
@@ -302,6 +309,7 @@ simultaneously.
       <div class="container-fluid">
         <div class="row justify-content-center">
           <div class="col-12">
+            <div class="help-menu-button" onclick="alertHelpMenu()">?</div>
             <span class="c-logo-text">JEOPARTY!</span>
           </div>
         </div>
@@ -353,6 +361,7 @@ simultaneously.
             <span class="c-logo-text">JEOPARTY!</span>
           </div>
         </div>
+        <div class="spacer"></div>
         <div class="row justify-content-center">
           <div class="col-12">
             <span id="c-waiting-screen-text" class="c-ui-text"></span>

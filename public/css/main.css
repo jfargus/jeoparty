@@ -129,6 +129,20 @@ button {
   background-color: red;
 }
 
+.unmute-text {
+  position: absolute;
+  top: 0;
+
+  font-size: 6vh;
+}
+
+.url-text {
+  position: absolute;
+  bottom: 0;
+
+  font-size: 6vh;
+}
+
 .h-logo-text {
   color: white;
 
@@ -629,6 +643,13 @@ button {
   line-height: 8vh;
 }
 
+.help-menu-button {
+  position: absolute;
+  right: 4vw;
+
+  font-size: 4vh;
+}
+
 .c-logo-text {
   color: white;
 
@@ -658,7 +679,9 @@ button {
 .erase {
   position: absolute;
   z-index: 2;
+
   color: black;
+
   font-size: 5vh;
 }
 
@@ -671,6 +694,12 @@ button {
   background-color: white;
 
   font-size: 3vh;
+}
+
+/* Waiting screen */
+
+#c-waiting-screen {
+  line-height: 3vh;
 }
 
 /* Board screen */

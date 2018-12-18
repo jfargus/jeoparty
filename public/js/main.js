@@ -1,7 +1,5 @@
 "use strict";
 
-let nosleep = require("nosleep.js");
-
 let waitingToJoin = false;
 let joined = false;
 let currentScreenId;
@@ -14,7 +12,7 @@ let lastCategoryId;
 let lastPriceWrapperId;
 let lastPriceId;
 let buzzWinner;
-let usedClueArray;
+let usedClues;
 let currentScreenQuestion;
 let doubleJeoparty = false;
 let maxWager;
@@ -24,6 +22,7 @@ let finalJeopartyClue;
 let finalJeopartyPlayer;
 
 // Timeout/interval handlers
+let loopMusicTimeout;
 let questionInterval;
 let timerTimeout;
 let livefeedInterval;
@@ -36,7 +35,7 @@ let scrapeWagerTimeout;
 let socket = io();
 
 // HOST & CONTROLLER
-socket.on("connect_device", function() {
+socket.on("connect_device", function(gameURL) {
   // Checks to see if this is a mobile device
   if (/Mobi/.test(navigator.userAgent)) {
     adjustMobileStyle();
@@ -48,10 +47,12 @@ socket.on("connect_device", function() {
     document.body.style.backgroundImage = "url('/graphics/background.png')";
     document.getElementById("host").className = "";
     currentScreenId = "h-landing-screen";
+    document.getElementById("url-text").innerHTML = "GO TO: " + gameURL + ":3000";
     isHost = true;
   }
 });
 
+// CONTROLLER
 socket.on("reconnect_device", function() {
   adjustMobileStyle();
   document.getElementById("controller").className = "";
@@ -59,6 +60,25 @@ socket.on("reconnect_device", function() {
   changeScreen("start-game-screen");
   toggleRejoinGameButton(true);
   isHost = false;
+});
+
+// HOST & CONTROLLER
+socket.on("change_board_controller", function(boardController, boardControllerNickname) {
+  /*
+  Input:
+  boardController: number (socket id)
+  boardControllerNickname: string
+   */
+
+  if (isHost) {
+    voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
+  } else {
+    if (boardController == socket.id) {
+      changeScreen("c-board-screen");
+    } else {
+      changeWaitScreen(boardControllerNickname.toUpperCase(), false);
+    }
+  }
 });
 
 // HOST
@@ -80,7 +100,7 @@ socket.on("update_players_connected", function(playersConnected) {
 });
 
 // CONTROLLER
-socket.on("join_success", function(categoryNames, boardController, gameActive) {
+socket.on("join_success", function(categoryNames, boardController, gameActive, doubleJeoparty) {
   /*
   Input:
   categoryNames: array of strings
@@ -98,9 +118,9 @@ socket.on("join_success", function(categoryNames, boardController, gameActive) {
       joined = true;
     }
 
-    setCategoryText(categoryNames, undefined);
+    setCategoryText(categoryNames, []);
 
-    if (socket.id == boardController) {
+    if (socket.id == boardController && !gameActive) {
       changeScreen("start-game-screen");
     } else {
       if (!waitingToJoin) {
@@ -136,6 +156,7 @@ socket.on("load_game", function(categoryNames, categoryDates, boardController, b
 
   if (isHost) {
     if (audioAllowed) {
+      clearTimeout(loopMusicTimeout);
       audioFiles["landing_screen_theme"].pause();
     }
     voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
@@ -213,9 +234,11 @@ socket.on("request_daily_double_wager", function(categoryName, player, newMaxWag
    */
 
   dailyDouble = true;
+
   if (isHost) {
     startTimerAnimation(15);
     requestDailyDoubleWager(categoryName, player.nickname, player.score);
+    voice(getRandomWagerIntro() + player.nickname, .1);
   } else {
     if (joined) {
       if (socket.id == player.id) {
@@ -263,7 +286,9 @@ socket.on("answer_daily_double", function(player) {
 
   try {
     clearTimeout(timerTimeout);
-  } catch (e) {}
+  } catch (e) {
+    // In case timerTimeout had not been set
+  }
 
   buzzWinner = player;
 
@@ -323,7 +348,9 @@ socket.on("answer", function(player) {
 
   try {
     clearTimeout(timerTimeout);
-  } catch (e) {}
+  } catch (e) {
+    // In case timerTimeout had not been set
+  }
 
   buzzWinner = player;
 
@@ -422,6 +449,13 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
     if (timesUp) {
       playAudio("times_up");
     }
+    try {
+      disableTimer();
+    } catch (e) {
+      // In the case that timer has not already been turned off, this may
+      // happen if a player leaves the game as they are answering
+    }
+    document.getElementById("player-livefeed-wrapper").className = "inactive";
     voice(getRandomAnswerIntro() + correctAnswer, .5);
     displayCorrectAnswer(correctAnswer);
   } else {
@@ -446,10 +480,10 @@ socket.on("reveal_scores", function() {
 });
 
 // HOST & CONTROLLER
-socket.on("reveal_board", function(newUsedClueArray, boardController, boardControllerNickname) {
+socket.on("reveal_board", function(newUsedClues, remainingClueIds, boardController, boardControllerNickname) {
   /*
   Input:
-  newUsedClueArray: array of strings ("category-x-price-y")
+  newUsedClues: array of strings ("category-x-price-y")
   boardController: string (socket id)
   boardControllerNickname: string
    */
@@ -467,15 +501,23 @@ socket.on("reveal_board", function(newUsedClueArray, boardController, boardContr
         joined = true;
 
         if (socket.id == boardController) {
-          changeScreen("c-board-screen");
-          resetClueButtons();
-          resetCluePriceButtons();
+          if (remainingClueIds.length == 1) {
+            // Automatically sends the final clue request to the server
+            // if there is only one clue left on the board
+            lastCategoryId = remainingClueIds[0].slice(0, 10);
+            lastPriceId = remainingClueIds[0].slice(11);
+            sendClueRequest();
+          } else {
+            changeScreen("c-board-screen");
+            resetClueButtons();
+            resetCluePriceButtons();
+          }
         } else {
           changeWaitScreen(boardControllerNickname.toUpperCase(), false);
         }
       }
     }
-    usedClueArray = newUsedClueArray;
+    usedClues = newUsedClues;
     updateCategoryOptions();
   }
 });
@@ -526,11 +568,18 @@ socket.on("setup_final_jeoparty", function(clue) {
   }
 });
 
+// HOST & CONTROLLER
 socket.on("request_final_jeoparty_wager", function(finalJeopartyPlayers) {
+  /*
+  Input:
+  finalJeopartyPlayers: object (player objects)
+   */
+
   if (isHost) {
     startTimerAnimation(15);
     changeScreen("score-screen");
     changeTimerHeight(true);
+    voice(getRandomWagerIntro());
   } else {
     if (joined) {
       if (Object.keys(finalJeopartyPlayers).includes(socket.id)) {
@@ -550,6 +599,7 @@ socket.on("request_final_jeoparty_wager", function(finalJeopartyPlayers) {
   }
 });
 
+// HOST & CONTROLLER
 socket.on("display_final_jeoparty_clue", function() {
   if (isHost) {
     changeScreen("clue-screen");
@@ -578,6 +628,7 @@ socket.on("display_final_jeoparty_clue", function() {
   }
 });
 
+// HOST & CONTROLLER
 socket.on("answer_final_jeoparty", function() {
   if (isHost) {
     playAudio("think_music");
@@ -593,6 +644,7 @@ socket.on("answer_final_jeoparty", function() {
   }
 });
 
+// HOST & CONTROLLER
 socket.on("display_final_jeoparty_answer", function(players) {
   if (isHost) {
     disableTimer();
@@ -618,6 +670,8 @@ function declareAudioFiles() {
   by a user input in order for the browser to allow any audio to be played
    */
 
+  document.getElementById("unmute-text").classList.add("inactive");
+
   audioAllowed = true;
   audioFiles = {
     "landing_screen_theme": new Audio("/audio/landing_screen_theme.mp3"),
@@ -634,6 +688,10 @@ function declareAudioFiles() {
 
   if (currentScreenId == "h-landing-screen") {
     playAudio("landing_screen_theme");
+    loopMusicTimeout = setTimeout(function loop() {
+      playAudio("landing_screen_theme");
+      loopMusicTimeout = setTimeout(loop, audioFiles["landing_screen_theme"].duration * 1000);
+    }, audioFiles["landing_screen_theme"].duration * 1000);
   }
 }
 
@@ -649,12 +707,33 @@ function playAudio(filename) {
 
   if (audioAllowed) {
     if (audioFiles[filename].paused) {
+      audioFiles[filename].currentTime = 0;
       audioFiles[filename].play();
     }
   }
 }
 
+// CONTROLLER
+function alertHelpMenu() {
+  /*
+  Result:
+  Alerts the controller with a list of game instructions and copyright information
+   */
+
+  alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for best results.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeoparty! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
+}
+
+// CONTROLLER
 function toggleRejoinGameButton(on) {
+  /*
+  Input:
+  on: boolean
+
+  Result:
+  If on, activates a button to let the player rejoin the game, else,
+  reactivates the start game button
+   */
+
   let startGameButton = document.getElementById("start-game-button");
   let rejoinGameButton = document.getElementById("rejoin-game-button");
 
@@ -667,9 +746,14 @@ function toggleRejoinGameButton(on) {
   }
 }
 
+// CONTROLLER
 function rejoinGame() {
+  /*
+  Result:
+  Sends a signal to the server to attempt to rejoin the game
+   */
+
   socket.emit("rejoin_game");
-  nosleep.enable();
 }
 
 // CONTROLLER
@@ -684,7 +768,6 @@ function joinGame() {
 
   if (nickname.length <= 25) {
     socket.emit("join_game", nickname, signature);
-    nosleep.enable();
   } else {
     alert("Your nickname is too long");
   }
@@ -779,6 +862,8 @@ function voice(text, delay) {
   if (audioAllowed) {
     speechSynthesis.cancel();
 
+    text = removeBlanks(text);
+
     setTimeout(function() {
       if (window.speechSynthesis.getVoices().length == 0) {
         window.speechSynthesis.onvoiceschanged = function() {
@@ -809,6 +894,37 @@ function voice(text, delay) {
       }
     }, (delay * 1000));
   }
+}
+
+// HOST
+function removeBlanks(text) {
+  /*
+  Input:
+  text: string
+
+  Result:
+  Turns any series of underscores in text into the word blank so that
+  the text to speech delivers the blank section as "blank" instead of
+  "underscore underscore underscore"
+   */
+
+  while (text.includes("_")) {
+    let start = text.indexOf("_");
+    let end;
+
+    let i = text.indexOf("_");
+    while (true) {
+      if (text[i] != "_") {
+        end = i;
+        break;
+      }
+      i++;
+    }
+
+    text = text.replace(text.slice(start, end), "blank");
+  }
+
+  return text;
 }
 
 // HOST
@@ -902,7 +1018,9 @@ function pressClueButton(button) {
     updateClueOptions(button.id);
     try {
       document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
-    } catch (e) {}
+    } catch (e) {
+      // In case lastCategoryWrapperId has not been defined yet
+    }
     lastCategoryWrapperId = wrapper.id;
     lastCategoryId = button.id;
   }
@@ -910,7 +1028,9 @@ function pressClueButton(button) {
   if (wrapper.classList.contains("price")) {
     try {
       document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
-    } catch (e) {}
+    } catch (e) {
+      // In case lastPriceWrapperId has not been defined yet
+    }
     lastPriceWrapperId = wrapper.id;
     lastPriceId = button.id;
   }
@@ -937,7 +1057,7 @@ function updateCategoryOptions() {
     let categoryButton = document.getElementById("category-" + i);
     let categoryButtonText = document.getElementById("category-" + i + idSuffix);
 
-    if (usedClueArray["category-" + i].length == 5) {
+    if (usedClues["category-" + i].length == 5) {
       categoryButton.disabled = true;
       categoryButtonText.innerHTML = "";
 
@@ -968,12 +1088,12 @@ function updateClueOptions(categoryId) {
   the only options available for the player to use are $600, $800, and $1000
    */
 
-  if (usedClueArray) {
+  if (usedClues) {
     resetCluePriceButtons();
 
-    for (let i = 0; i < usedClueArray[categoryId].length; i++) {
-      let priceButton = document.getElementById(usedClueArray[categoryId][i]);
-      let priceButtonText = document.getElementById(usedClueArray[categoryId][i] + "-text");
+    for (let i = 0; i < usedClues[categoryId].length; i++) {
+      let priceButton = document.getElementById(usedClues[categoryId][i]);
+      let priceButtonText = document.getElementById(usedClues[categoryId][i] + "-text");
 
       priceButton.disabled = true;
 
@@ -1224,6 +1344,36 @@ function toggleWagerForm(on) {
 }
 
 // HOST
+function getRandomWagerIntro() {
+  /*
+  Output:
+  Returns a random string from intros for the text to speech say before
+  asking the player(s) to make a wager. A full text to speech statement
+  would sound like, "Choose you wager nickname"
+   */
+
+  let intros;
+
+  if (finalJeoparty) {
+    intros = [
+      "Choose your wagers",
+      "Make your wagers",
+      "It's time to wager",
+    ];
+  } else {
+    intros = [
+      "Choose your wager ",
+      "Make a wager ",
+      "It's time to wager ",
+    ];
+  }
+
+  let intro = intros[Math.floor(Math.random() * intros.length)];
+
+  return intro;
+}
+
+// HOST
 function requestDailyDoubleWager(categoryName, nickname, score) {
   /*
   Input:
@@ -1296,7 +1446,9 @@ function submitWager(timesUp) {
   if (timesUp) {
     try {
       clearInterval(wagerLivefeedInterval);
-    } catch (e) {}
+    } catch (e) {
+      // In case wagerLivefeedInterval hasn't been set yet
+    }
     clearTimeout(scrapeWagerTimeout);
     if (finalJeoparty) {
       changeWaitScreen("OTHER PLAYERS", false);
@@ -1328,7 +1480,9 @@ function submitWager(timesUp) {
       } else {
         try {
           clearInterval(wagerLivefeedInterval);
-        } catch (e) {}
+        } catch (e) {
+          // In case wagerLivefeedInterval hasn't been set yet
+        }
         clearTimeout(scrapeWagerTimeout);
         if (dailyDouble) {
           socket.emit("daily_double_wager", Number(wager));
@@ -1414,7 +1568,9 @@ function disableTimer() {
     timer.classList.add("inactive");
     timer.classList.remove("animate");
     timerFrame.classList.add("inactive");
-  } catch (e) {}
+  } catch (e) {
+    // In case timer has already had the animate class removed
+  }
 
   timer.offsetHeight;
 }
@@ -1476,7 +1632,9 @@ function buzz() {
   socket.emit("buzz");
   try {
     clearTimeout(scrapeAnswerTimeout);
-  } catch (e) {}
+  } catch (e) {
+    // In case scrapeAnswerTimeout has not been set
+  }
   scrapeAnswerTimeout = setTimeout(submitAnswer, 15500);
 }
 
@@ -1529,7 +1687,9 @@ function submitAnswer() {
   clearInterval(livefeedInterval);
   try {
     clearTimeout(scrapeAnswerTimeout);
-  } catch (e) {}
+  } catch (e) {
+    // In case scrapeAnswerTimeout has not been set
+  }
 
   document.getElementById("submit-answer-button").className = "inactive submit-answer-button";
 
@@ -1563,8 +1723,17 @@ function displayPlayerAnswer(player, answer, correct) {
   green or red depending on correct
    */
 
+  let header;
+
+  if (dailyDouble) {
+    header = player.nickname.toUpperCase() + "'S WAGER:<br>$" + player.wager + "<br><br>";
+    header += player.nickname.toUpperCase() + "'S RESPONSE:<br>"
+  } else {
+    header = player.nickname.toUpperCase() + "'S RESPONSE:<br>";
+  }
+
   document.getElementById("clue-text").className = "clue-text";
-  document.getElementById("clue-text").innerHTML = player.nickname.toUpperCase() + "'S RESPONSE:<br>";
+  document.getElementById("clue-text").innerHTML = header;
 
   let playerAnswer = document.getElementById("player-answer");
   playerAnswer.classList.remove("inactive");
@@ -1653,7 +1822,9 @@ function resetClueButtons() {
   try {
     document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
     document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
-  } catch (e) {}
+  } catch (e) {
+    // In case lastCategoryWrapperId and/or lastPriceWrapperId are undefined
+  }
 }
 
 // HOST
@@ -1798,8 +1969,15 @@ function setDoubleJeopartyPriceText() {
   }
 }
 
+// HOST
 function changeTimerHeight(half) {
   /*
+  Input:
+  half: boolean
+
+  Result:
+  If half, decreases the size of the host's timer to half of its normal height,
+  else returns the timer height to its normal height
    */
 
   let newHeight;
@@ -1820,6 +1998,10 @@ function changeTimerHeight(half) {
 // HOST
 function getRandomFinalJeopartyIntro() {
   /*
+  Output:
+  Returns a random string from intros for the text to speech say before
+  introducing the final jeoparty category. A full text to speech statement
+  would sound like, "The final jeopardy category is..."
    */
 
   let intros = [
@@ -1831,8 +2013,14 @@ function getRandomFinalJeopartyIntro() {
   return intro;
 }
 
+// HOST
 function displayFinalJeopartyCategory(categoryName) {
   /*
+  Input:
+  categoryName: string
+
+  Result:
+  Displays the final jeoparty category's name on screen
    */
 
   let clueText = document.getElementById("clue-text");
@@ -1841,8 +2029,15 @@ function displayFinalJeopartyCategory(categoryName) {
   clueText.innerHTML = categoryName.toUpperCase();
 }
 
+// HOST
 function displayFinalJeopartyAnswers(players) {
   /*
+  Input:
+  players: object (player objects)
+
+  Result:
+  Displays the final jeoparty answers of each player who submitted one
+  before revealing the correct answer and ending the game
    */
 
   let clone = JSON.parse(JSON.stringify(players));
@@ -1865,8 +2060,6 @@ function displayFinalJeopartyAnswers(players) {
   displayFinalJeopartyAnswer();
 
   function displayFinalJeopartyAnswer() {
-    /*
-     */
 
     let nickname, wager, answer, correct;
 
@@ -1928,6 +2121,10 @@ function displayFinalJeopartyAnswers(players) {
         setTimeout(function() {
           clueText.innerHTML = "THANKS FOR PLAYING!";
           playAudio("landing_screen_theme");
+          loopMusicTimeout = setTimeout(function loop() {
+            playAudio("landing_screen_theme");
+            loopMusicTimeout = setTimeout(loop, audioFiles["landing_screen_theme"].duration * 1000);
+          }, audioFiles["landing_screen_theme"].duration * 1000);
         }, 10000);
       }, 4000);
     }, 4000);
