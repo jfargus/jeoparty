@@ -12,7 +12,7 @@ Make sure to unzip it before going on.
 Use the terminal to navigate to the folder where you saved the repository. For
 this example I saved the folder in /Documents/GitHub/jeoparty.
 
-On Mac & Windows:
+In terminal:
 ```
 cd Documents/GitHub/jeoparty
 ```
@@ -21,7 +21,7 @@ cd Documents/GitHub/jeoparty
 This game requires a few packages from Node.js in order to function so now we
 need to install all of the things the game needs in the game folder.
 
-On Mac & Windows:
+In terminal:
 ```
 npm install
 ```
@@ -29,7 +29,7 @@ npm install
 ## 3. Run the node server
 Now we need to turn on a server so that the website can run locally.
 
-On Mac & Windows:
+In terminal:
 ```
 node server
 ```
@@ -41,20 +41,18 @@ Chrome when playing, the graphics and text to speech functions run much more
 smoothly. Despite this, other browsers can run the game just the same.
 
 ## 5. Enjoy!
-Plug your laptop into a TV or monitor for maximum enjoyment.
+Go to the same URL as you did on your computer with your mobile devies and join the game. Plug your laptop into a TV or monitor for maximum enjoyment.
 
 # Future Plans
-I plan to publish this game to a website online so that you don't need to do
-personal installation to enjoy it! Also an Alex Trebek text to speech library
-would be very interesting, but that's not an immediate goal.
+I plan to publish this game to a website online so that no downloads or personal installation is neccessary.
 
 # Copyright
 The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
 
 # Credits
 Libraries used:
-* Socket.io
-* Express.js
-* Node.js
+*[Socket.io](https://www.socket.io)
+*[Express.js](https://www.expressjs.com)
+*[Node.js](https://www.nodejs.com)
 
 An Isaac Redlon production. 2018.
