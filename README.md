@@ -3,7 +3,7 @@ A local multiplayer Jeopardy! game. Run the board screen on your laptop and use 
 
 # Installation Guide (to play locally)
 
-Libraries## 1. Download the repository
+## 1. Download the repository
 Download this repository onto your computer by clicking the green
 "Clone or Download" button in the upper right hand corner of the repository's front page.
 Make sure to unzip it before going on.
@@ -18,7 +18,7 @@ cd Documents/GitHub/jeoparty
 ## 3. Download Node dependencies
 This game requires a few packages from Node.js in order to function so now we
 need to install all of the things that the game needs. Node.js lets you do this easily with one command.
-
+1
 ```
 npm install
 ```
