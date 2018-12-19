@@ -25,479 +25,488 @@ HTML documents for both the Host and Controller screens are stored here
   <link rel="stylesheet" href="/css/main.css">
   <script src="/js/sketchpad.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/sketchpad.css">
+
+  <!-- NoSleep.js modules -->
+  <script src="/js/nosleep.js"></script>
+  <script>
+    let noSleep = new NoSleep();
+
+    function enableNoSleep() {
+      noSleep.enable();
+    }
+   </script>
 </head>
 
 <body ontouchstart onload="init()">
-  <!-- Host -->
-  <div id="host" class="inactive">
+  <div id="document-wrapper" onclick="enableNoSleep()">
+    <!-- Host -->
+    <div id="host" class="inactive">
 
-    <!-- Landing screen -->
-    <div id="h-landing-screen" class="h-landing-screen" onclick="declareAudioFiles()">
-      <div class="container-fluid">
-        <!--
-        <div class="row justify-content-center">
-          <div id="unmute-text" class="unmute-text col-2">
-            <span>CLICK FOR AUDIO</span>
-          </div>
-        </div>
-      -->
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span class="h-logo-text">JEOPARTY!</span>
-          </div>
-        </div>
-        <div class="row justify-content-center">
-          <div class="header-text col-12">
-            URL
-          </div>
-          <div class="footer-text col-12">
-            <span id="url-text"></span>
-          </div>
-        </div>
-        <div class="small-spacer"></div>
-        <div class="row justify-content-center">
-          <div class="header-text col-12">
-            SESSION ID
-          </div>
-          <div class="footer-text col-12">
-            <span id="session-id-text"></span>
-          </div>
-        </div>
-        <div class="small-spacer"></div>
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span id="players-connected">0 PLAYERS JOINED</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Board screen -->
-    <div id="h-board-screen" class="inactive h-board-screen">
-      <div class="container-fluid">
-        <div class="row h-board-row">
-          <div class="col-2 justify-content-center category-border category">
-            <span id="category-1-name" class="h-category-name"></span>
-            <div id="category-1-date-wrapper" class="category-date-wrapper">
-              <span id="category-1-date" class="category-date-text"></span>
-            </div>
-          </div>
-          <div class="col-2 justify-content-center category-border category">
-            <span id="category-2-name" class="h-category-name"></span>
-            <div id="category-2-date-wrapper" class="category-date-wrapper">
-              <span id="category-2-date" class="category-date-text"></span>
-            </div>
-          </div>
-          <div class="col-2 justify-content-center category-border category">
-            <span id="category-3-name" class="h-category-name"></span>
-            <div id="category-3-date-wrapper" class="category-date-wrapper">
-              <span id="category-3-date" class="category-date-text"></span>
-            </div>
-          </div>
-          <div class="col-2 justify-content-center category-border category">
-            <span id="category-4-name" class="h-category-name"></span>
-            <div id="category-4-date-wrapper" class="category-date-wrapper">
-              <span id="category-4-date" class="category-date-text"></span>
-            </div>
-          </div>
-          <div class="col-2 justify-content-center category-border category">
-            <span id="category-5-name" class="h-category-name"></span>
-            <div id="category-5-date-wrapper" class="category-date-wrapper">
-              <span id="category-5-date" class="category-date-text"></span>
-            </div>
-          </div>
-          <div class="col-2 justify-content-center category-border category">
-            <span id="category-6-name" class="h-category-name"></span>
-            <div id="category-6-date-wrapper" class="category-date-wrapper">
-              <span id="category-6-date" class="category-date-text"></span>
-            </div>
-          </div>
-        </div>
-        <div class="row h-board-row">
-          <div class="col-2 justify-content-center price-border price" id="category-1-price-1">
-            <span id="category-1-price-1-text" class="h-price-text">$200</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-2-price-1">
-            <span id="category-2-price-1-text" class="h-price-text">$200</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-3-price-1">
-            <span id="category-3-price-1-text" class="h-price-text">$200</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-4-price-1">
-            <span id="category-4-price-1-text" class="h-price-text">$200</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-5-price-1">
-            <span id="category-5-price-1-text" class="h-price-text">$200</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-6-price-1">
-            <span id="category-6-price-1-text" class="h-price-text">$200</span>
-          </div>
-        </div>
-        <div class="row h-board-row">
-          <div class="col-2 justify-content-center price-border price" id="category-1-price-2">
-            <span id="category-1-price-2-text" class="h-price-text">$400</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-2-price-2">
-            <span id="category-2-price-2-text" class="h-price-text">$400</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-3-price-2">
-            <span id="category-3-price-2-text" class="h-price-text">$400</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-4-price-2">
-            <span id="category-4-price-2-text" class="h-price-text">$400</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-5-price-2">
-            <span id="category-5-price-2-text" class="h-price-text">$400</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-6-price-2">
-            <span id="category-6-price-2-text" class="h-price-text">$400</span>
-          </div>
-        </div>
-        <div class="row h-board-row">
-          <div class="col-2 justify-content-center price-border price" id="category-1-price-3">
-            <span id="category-1-price-3-text" class="h-price-text">$600</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-2-price-3">
-            <span id="category-2-price-3-text" class="h-price-text">$600</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-3-price-3">
-            <span id="category-3-price-3-text" class="h-price-text">$600</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-4-price-3">
-            <span id="category-4-price-3-text" class="h-price-text">$600</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-5-price-3">
-            <span id="category-5-price-3-text" class="h-price-text">$600</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-6-price-3">
-            <span id="category-6-price-3-text" class="h-price-text">$600</span>
-          </div>
-        </div>
-        <div class="row h-board-row">
-          <div class="col-2 justify-content-center price-border price" id="category-1-price-4">
-            <span id="category-1-price-4-text" class="h-price-text">$800</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-2-price-4">
-            <span id="category-2-price-4-text" class="h-price-text">$800</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-3-price-4">
-            <span id="category-3-price-4-text" class="h-price-text">$800</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-4-price-4">
-            <span id="category-4-price-4-text" class="h-price-text">$800</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-5-price-4">
-            <span id="category-5-price-4-text" class="h-price-text">$800</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-6-price-4">
-            <span id="category-6-price-4-text" class="h-price-text">$800</span>
-          </div>
-        </div>
-        <div class="row h-board-row">
-          <div class="col-2 justify-content-center price-border price" id="category-1-price-5">
-            <span id="category-1-price-5-text" class="h-price-text">$1000</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-2-price-5">
-            <span id="category-2-price-5-text" class="h-price-text">$1000</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-3-price-5">
-            <span id="category-3-price-5-text" class="h-price-text">$1000</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-4-price-5">
-            <span id="category-4-price-5-text" class="h-price-text">$1000</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-5-price-5">
-            <span id="category-5-price-5-text" class="h-price-text">$1000</span>
-          </div>
-          <div class="col-2 justify-content-center price-border price" id="category-6-price-5">
-            <span id="category-6-price-5-text" class="h-price-text">$1000</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Timer -->
-    <div id="h-timer" class="inactive h-timer"></div>
-    <div id="h-timer-frame" class="inactive h-timer-frame">
-      <div id="divider-1" class="h-timer-frame-divider"></div>
-      <div id="divider-2" class="h-timer-frame-divider"></div>
-      <div id="divider-3" class="h-timer-frame-divider"></div>
-      <div id="divider-4" class="h-timer-frame-divider"></div>
-      <div id="divider-5" class="h-timer-frame-divider"></div>
-      <div id="divider-6" class="h-timer-frame-divider"></div>
-      <div id="divider-7" class="h-timer-frame-divider"></div>
-      <div id="divider-8" class="h-timer-frame-divider"></div>
-    </div>
-
-    <!-- Clue screen -->
-    <div id="clue-screen" class="inactive clue-screen">
-      <div id="daily-double-wrapper" class="">
+      <!-- Landing screen -->
+      <div id="h-landing-screen" class="h-landing-screen" onclick="declareAudioFiles()">
         <div class="container-fluid">
-          <div id="clue-text-row" class="row justify-content-center clue-text-row">
-            <div class="col-1"></div>
-            <div class="col-10 align-self-center">
-              <span id="clue-text" class="clue-text"></span>
-              <span id="player-answer" class="inactive player-answer"></span>
-              <div id="player-livefeed-wrapper" class="inactive">
-                <div id="player-livefeed-spacer" class="player-livefeed-spacer"></div>
-                <span id="player-livefeed-nickname" class="clue-text"></span>
-                <span id="player-livefeed" class="clue-text"></span>
-              </div>
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span class="h-logo-text">JEOPARTY!</span>
             </div>
-            <div class="col-1"></div>
+          </div>
+          <div class="row justify-content-center">
+            <div class="header-text col-12">
+              URL
+            </div>
+            <div class="footer-text col-12">
+              <span id="url-text"></span>
+            </div>
+          </div>
+          <div class="small-spacer"></div>
+          <div class="row justify-content-center">
+            <div class="header-text col-12">
+              SESSION ID
+            </div>
+            <div class="footer-text col-12">
+              <span id="session-id-text"></span>
+            </div>
+          </div>
+          <div class="small-spacer"></div>
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span id="players-connected">0 PLAYERS JOINED</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Score screen -->
-    <div id="score-screen" class="inactive score-screen">
-      <div class="container-fluid">
-        <div class="row score-screen-row justify-content-center">
-          <div id="podium-1" class="col-4">
-            <div class="row nickname-column justify-content-center">
-              <div id="player-1-display" class="nickname-display">
-                <span id="player-1-nickname" class="nickname-text"></span>
+      <!-- Board screen -->
+      <div id="h-board-screen" class="inactive h-board-screen">
+        <div class="container-fluid">
+          <div class="row h-board-row">
+            <div class="col-2 justify-content-center category-border category">
+              <span id="category-1-name" class="h-category-name"></span>
+              <div id="category-1-date-wrapper" class="category-date-wrapper">
+                <span id="category-1-date" class="category-date-text"></span>
               </div>
             </div>
-            <div class="row score-column justify-content-center">
-              <div id="player-1-score" class="score-display">
-                <span id="player-1-score-text" class="score-text"></span>
+            <div class="col-2 justify-content-center category-border category">
+              <span id="category-2-name" class="h-category-name"></span>
+              <div id="category-2-date-wrapper" class="category-date-wrapper">
+                <span id="category-2-date" class="category-date-text"></span>
               </div>
             </div>
-            <div class="row signature-column justify-content-center">
-              <div id="player-1-signature" class="signature-display">
-                <canvas id="player-1-signature-canvas" class="signature" height="250" width="250"></canvas>
+            <div class="col-2 justify-content-center category-border category">
+              <span id="category-3-name" class="h-category-name"></span>
+              <div id="category-3-date-wrapper" class="category-date-wrapper">
+                <span id="category-3-date" class="category-date-text"></span>
               </div>
             </div>
-          </div>
-          <div id="podium-2" class="col-4">
-            <div class="row nickname-column justify-content-center">
-              <div id="player-2-display" class="nickname-display">
-                <span id="player-2-nickname" class="nickname-text"></span>
+            <div class="col-2 justify-content-center category-border category">
+              <span id="category-4-name" class="h-category-name"></span>
+              <div id="category-4-date-wrapper" class="category-date-wrapper">
+                <span id="category-4-date" class="category-date-text"></span>
               </div>
             </div>
-            <div class="row score-column justify-content-center">
-              <div id="player-2-score" class="score-display">
-                <span id="player-2-score-text" class="score-text"></span>
+            <div class="col-2 justify-content-center category-border category">
+              <span id="category-5-name" class="h-category-name"></span>
+              <div id="category-5-date-wrapper" class="category-date-wrapper">
+                <span id="category-5-date" class="category-date-text"></span>
               </div>
             </div>
-            <div class="row signature-column justify-content-center">
-              <div id="player-2-signature" class="signature-display">
-                <canvas id="player-2-signature-canvas" class="signature" height="250" width="250"></canvas>
-              </div>
-            </div>
-          </div>
-          <div id="podium-3" class="col-4">
-            <div class="row nickname-column justify-content-center">
-              <div id="player-3-display" class="nickname-display">
-                <span id="player-3-nickname" class="nickname-text"></span>
-              </div>
-            </div>
-            <div class="row score-column justify-content-center">
-              <div id="player-3-score" class="score-display">
-                <span id="player-3-score-text" class="score-text"></span>
-              </div>
-            </div>
-            <div class="row signature-column justify-content-center">
-              <div id="player-3-signature" class="signature-display">
-                <canvas id="player-3-signature-canvas" class="signature" height="250" width="250"></canvas>
+            <div class="col-2 justify-content-center category-border category">
+              <span id="category-6-name" class="h-category-name"></span>
+              <div id="category-6-date-wrapper" class="category-date-wrapper">
+                <span id="category-6-date" class="category-date-text"></span>
               </div>
             </div>
           </div>
-        </div>
-        <div id="overflow-row" class="inactive row overflow-row">
-          <div class="col-12 overflow-divider">
-            <span id="overflow-text" class="overflow-text"></span>
+          <div class="row h-board-row">
+            <div class="col-2 justify-content-center price-border price" id="category-1-price-1">
+              <span id="category-1-price-1-text" class="h-price-text">$200</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-2-price-1">
+              <span id="category-2-price-1-text" class="h-price-text">$200</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-3-price-1">
+              <span id="category-3-price-1-text" class="h-price-text">$200</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-4-price-1">
+              <span id="category-4-price-1-text" class="h-price-text">$200</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-5-price-1">
+              <span id="category-5-price-1-text" class="h-price-text">$200</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-6-price-1">
+              <span id="category-6-price-1-text" class="h-price-text">$200</span>
+            </div>
+          </div>
+          <div class="row h-board-row">
+            <div class="col-2 justify-content-center price-border price" id="category-1-price-2">
+              <span id="category-1-price-2-text" class="h-price-text">$400</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-2-price-2">
+              <span id="category-2-price-2-text" class="h-price-text">$400</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-3-price-2">
+              <span id="category-3-price-2-text" class="h-price-text">$400</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-4-price-2">
+              <span id="category-4-price-2-text" class="h-price-text">$400</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-5-price-2">
+              <span id="category-5-price-2-text" class="h-price-text">$400</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-6-price-2">
+              <span id="category-6-price-2-text" class="h-price-text">$400</span>
+            </div>
+          </div>
+          <div class="row h-board-row">
+            <div class="col-2 justify-content-center price-border price" id="category-1-price-3">
+              <span id="category-1-price-3-text" class="h-price-text">$600</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-2-price-3">
+              <span id="category-2-price-3-text" class="h-price-text">$600</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-3-price-3">
+              <span id="category-3-price-3-text" class="h-price-text">$600</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-4-price-3">
+              <span id="category-4-price-3-text" class="h-price-text">$600</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-5-price-3">
+              <span id="category-5-price-3-text" class="h-price-text">$600</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-6-price-3">
+              <span id="category-6-price-3-text" class="h-price-text">$600</span>
+            </div>
+          </div>
+          <div class="row h-board-row">
+            <div class="col-2 justify-content-center price-border price" id="category-1-price-4">
+              <span id="category-1-price-4-text" class="h-price-text">$800</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-2-price-4">
+              <span id="category-2-price-4-text" class="h-price-text">$800</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-3-price-4">
+              <span id="category-3-price-4-text" class="h-price-text">$800</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-4-price-4">
+              <span id="category-4-price-4-text" class="h-price-text">$800</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-5-price-4">
+              <span id="category-5-price-4-text" class="h-price-text">$800</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-6-price-4">
+              <span id="category-6-price-4-text" class="h-price-text">$800</span>
+            </div>
+          </div>
+          <div class="row h-board-row">
+            <div class="col-2 justify-content-center price-border price" id="category-1-price-5">
+              <span id="category-1-price-5-text" class="h-price-text">$1000</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-2-price-5">
+              <span id="category-2-price-5-text" class="h-price-text">$1000</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-3-price-5">
+              <span id="category-3-price-5-text" class="h-price-text">$1000</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-4-price-5">
+              <span id="category-4-price-5-text" class="h-price-text">$1000</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-5-price-5">
+              <span id="category-5-price-5-text" class="h-price-text">$1000</span>
+            </div>
+            <div class="col-2 justify-content-center price-border price" id="category-6-price-5">
+              <span id="category-6-price-5-text" class="h-price-text">$1000</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-  </div>
-
-  <!-- Controller -->
-  <div id="controller" class="inactive">
-
-    <!-- Join session screen -->
-    <div id="join-session-screen" class="c-landing-screen">
-      <div class="container-fluid">
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span class="c-logo-text">JEOPARTY!</span>
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <div id="session-id-form-wrapper" class="row justify-content-center">
-          <input type="text" id="session-id-form" class="session-id-form" />
-        </div>
-        <div class="spacer"></div>
-        <div class="row justify-content-center">
-          <div id="start-game-button" class="join-button" onclick="joinSession()">JOIN SESSION</div>
-        </div>
+      <!-- Timer -->
+      <div id="h-timer" class="inactive h-timer"></div>
+      <div id="h-timer-frame" class="inactive h-timer-frame">
+        <div id="divider-1" class="h-timer-frame-divider"></div>
+        <div id="divider-2" class="h-timer-frame-divider"></div>
+        <div id="divider-3" class="h-timer-frame-divider"></div>
+        <div id="divider-4" class="h-timer-frame-divider"></div>
+        <div id="divider-5" class="h-timer-frame-divider"></div>
+        <div id="divider-6" class="h-timer-frame-divider"></div>
+        <div id="divider-7" class="h-timer-frame-divider"></div>
+        <div id="divider-8" class="h-timer-frame-divider"></div>
       </div>
-    </div>
 
-    <!-- Landing screen -->
-    <div id="c-landing-screen" class="inactive c-landing-screen">
-      <div class="container-fluid">
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <div class="help-menu-button" onclick="alertHelpMenu()">?</div>
-            <span class="c-logo-text">JEOPARTY!</span>
-          </div>
-        </div>
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span class="c-landing-screen-text">NICKNAME</span>
-          </div>
-        </div>
-        <div class="row justify-content-center">
-          <input type="text" id="nickname-form" class="nickname-form" />
-        </div>
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span class="c-landing-screen-text">SIGNATURE</span>
-          </div>
-        </div>
-        <div class="row justify-content-center">
-          <div id="erase" class="erase" onclick="clearCanvas(canvas, ctx);">X</div>
-          <canvas id="sketchpad" height="250" width="250"></canvas>
-        </div>
-        <div class="small-spacer"></div>
-        <div class="row justify-content-center">
-          <div class="join-button" onclick="joinGame()">JOIN GAME</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Start game screen -->
-    <div id="start-game-screen" class="inactive c-landing-screen">
-      <div class="container-fluid">
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span class="c-logo-text">JEOPARTY!</span>
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <div class="row justify-content-center">
-          <div id="start-game-button" class="join-button" onclick="startGame()">START GAME</div>
-          <div id="rejoin-game-button" class="inactive join-button" onclick="rejoinGame()">REJOIN GAME</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Waiting screen -->
-    <div id="c-waiting-screen" class="inactive c-landing-screen">
-      <div class="container-fluid">
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span class="c-logo-text">JEOPARTY!</span>
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <div class="row justify-content-center">
-          <div class="col-12">
-            <span id="c-waiting-screen-text" class="c-ui-text"></span>
+      <!-- Clue screen -->
+      <div id="clue-screen" class="inactive clue-screen">
+        <div id="daily-double-wrapper" class="">
+          <div class="container-fluid">
+            <div id="clue-text-row" class="row justify-content-center clue-text-row">
+              <div class="col-1"></div>
+              <div class="col-10 align-self-center">
+                <span id="clue-text" class="clue-text"></span>
+                <span id="player-answer" class="inactive player-answer"></span>
+                <div id="player-livefeed-wrapper" class="inactive">
+                  <div id="player-livefeed-spacer" class="player-livefeed-spacer"></div>
+                  <span id="player-livefeed-nickname" class="clue-text"></span>
+                  <span id="player-livefeed" class="clue-text"></span>
+                </div>
+              </div>
+              <div class="col-1"></div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Board screen -->
-    <div id="c-board-screen" class="inactive c-board-screen">
-      <div class="container-fluid">
-        <div id="c-board-row-1" class="row c-board-row">
-          <div id="category-1-wrapper" class="col-6 justify-content-center category black-border">
-            <button id="category-1" onclick="pressClueButton(this)"><span id="category-1-text" class="c-category-text"></span></button>
+      <!-- Score screen -->
+      <div id="score-screen" class="inactive score-screen">
+        <div class="container-fluid">
+          <div class="row score-screen-row justify-content-center">
+            <div id="podium-1" class="col-4">
+              <div class="row nickname-column justify-content-center">
+                <div id="player-1-display" class="nickname-display">
+                  <span id="player-1-nickname" class="nickname-text"></span>
+                </div>
+              </div>
+              <div class="row score-column justify-content-center">
+                <div id="player-1-score" class="score-display">
+                  <span id="player-1-score-text" class="score-text"></span>
+                </div>
+              </div>
+              <div class="row signature-column justify-content-center">
+                <div id="player-1-signature" class="signature-display">
+                  <canvas id="player-1-signature-canvas" class="signature" height="250" width="250"></canvas>
+                </div>
+              </div>
+            </div>
+            <div id="podium-2" class="col-4">
+              <div class="row nickname-column justify-content-center">
+                <div id="player-2-display" class="nickname-display">
+                  <span id="player-2-nickname" class="nickname-text"></span>
+                </div>
+              </div>
+              <div class="row score-column justify-content-center">
+                <div id="player-2-score" class="score-display">
+                  <span id="player-2-score-text" class="score-text"></span>
+                </div>
+              </div>
+              <div class="row signature-column justify-content-center">
+                <div id="player-2-signature" class="signature-display">
+                  <canvas id="player-2-signature-canvas" class="signature" height="250" width="250"></canvas>
+                </div>
+              </div>
+            </div>
+            <div id="podium-3" class="col-4">
+              <div class="row nickname-column justify-content-center">
+                <div id="player-3-display" class="nickname-display">
+                  <span id="player-3-nickname" class="nickname-text"></span>
+                </div>
+              </div>
+              <div class="row score-column justify-content-center">
+                <div id="player-3-score" class="score-display">
+                  <span id="player-3-score-text" class="score-text"></span>
+                </div>
+              </div>
+              <div class="row signature-column justify-content-center">
+                <div id="player-3-signature" class="signature-display">
+                  <canvas id="player-3-signature-canvas" class="signature" height="250" width="250"></canvas>
+                </div>
+              </div>
+            </div>
           </div>
-          <div id="category-2-wrapper" class="col-6 justify-content-center category black-border">
-            <button id="category-2" onclick="pressClueButton(this)"><span id="category-2-text" class="c-category-text"></span></button>
-          </div>
-        </div>
-        <div id="c-board-row-2" class="row c-board-row">
-          <div id="category-3-wrapper" class="col-6 justify-content-center category black-border">
-            <button id="category-3" onclick="pressClueButton(this)"><span id="category-3-text" class="c-category-text"></span></button>
-          </div>
-          <div id="category-4-wrapper" class="col-6 justify-content-center category black-border">
-            <button id="category-4" onclick="pressClueButton(this)"><span id="category-4-text" class="c-category-text"></span></button>
-          </div>
-        </div>
-        <div id="c-board-row-3" class="row c-board-row">
-          <div id="category-5-wrapper" class="col-6 justify-content-center category black-border">
-            <button id="category-5" onclick="pressClueButton(this)"><span id="category-5-text" class="c-category-text"></span></button>
-          </div>
-          <div id="category-6-wrapper" class="col-6 justify-content-center category black-border">
-            <button id="category-6" onclick="pressClueButton(this)"><span id="category-6-text" class="c-category-text"></span></button>
-          </div>
-        </div>
-        <div id="c-board-row-4" class="row c-board-row">
-          <div id="price-1-wrapper" class="col-4 justify-content-center price black-border">
-            <button id="price-1" onclick="pressClueButton(this)"><span id="price-1-text" class="c-price-text">$200</span></button>
-          </div>
-          <div id="price-2-wrapper" class="col-4 justify-content-center price black-border">
-            <button id="price-2" onclick="pressClueButton(this)"><span id="price-2-text" class="c-price-text">$400</span></button>
-          </div>
-          <div id="price-3-wrapper" class="col-4 justify-content-center price black-border">
-            <button id="price-3" onclick="pressClueButton(this)"><span id="price-3-text" class="c-price-text">$600</span></button>
-          </div>
-        </div>
-        <div id="c-board-row-5" class="row c-board-row">
-          <div id="price-4-wrapper" class="col-4 justify-content-center price black-border">
-            <button id="price-4" onclick="pressClueButton(this)"><span id="price-4-text" class="c-price-text">$800</span></button>
-          </div>
-          <div id="price-5-wrapper" class="col-4 justify-content-center price black-border">
-            <button id="price-5" onclick="pressClueButton(this)"><span id="price-5-text" class="c-price-text">$1K</span></button>
-          </div>
-          <div class="col-4 justify-content-center black-border">
-            <button onclick="sendClueRequest()"><span class="clue-request-text">Show Clue</span></button>
+          <div id="overflow-row" class="inactive row overflow-row">
+            <div class="col-12 overflow-divider">
+              <span id="overflow-text" class="overflow-text"></span>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
 
-    <!-- Timer -->
-    <div id="c-timer" class="inactive c-timer"></div>
-    <div id="c-timer-frame" class="inactive c-timer-frame">
-      <div class="c-timer-frame-divider"></div>
-      <div class="c-timer-frame-divider"></div>
-      <div class="c-timer-frame-divider"></div>
-      <div class="c-timer-frame-divider"></div>
-      <div class="c-timer-frame-divider"></div>
-      <div class="c-timer-frame-divider"></div>
-      <div class="c-timer-frame-divider"></div>
-      <div class="c-timer-frame-divider"></div>
-    </div>
+    <!-- Controller -->
+    <div id="controller" class="inactive">
 
-    <!-- Buzzer screen -->
-    <div id="buzzer-screen" class="inactive buzzer-screen">
-      <div class="container-fluid">
-        <div class="row justify-content-center buzzer-screen-row">
-          <div id="blinking-buzzer-light" class="inactive blinking-buzzer-light"></div>
-          <div id="buzzer-light" class="inactive buzzer-light"></div>
-          <div id="buzzer" class="buzzer" onclick="buzz()"></div>
+      <!-- Join session screen -->
+      <div id="join-session-screen" class="c-landing-screen">
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span class="c-logo-text">JEOPARTY!</span>
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <div id="session-id-form-wrapper" class="row justify-content-center">
+            <input type="text" id="session-id-form" class="session-id-form" />
+          </div>
+          <div class="spacer"></div>
+          <div class="row justify-content-center">
+            <div class="join-button" onclick="joinSession()">JOIN SESSION</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Answer screen -->
-    <div id="answer-screen" class="inactive answer-screen">
-      <div class="container-fluid">
-        <div class="answer-form-spacer"></div>
-        <div id="answer-form-wrapper" class="row justify-content-center">
-          <input type="text" id="answer-form" class="answer-form" />
-        </div>
-        <div id="wager-form-wrapper" class="row justify-content-center inactive">
-          <input type="tel" id="wager-form" class="wager-form" />
-        </div>
-        <div class="row spacer"></div>
-        <div class="row justify-content-center">
-          <div id="submit-answer-button" class="inactive submit-answer-button" onclick="submitAnswer()">SUBMIT</div>
-          <div id="submit-wager-button" class="inactive submit-answer-button" onclick="submitWager(false)">WAGER</div>
+      <!-- Landing screen -->
+      <div id="c-landing-screen" class="inactive c-landing-screen">
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <div class="help-menu-button" onclick="alertHelpMenu()">?</div>
+              <span class="c-logo-text">JEOPARTY!</span>
+            </div>
+          </div>
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span class="c-landing-screen-text">NICKNAME</span>
+            </div>
+          </div>
+          <div class="row justify-content-center">
+            <input type="text" id="nickname-form" class="nickname-form" />
+          </div>
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span class="c-landing-screen-text">SIGNATURE</span>
+            </div>
+          </div>
+          <div class="row justify-content-center">
+            <div id="erase" class="erase" onclick="clearCanvas(canvas, ctx);">X</div>
+            <canvas id="sketchpad" height="250" width="250"></canvas>
+          </div>
+          <div class="small-spacer"></div>
+          <div class="row justify-content-center">
+            <div class="join-button" onclick="joinGame()">JOIN GAME</div>
+          </div>
         </div>
       </div>
-    </div>
 
+      <!-- Start game screen -->
+      <div id="start-game-screen" class="inactive c-landing-screen">
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span class="c-logo-text">JEOPARTY!</span>
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <div class="row justify-content-center">
+            <div id="start-game-button" class="join-button" onclick="startGame()">START GAME</div>
+            <div id="rejoin-game-button" class="inactive join-button" onclick="rejoinGame()">REJOIN GAME</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Waiting screen -->
+      <div id="c-waiting-screen" class="inactive c-landing-screen">
+        <div class="container-fluid">
+          <div class="row justify-content-center waiting-screen-session-id-wrapper">
+            <div class="session-id-header col-12">SESSION ID</div>
+            <div id="session-id-footer" class="session-id-footer col-12"></div>
+          </div>
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span class="c-logo-text">JEOPARTY!</span>
+            </div>
+          </div>
+          <div class="spacer"></div>
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span id="c-waiting-screen-text" class="c-ui-text"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Board screen -->
+      <div id="c-board-screen" class="inactive c-board-screen">
+        <div class="container-fluid">
+          <div id="c-board-row-1" class="row c-board-row">
+            <div id="category-1-wrapper" class="col-6 justify-content-center category black-border">
+              <button id="category-1" onclick="pressClueButton(this)"><span id="category-1-text" class="c-category-text"></span></button>
+            </div>
+            <div id="category-2-wrapper" class="col-6 justify-content-center category black-border">
+              <button id="category-2" onclick="pressClueButton(this)"><span id="category-2-text" class="c-category-text"></span></button>
+            </div>
+          </div>
+          <div id="c-board-row-2" class="row c-board-row">
+            <div id="category-3-wrapper" class="col-6 justify-content-center category black-border">
+              <button id="category-3" onclick="pressClueButton(this)"><span id="category-3-text" class="c-category-text"></span></button>
+            </div>
+            <div id="category-4-wrapper" class="col-6 justify-content-center category black-border">
+              <button id="category-4" onclick="pressClueButton(this)"><span id="category-4-text" class="c-category-text"></span></button>
+            </div>
+          </div>
+          <div id="c-board-row-3" class="row c-board-row">
+            <div id="category-5-wrapper" class="col-6 justify-content-center category black-border">
+              <button id="category-5" onclick="pressClueButton(this)"><span id="category-5-text" class="c-category-text"></span></button>
+            </div>
+            <div id="category-6-wrapper" class="col-6 justify-content-center category black-border">
+              <button id="category-6" onclick="pressClueButton(this)"><span id="category-6-text" class="c-category-text"></span></button>
+            </div>
+          </div>
+          <div id="c-board-row-4" class="row c-board-row">
+            <div id="price-1-wrapper" class="col-4 justify-content-center price black-border">
+              <button id="price-1" onclick="pressClueButton(this)"><span id="price-1-text" class="c-price-text">$200</span></button>
+            </div>
+            <div id="price-2-wrapper" class="col-4 justify-content-center price black-border">
+              <button id="price-2" onclick="pressClueButton(this)"><span id="price-2-text" class="c-price-text">$400</span></button>
+            </div>
+            <div id="price-3-wrapper" class="col-4 justify-content-center price black-border">
+              <button id="price-3" onclick="pressClueButton(this)"><span id="price-3-text" class="c-price-text">$600</span></button>
+            </div>
+          </div>
+          <div id="c-board-row-5" class="row c-board-row">
+            <div id="price-4-wrapper" class="col-4 justify-content-center price black-border">
+              <button id="price-4" onclick="pressClueButton(this)"><span id="price-4-text" class="c-price-text">$800</span></button>
+            </div>
+            <div id="price-5-wrapper" class="col-4 justify-content-center price black-border">
+              <button id="price-5" onclick="pressClueButton(this)"><span id="price-5-text" class="c-price-text">$1K</span></button>
+            </div>
+            <div class="col-4 justify-content-center black-border">
+              <button onclick="sendClueRequest()"><span class="clue-request-text">Show Clue</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div id="c-timer" class="inactive c-timer"></div>
+      <div id="c-timer-frame" class="inactive c-timer-frame">
+        <div class="c-timer-frame-divider"></div>
+        <div class="c-timer-frame-divider"></div>
+        <div class="c-timer-frame-divider"></div>
+        <div class="c-timer-frame-divider"></div>
+        <div class="c-timer-frame-divider"></div>
+        <div class="c-timer-frame-divider"></div>
+        <div class="c-timer-frame-divider"></div>
+        <div class="c-timer-frame-divider"></div>
+      </div>
+
+      <!-- Buzzer screen -->
+      <div id="buzzer-screen" class="inactive buzzer-screen">
+        <div class="container-fluid">
+          <div class="row justify-content-center buzzer-screen-row">
+            <div id="blinking-buzzer-light" class="inactive blinking-buzzer-light"></div>
+            <div id="buzzer-light" class="inactive buzzer-light"></div>
+            <div id="buzzer" class="buzzer" onclick="buzz()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Answer screen -->
+      <div id="answer-screen" class="inactive answer-screen">
+        <div class="container-fluid">
+          <div class="answer-form-spacer"></div>
+          <div id="answer-form-wrapper" class="row justify-content-center">
+            <input type="text" id="answer-form" class="answer-form" />
+          </div>
+          <div id="wager-form-wrapper" class="row justify-content-center inactive">
+            <input type="tel" id="wager-form" class="wager-form" />
+          </div>
+          <div class="row spacer"></div>
+          <div class="row justify-content-center">
+            <div id="submit-answer-button" class="inactive submit-answer-button" onclick="submitAnswer()">SUBMIT</div>
+            <div id="submit-wager-button" class="inactive submit-answer-button" onclick="submitWager(false)">WAGER</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </body>
 

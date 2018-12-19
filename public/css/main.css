@@ -195,7 +195,7 @@ button {
   text-shadow: .6vh .6vh black;
 
   font-family: board;
-  font-size: 3.8vh;
+  font-size: 3.5vh;
   line-height: 4vh;
 }
 
@@ -718,6 +718,24 @@ button {
 
 #c-waiting-screen {
   line-height: 3vh;
+  width: 100vw;
+}
+
+.waiting-screen-session-id-wrapper {
+  width: 100vw;
+
+  position: absolute;
+  top: 0;
+
+  line-height: 6vh;
+}
+
+.session-id-header {
+  font-size: 3vh;
+}
+
+.session-id-footer {
+  font-size: 6vh;
 }
 
 /* Board screen */

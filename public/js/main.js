@@ -35,7 +35,7 @@ let scrapeWagerTimeout;
 let socket = io();
 
 // HOST & CONTROLLER
-socket.on("connect_device", function(gameURL, hostConnected) {
+socket.on("connect_device", function(gameURL) {
   // Checks to see if this is a mobile device
   if (/Mobi/.test(navigator.userAgent)) {
     adjustMobileStyle();
@@ -52,19 +52,21 @@ socket.on("connect_device", function(gameURL, hostConnected) {
   }
 });
 
-// CONTROLLER
-socket.on("reconnect_device", function() {
-  adjustMobileStyle();
-  document.getElementById("controller").className = "";
-  currentScreenId = "c-landing-screen";
-  changeScreen("start-game-screen");
-  toggleRejoinGameButton(true);
-  isHost = false;
+socket.on("join_session_success", function(rejoinable, sessionId) {
+  if (!isHost) {
+    document.getElementById("session-id-footer").innerHTML = sessionId;
+    if (rejoinable) {
+      changeScreen("start-game-screen");
+      toggleRejoinGameButton(true);
+    } else {
+      changeScreen("c-landing-screen");
+    }
+  }
 });
 
-socket.on("join_session_success", function() {
+socket.on("join_session_failure", function() {
   if (!isHost) {
-    changeScreen("c-landing-screen");
+    alert("That is not a valid session id");
   }
 });
 
@@ -670,6 +672,31 @@ socket.on("display_final_jeoparty_answer", function(players) {
   }
 });
 
+socket.on("reset_game", function() {
+  waitingToJoin = false;
+  joined = false;
+  currentScreenId = undefined;
+  isHost = undefined;
+  audioAllowed = false;
+  audioFiles = undefined;
+  players = undefined;
+  lastCategoryWrapperId = undefined;
+  lastCategoryId = undefined;
+  lastPriceWrapperId = undefined;
+  lastPriceId = undefined;
+  buzzWinner = undefined;
+  usedClues = undefined;
+  currentScreenQuestion = undefined;
+  doubleJeoparty = false;
+  maxWager = undefined;
+  dailyDouble = false;
+  finalJeoparty = false;
+  finalJeopartyClue = undefined;
+  finalJeopartyPlayer = undefined;
+
+  document.location.reload();
+});
+
 // Game logic
 
 // HOST
@@ -681,8 +708,6 @@ function declareAudioFiles() {
    */
 
   if (!audioAllowed) {
-    document.getElementById("unmute-text").classList.add("inactive");
-
     audioAllowed = true;
     audioFiles = {
       "landing_screen_theme": new Audio("/audio/landing_screen_theme.mp3"),
