@@ -44,9 +44,10 @@ The Jeopardy! game show and all elements thereof, including but not limited to c
 
 # Credits
 Libraries used:
-[I'm an inline-style link](https://www.google.com)
+* [jService.io](http://jservice.io)
+* [Socket.io](https://socket.io)
 
-Thanks to:
+Special thanks to:
 * Matt Morningstar
 * Max Thomsen
 * Matt Baldwin
