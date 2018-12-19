@@ -3,6 +3,9 @@
 // Socket logic
 
 let js = require("jservice-node");
+let removeAccents = require("remove-accents");
+let numberToWords = require("number-to-words");
+let wordsToNumbers = require("words-to-numbers");
 
 // Setup express server
 let express = require("express");
@@ -19,6 +22,7 @@ server.listen(3000, ip.address());
 app.use(express.static(path.join(__dirname, "public")));
 
 function session() {
+  this.audioAllowed = false;
   this.gameActive = false;
   this.disconnectedPlayers = {};
   this.players = {};
@@ -104,7 +108,13 @@ io.on("connection", function(socket) {
     }
   });
 
-  socket.on("join_session", function(sessionId) {
+  socket.on("audio_allowed", function() {
+    sessions[socket.sessionId].audioAllowed = true;
+  });
+
+  socket.on("join_session", function(newSessionId) {
+    let sessionId = newSessionId.replace(/ /g, "");
+
     if (sessions[sessionId]) {
       socket.sessionId = sessionId;
       socket.join(sessionId);
@@ -161,9 +171,13 @@ io.on("connection", function(socket) {
   });
 
   socket.on("start_game", function() {
-    sessions[socket.sessionId].gameActive = true;
-    sessions[socket.sessionId].requesting = true;
-    io.in(socket.sessionId).emit("load_game", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
+    if (sessions[socket.sessionId].audioAllowed) {
+      sessions[socket.sessionId].gameActive = true;
+      sessions[socket.sessionId].requesting = true;
+      io.in(socket.sessionId).emit("load_game", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
+    } else {
+      socket.emit("start_game_failure");
+    }
   });
 
   socket.on("request_clue", function(clueRequest) {
@@ -438,7 +452,7 @@ io.on("connection", function(socket) {
       setTimeout(function() {
         io.in(socket.sessionId).emit("reset_game");
         delete sessions[socket.sessionId];
-      }, 60000 + ((Object.keys(sessions[socket.sessionid]).players.length) * 5000));
+      }, 60000 + ((Object.keys(sessions[socket.sessionId].players).length) * 5000));
     }, 30000);
   });
 
@@ -524,6 +538,10 @@ io.on("connection", function(socket) {
 
 // Game logic
 
+function getStartingIndex(cluesCount) {
+  return (Math.round((Math.random() * (cluesCount - 5)) / 5) * 5);
+}
+
 function getCategories(socket) {
   /*
   Result:
@@ -541,15 +559,16 @@ function getCategories(socket) {
     };
 
     js.clues(options, function(error, response, json) {
-      if (!error && response.statusCode == 200 && !sessions[socket.sessionId].usedCategoryIds.includes(categoryId) && approveCategory(json)) {
+      let startingIndex = getStartingIndex(json[0]["category"]["clues_count"]);
+      if (!error && response.statusCode == 200 && !sessions[socket.sessionId].usedCategoryIds.includes(categoryId) && approveCategory(json, startingIndex)) {
         sessions[socket.sessionId].usedCategoryIds.push(categoryId);
-        loadCategory(json, socket);
+        loadCategory(json, startingIndex, socket);
       }
     });
   }
 }
 
-function approveCategory(category) {
+function approveCategory(category, startingIndex) {
   /*
   Input:
   category: JSON object
@@ -558,7 +577,7 @@ function approveCategory(category) {
   Returns true if all category questions meet criteria, else returns false
    */
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = startingIndex; i < startingIndex + 5; i++) {
     let rawQuestion = formatRawText(category[i]["question"]);
     let rawCategory = formatRawText(category[i]["category"]["title"]);
 
@@ -569,7 +588,7 @@ function approveCategory(category) {
   return true;
 }
 
-function loadCategory(category, socket) {
+function loadCategory(category, startingIndex, socket) {
   /*
   Input:
   category: JSON object
@@ -579,20 +598,26 @@ function loadCategory(category, socket) {
   for use throughout the game
    */
 
+  let indices = [];
+
+  for (let j = startingIndex; j < startingIndex + 5; j++) {
+    indices.push(j);
+  }
+
   if (sessions[socket.sessionId].categoryNames.length < 6) {
-    sessions[socket.sessionId].categoryNames.push(category[0]["category"]["title"]);
-    sessions[socket.sessionId].categoryDates.push(category[0]["airdate"].slice(0, 4));
+    sessions[socket.sessionId].categoryNames.push(category[indices[0]]["category"]["title"]);
+    sessions[socket.sessionId].categoryDates.push(category[indices[0]]["airdate"].slice(0, 4));
 
     for (let i = 1; i < 6; i++) {
       let id = "category-" + sessions[socket.sessionId].categoryNames.length + "-price-" + i;
 
-      sessions[socket.sessionId].clues[id] = category[i - 1];
+      sessions[socket.sessionId].clues[id] = category[indices[i - 1]];
       sessions[socket.sessionId].clues[id]["screen_question"] = sessions[socket.sessionId].clues[id]["question"].toUpperCase();
       sessions[socket.sessionId].clues[id]["raw_answer"] = formatRawText(sessions[socket.sessionId].clues[id]["answer"]);
       sessions[socket.sessionId].clues[id]["screen_answer"] = formatScreenAnswer(sessions[socket.sessionId].clues[id]["answer"]);
     }
   } else if (sessions[socket.sessionId].finalJeopartyClue == undefined) {
-    sessions[socket.sessionId].finalJeopartyClue = category[4];
+    sessions[socket.sessionId].finalJeopartyClue = category[indices[4]];
     sessions[socket.sessionId].finalJeopartyClue["screen_question"] = sessions[socket.sessionId].finalJeopartyClue["question"].toUpperCase();
     sessions[socket.sessionId].finalJeopartyClue["raw_answer"] = formatRawText(sessions[socket.sessionId].finalJeopartyClue["answer"]);
     sessions[socket.sessionId].finalJeopartyClue["screen_answer"] = formatScreenAnswer(sessions[socket.sessionId].finalJeopartyClue["answer"]);
@@ -640,6 +665,9 @@ function formatRawText(original) {
    */
 
   let rawAnswer = original.toLowerCase();
+
+  // Remove accents
+  rawAnswer = removeAccents(rawAnswer);
 
   // Additional space so that replacing 'a ' always works
   // when 'a' is the last letter of original
@@ -752,6 +780,10 @@ function evaluateAnswer(answer, socket) {
       return false;
     } else {
       if (correctAnswer.includes(playerAnswer) || playerAnswer.includes(correctAnswer)) {
+        return true;
+      } else if (numberToWords(correctAnswer).includes(playerAnswer) || numberToWords(playerAnswer).includes(correctAnswer)) {
+        return true;
+      } else if (wordsToNumbers(correctAnswer).includes(playerAnswer) || wordsToNumbers(playerAnswer).includes(correctAnswer)) {
         return true;
       } else {
         return false;

@@ -45,6 +45,11 @@ HTML documents for both the Host and Controller screens are stored here
       <!-- Landing screen -->
       <div id="h-landing-screen" class="h-landing-screen" onclick="declareAudioFiles()">
         <div class="container-fluid">
+          <div id="unmute-text" class="row justify-content-center">
+            <div class="unmute-text col-3">
+              CLICK TO UNMUTE
+            </div>
+          </div>
           <div class="row justify-content-center">
             <div class="col-12">
               <span class="h-logo-text">JEOPARTY!</span>
@@ -331,7 +336,11 @@ HTML documents for both the Host and Controller screens are stored here
               <span class="c-logo-text">JEOPARTY!</span>
             </div>
           </div>
-          <div class="spacer"></div>
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <span class="session-id-header">ENTER SESSION ID<span>
+            </div>
+          </div>
           <div id="session-id-form-wrapper" class="row justify-content-center">
             <input type="text" id="session-id-form" class="session-id-form" />
           </div>

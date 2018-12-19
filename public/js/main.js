@@ -142,6 +142,10 @@ socket.on("join_success", function(categoryNames, boardController, gameActive, d
   }
 });
 
+socket.on("start_game_failure", function() {
+  alert("You need to unmute the game in order to start (Click unmute on the host screen)");
+});
+
 // HOST
 socket.on("players", function(newPlayers) {
   /*
@@ -405,7 +409,9 @@ socket.on("livefeed", function(livefeed) {
 
   if (isHost) {
     if (!finalJeoparty) {
-      document.getElementById("player-livefeed").innerHTML = livefeed.toUpperCase();
+      if (livefeed != "") {
+        document.getElementById("player-livefeed").innerHTML = livefeed.toUpperCase();
+      }
     }
   }
 });
@@ -417,16 +423,9 @@ socket.on("wager_livefeed", function(wagerLivefeed) {
   wagerLivefeed: number
    */
 
-  if (isHost) {
+  if (isHost && wagerLivefeed != "") {
     if (dailyDouble) {
-      let wager;
-
-      if (wagerLivefeed.length == "") {
-        wager = "0";
-      } else {
-        wager = wagerLivefeed;
-      }
-      document.getElementById("player-livefeed").innerHTML = "$" + wager.toUpperCase();
+      document.getElementById("player-livefeed").innerHTML = "$" + wagerLivefeed.toUpperCase();
     }
   }
 });
@@ -506,7 +505,9 @@ socket.on("reveal_board", function(newUsedClues, remainingClueIds, boardControll
     if (isHost) {
       changeScreen("h-board-screen");
       document.getElementById("clue-screen").classList.remove("animate");
-      voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
+      if (remainingClueIds.length != 1) {
+        voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
+      }
     } else {
       if (joined || waitingToJoin) {
         waitingToJoin = false;
@@ -708,7 +709,11 @@ function declareAudioFiles() {
    */
 
   if (!audioAllowed) {
+    document.getElementById("unmute-text").classList.add("inactive");
+
     audioAllowed = true;
+    socket.emit("audio_allowed");
+
     audioFiles = {
       "landing_screen_theme": new Audio("/audio/landing_screen_theme.mp3"),
       "clue_selected": new Audio("/audio/clue_selected.mp3"),
@@ -764,7 +769,7 @@ function alertHelpMenu() {
   Alerts the controller with a list of game instructions and copyright information
    */
 
-  alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for best results.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeoparty! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
+  alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for best results.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeopardy! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
 }
 
 // CONTROLLER
@@ -870,7 +875,7 @@ function startGame() {
   Signals the server to begin the game
    */
 
-  let start = confirm("Are you sure everyone is connected to the game?");
+  let start = confirm("Are you sure everyone has joined the game?");
 
   if (start) {
     socket.emit("start_game");
@@ -989,7 +994,7 @@ function startQuestionInterval() {
         socket.emit("activate_buzzers");
       }
     }
-  }, 1);
+  }, 100);
 }
 
 // CONTROLLER
@@ -1463,7 +1468,7 @@ function startWagerLivefeedInterval() {
     if (wagerForm.value.length > 0) {
       document.getElementById("submit-wager-button").classList.remove("inactive");
     }
-  }, 1);
+  }, 100);
 }
 
 // CONTROLLER
@@ -1699,7 +1704,12 @@ function setupPlayerLivefeed(player, screenQuestion) {
   document.getElementById("player-answer").innerHTML = "";
   document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
   document.getElementById("player-livefeed-nickname").innerHTML = player.nickname.toUpperCase() + ":<br>";
-  document.getElementById("player-livefeed").innerHTML = "";
+
+  if (dailyDouble) {
+    document.getElementById("player-livefeed").innerHTML = "$0";
+  } else {
+    document.getElementById("player-livefeed").innerHTML = "";
+  }
 }
 
 // HOST
@@ -1716,7 +1726,7 @@ function startLivefeedInterval() {
     if (answerForm.value.length > 0) {
       document.getElementById("submit-answer-button").classList.remove("inactive");
     }
-  }, 1);
+  }, 100);
 }
 
 // CONTROLLER
@@ -1970,7 +1980,7 @@ function updateScoreboard(players) {
       } else {
         overflow.innerHTML += "$" + clone[id].score;
       }
-      if (playersLength > 4) {
+      if (playersLength > 4 && i != playersLength) {
         overflow.innerHTML += " ... ";
       }
     }
@@ -2155,8 +2165,10 @@ function displayFinalJeopartyAnswers(players) {
     voice(getRandomAnswerIntro() + correctAnswer, .5);
 
     setTimeout(function() {
-      updateScoreboard(players);
       changeScreen("score-screen");
+      setTimeout(function() {
+        updateScoreboard(players);
+      }, 1000);
       setTimeout(function() {
         changeScreen("clue-screen");
         clearPlayerAnswerText();
@@ -2170,7 +2182,7 @@ function displayFinalJeopartyAnswers(players) {
             loopMusicTimeout = setTimeout(loop, audioFiles["landing_screen_theme"].duration * 1000);
           }, audioFiles["landing_screen_theme"].duration * 1000);
         }, 10000);
-      }, 4000);
-    }, 4000);
+      }, 5000);
+    }, 5000);
   }
 }
