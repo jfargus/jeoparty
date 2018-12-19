@@ -95,7 +95,8 @@ io.on("connection", function(socket) {
     sessions[sessionId].sessionId = sessionId;
     socket.sessionId = sessionId;
 
-    console.log(sessionId);
+    console.log("URL: " + ip.address())
+    console.log("SESSION ID: " + sessionId);
 
     socket.join(sessionId);
 
@@ -157,7 +158,7 @@ io.on("connection", function(socket) {
       io.in(socket.sessionId).emit("players", sessions[socket.sessionId].players);
     }
 
-    socket.emit("join_success", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].boardController, sessions[socket.sessionId].gameActive, sessions[socket.sessionId].doubleJeoparty);
+    socket.emit("join_success", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].boardController, sessions[socket.sessionId].gameActive, sessions[socket.sessionId].doubleJeoparty, false);
   });
 
   socket.on("rejoin_game", function() {
@@ -166,7 +167,7 @@ io.on("connection", function(socket) {
     sessions[socket.sessionId].players[socket.id].id = socket.id;
     delete sessions[socket.sessionId].disconnectedPlayers[socket.conn.remoteAddress];
 
-    socket.emit("join_success", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].boardController, sessions[socket.sessionId].gameActive, sessions[socket.sessionId].doubleJeoparty);
+    socket.emit("join_success", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].boardController, sessions[socket.sessionId].gameActive, sessions[socket.sessionId].doubleJeoparty, true);
     io.in(socket.sessionId).emit("players", sessions[socket.sessionId].players);
   });
 

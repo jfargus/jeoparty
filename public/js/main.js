@@ -66,7 +66,7 @@ socket.on("join_session_success", function(rejoinable, sessionId) {
 
 socket.on("join_session_failure", function() {
   if (!isHost) {
-    alert("That is not a valid session id");
+    alert("That is not a valid session ID");
   }
 });
 
@@ -112,14 +112,14 @@ socket.on("update_players_connected", function(playersConnected) {
 });
 
 // CONTROLLER
-socket.on("join_success", function(categoryNames, boardController, gameActive, doubleJeoparty) {
+socket.on("join_success", function(categoryNames, boardController, gameActive, doubleJeoparty, rejoin) {
   /*
   Input:
   categoryNames: array of strings
   boardController: string (socket id)
    */
 
-  if (doubleJeoparty) {
+  if (doubleJeoparty && !rejoin) {
     alert("The game's too far along for you to join, sorry!");
     changeWaitScreen("", true);
   } else {
@@ -769,7 +769,7 @@ function alertHelpMenu() {
   Alerts the controller with a list of game instructions and copyright information
    */
 
-  alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for best results.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeopardy! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
+  alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for maximum enjoyment.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeopardy! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
 }
 
 // CONTROLLER
