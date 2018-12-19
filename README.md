@@ -43,13 +43,18 @@ Go to the same URL as you did on your computer with your mobile device. Then, jo
 The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
 
 # Credits
-Tools used:
+## Tools used:
 * [jService.io](http://jservice.io)
 * [Socket.io](https://socket.io)
 * [Node](https://nodejs.org/en/)
 * [Express](https://expressjs.com)
+* [Node IP](https://github.com/indutny/node-ip)
+* [NoSleep](https://github.com/richtr/NoSleep.js?files=1)
+* [Remove Accents](https://github.com/tyxla/remove-accents)
+* [Number to Words](https://github.com/marlun78/number-to-words)
+* [Words to Numbers](https://github.com/finnfiddle/words-to-numbers)
 
-Special thanks to:
+## Special thanks to:
 * Matt Morningstar
 * Max Thomsen
 * Matt Baldwin
