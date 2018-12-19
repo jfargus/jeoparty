@@ -18,6 +18,8 @@ let io = require("socket.io")(server);
 let ip = require("ip");
 server.listen(3000, ip.address());
 
+console.log("URL: " + ip.address() + ":3000");
+
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -95,7 +97,6 @@ io.on("connection", function(socket) {
     sessions[sessionId].sessionId = sessionId;
     socket.sessionId = sessionId;
 
-    console.log("URL: " + ip.address())
     console.log("SESSION ID: " + sessionId);
 
     socket.join(sessionId);
