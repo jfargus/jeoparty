@@ -43,6 +43,9 @@ Go to the same URL as you did on your computer with your mobile device. Then, jo
 The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
 
 # Credits
+Libraries used:
+[I'm an inline-style link](https://www.google.com)
+
 Thanks to:
 * Matt Morningstar
 * Max Thomsen
