@@ -3,7 +3,7 @@ A local multiplayer Jeopardy! game. Run the board screen on your laptop and use 
 
 # Installation Guide (to play locally)
 
-## 1. Download the repository
+Libraries## 1. Download the repository
 Download this repository onto your computer by clicking the green
 "Clone or Download" button in the upper right hand corner of the repository's front page.
 Make sure to unzip it before going on.
@@ -43,9 +43,11 @@ Go to the same URL as you did on your computer with your mobile device. Then, jo
 The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
 
 # Credits
-Libraries used:
+Tools used:
 * [jService.io](http://jservice.io)
 * [Socket.io](https://socket.io)
+* [Node](https://nodejs.org/en/)
+* [Express] (https://expressjs.com)
 
 Special thanks to:
 * Matt Morningstar
