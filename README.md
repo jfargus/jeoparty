@@ -39,9 +39,6 @@ smoothly.
 ## 5. Enjoy!
 Go to the same URL as you did on your computer with your mobile device. Then, join the session by entering the session ID displayed on screen and in the terminal. From there, follow the instructions on screen and have fun! Plug your laptop into a TV or monitor for maximum enjoyment.
 
-# Copyright
-The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
-
 # Credits
 ## Tools used:
 * [jService.io](http://jservice.io)
@@ -60,3 +57,6 @@ The Jeopardy! game show and all elements thereof, including but not limited to c
 * Matt Baldwin
 * Pranit Nanda
 * Attic Stein Beats
+
+# Copyright
+The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
