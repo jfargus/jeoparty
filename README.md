@@ -47,7 +47,7 @@ Tools used:
 * [jService.io](http://jservice.io)
 * [Socket.io](https://socket.io)
 * [Node](https://nodejs.org/en/)
-* [Express] (https://expressjs.com)
+* [Express](https://expressjs.com)
 
 Special thanks to:
 * Matt Morningstar
