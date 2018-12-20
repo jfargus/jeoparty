@@ -23,6 +23,7 @@ let finalJeopartyPlayer;
 
 // Timeout/interval handlers
 let loopMusicTimeout;
+let buzzerTimeout;
 let questionInterval;
 let timerTimeout;
 let livefeedInterval;
@@ -342,6 +343,10 @@ socket.on("buzzers_ready", function(playersAnswered) {
       adjustClueFontSize(currentScreenQuestion, false);
       clearPlayerAnswerText();
     }
+
+    buzzerTimeout = setTimeout(function() {
+      socket.emit("no_buzz");
+    }, 5000);
   } else {
     if (joined) {
       if (playersAnswered.includes(socket.id)) {
@@ -376,6 +381,7 @@ socket.on("answer", function(player) {
   startTimerAnimation(15.5);
 
   if (isHost) {
+    clearTimeout(buzzerTimeout);
     playAudio("buzzer");
     setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
     clearPlayerAnswerText();
@@ -459,12 +465,6 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
   if (isHost) {
     if (timesUp) {
       playAudio("times_up");
-    }
-    try {
-      disableTimer();
-    } catch (e) {
-      // In the case that timer has not already been turned off, this may
-      // happen if a player leaves the game as they are answering
     }
     document.getElementById("player-livefeed-wrapper").className = "inactive";
     voice(getRandomAnswerIntro() + correctAnswer, .5);
@@ -1449,6 +1449,7 @@ function requestDailyDoubleWager(categoryName, nickname, score) {
     clueText.innerHTML += "<br>" + nickname.toUpperCase() + "'S MONEY:<br>$" + score;
   }
 
+  document.getElementById("player-livefeed").innerHTML = "";
   document.getElementById("player-livefeed-spacer").style.height = "6vh";
   document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
   document.getElementById("player-livefeed-nickname").innerHTML = nickname.toUpperCase() + ":<br>";
@@ -1705,11 +1706,7 @@ function setupPlayerLivefeed(player, screenQuestion) {
   document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
   document.getElementById("player-livefeed-nickname").innerHTML = player.nickname.toUpperCase() + ":<br>";
 
-  if (dailyDouble) {
-    document.getElementById("player-livefeed").innerHTML = "$0";
-  } else {
-    document.getElementById("player-livefeed").innerHTML = "";
-  }
+  document.getElementById("player-livefeed").innerHTML = "";
 }
 
 // HOST
@@ -1736,7 +1733,11 @@ function submitAnswer() {
   Sends the player's answer to the server
    */
 
-  let answerForm = document.getElementById("answer-form");
+  let answer = document.getElementById("answer-form").value;
+
+  if (answer.length > 30) {
+    answer = "";
+  }
 
   clearInterval(livefeedInterval);
   try {
@@ -1748,14 +1749,14 @@ function submitAnswer() {
   document.getElementById("submit-answer-button").className = "inactive submit-answer-button";
 
   if (dailyDouble) {
-    socket.emit("submit_daily_double_answer", answerForm.value);
+    socket.emit("submit_daily_double_answer", answer);
   } else if (finalJeoparty) {
-    socket.emit("submit_final_jeoparty_answer", answerForm.value);
+    socket.emit("submit_final_jeoparty_answer", answer);
   } else {
-    socket.emit("submit_answer", answerForm.value);
+    socket.emit("submit_answer", answer);
   }
 
-  answerForm.value = "";
+  document.getElementById("answer-form").value = "";
 
   if (finalJeoparty) {
     changeWaitScreen("OTHER PLAYERS", false);
@@ -1973,14 +1974,14 @@ function updateScoreboard(players) {
       };
       signature.src = clone[id].signature;
 
-    } else {
+    } else if (i <= 7) {
       overflow.innerHTML += clone[id].nickname.toUpperCase() + ": ";
       if (clone[id].score < 0) {
         overflow.innerHTML += "<span class='red-overflow-text'>-$" + Math.abs(clone[id].score) + "</span>";
       } else {
         overflow.innerHTML += "$" + clone[id].score;
       }
-      if (playersLength > 4 && i != playersLength) {
+      if (i < 7) {
         overflow.innerHTML += " ... ";
       }
     }
