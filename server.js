@@ -554,7 +554,13 @@ function getCategories(socket) {
   // froze the browser so I'm using this cheap fix instead
   for (let i = 0; i < 20; i++) {
 
-    let categoryId = Math.floor(Math.random() * 18418) + 1;
+    //let categoryId = Math.floor(Math.random() * 18418) + 1;
+    let categoryId;
+    if (sessions[socket.sessionId].usedCategoryIds.length == 1) {
+      categoryId = 1195;
+    } else {
+      categoryId = Math.floor(Math.random() * 18418) + 1;
+    }
 
     let options = {
       category: categoryId,
@@ -579,7 +585,7 @@ function approveCategory(category, startingIndex) {
   Returns true if all category questions meet criteria, else returns false
    */
 
-  for (let i = startingIndex; i < startingIndex + 5; i++) {
+  for (let i = startingIndex; i < (startingIndex + 5); i++) {
     let rawQuestion = formatRawText(category[i]["question"]);
     let rawCategory = formatRawText(category[i]["category"]["title"]);
 
@@ -783,12 +789,20 @@ function evaluateAnswer(answer, socket) {
     } else {
       if (correctAnswer.includes(playerAnswer) || playerAnswer.includes(correctAnswer)) {
         return true;
-      } else if (numberToWords(correctAnswer).includes(playerAnswer) || numberToWords(playerAnswer).includes(correctAnswer)) {
-        return true;
-      } else if (wordsToNumbers(correctAnswer).includes(playerAnswer) || wordsToNumbers(playerAnswer).includes(correctAnswer)) {
-        return true;
       } else {
-        return false;
+        if (isNaN(playerAnswer)) {
+          if (wordsToNumbers(correctAnswer).includes(playerAnswer) || wordsToNumbers(playerAnswer).includes(correctAnswer)) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          if (numberToWords.toWords(playerAnswer) == correctAnswer) {
+            return true;
+          } else {
+            return false;
+          }
+        }
       }
     }
   }
