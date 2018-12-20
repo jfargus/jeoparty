@@ -18,7 +18,7 @@ cd Documents/GitHub/jeoparty
 ## 3. Download Node dependencies
 This game requires a few packages from Node.js in order to function so now we
 need to install all of the things that the game needs. Node.js lets you do this easily with one command.
-1
+
 ```
 npm install
 ```
