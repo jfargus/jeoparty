@@ -22,7 +22,6 @@ let finalJeopartyClue;
 let finalJeopartyPlayer;
 
 // Timeout/interval handlers
-let loopMusicTimeout;
 let buzzerTimeout;
 let questionInterval;
 let timerTimeout;
@@ -37,6 +36,11 @@ let socket = io();
 
 // HOST & CONTROLLER
 socket.on("connect_device", function(gameURL) {
+  /*
+  Input:
+  gameURL: string (URL)
+   */
+
   // Checks to see if this is a mobile device
   if (/Mobi/.test(navigator.userAgent)) {
     adjustMobileStyle();
@@ -53,7 +57,14 @@ socket.on("connect_device", function(gameURL) {
   }
 });
 
+// CONTROLLER
 socket.on("join_session_success", function(rejoinable, sessionId) {
+  /*
+  Input:
+  rejoinable: boolean
+  sessionId: string (session ID)
+   */
+
   if (!isHost) {
     document.getElementById("session-id-footer").innerHTML = sessionId;
     if (rejoinable) {
@@ -65,6 +76,7 @@ socket.on("join_session_success", function(rejoinable, sessionId) {
   }
 });
 
+// CONTROLLER
 socket.on("join_session_failure", function() {
   if (!isHost) {
     alert("That is not a valid session ID");
@@ -75,7 +87,7 @@ socket.on("join_session_failure", function() {
 socket.on("change_board_controller", function(boardController, boardControllerNickname) {
   /*
   Input:
-  boardController: number (socket id)
+  boardController: number (socket ID)
   boardControllerNickname: string
    */
 
@@ -90,7 +102,13 @@ socket.on("change_board_controller", function(boardController, boardControllerNi
   }
 });
 
-socket.on("update_session_id", function(sessionId) {
+// CONTROLLER
+socket.on("update_session_id_text", function(sessionId) {
+  /*
+  Input:
+  sessionId: string (session ID)
+   */
+
   document.getElementById("session-id-text").innerHTML = sessionId;
 });
 
@@ -98,7 +116,7 @@ socket.on("update_session_id", function(sessionId) {
 socket.on("update_players_connected", function(playersConnected) {
   /*
   Input:
-  playersConnected: array of strings (socket ids)
+  playersConnected: array of strings (socket IDs)
    */
 
   if (isHost) {
@@ -117,13 +135,19 @@ socket.on("join_success", function(categoryNames, boardController, gameActive, d
   /*
   Input:
   categoryNames: array of strings
-  boardController: string (socket id)
+  boardController: string (socket ID)
+  gameActive: boolean
+  doubleJeoparty: boolean
+  rejoin: boolean
    */
 
+  // A new player can't join the game if they didn't play in the first half
   if (doubleJeoparty && !rejoin) {
     alert("The game's too far along for you to join, sorry!");
     changeWaitScreen("", true);
   } else {
+    // If a player is allowed to rejoin they must wait until the end of the
+    // next clue to participate
     if (gameActive) {
       waitingToJoin = true;
       changeWaitScreen("NEXT CLUE", false);
@@ -143,6 +167,7 @@ socket.on("join_success", function(categoryNames, boardController, gameActive, d
   }
 });
 
+// CONTROLLER
 socket.on("start_game_failure", function() {
   alert("You need to unmute the game in order to start (Click unmute on the host screen)");
 });
@@ -165,7 +190,7 @@ socket.on("load_game", function(categoryNames, categoryDates, boardController, b
   Input:
   categoryNames: array of strings
   categoryDates: array of numbers
-  boardController: string (socket id)
+  boardController: string (socket ID)
   boardControllerNickname: string
    */
 
@@ -173,7 +198,6 @@ socket.on("load_game", function(categoryNames, categoryDates, boardController, b
 
   if (isHost) {
     if (audioAllowed) {
-      clearTimeout(loopMusicTimeout);
       audioFiles["landing_screen_theme"].pause();
     }
     voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
@@ -199,7 +223,7 @@ socket.on("display_clue", function(clueRequest, screenQuestion) {
    */
 
   if (isHost) {
-    playAudio("clue_selected");
+    playAudio("clue_selected", false);
     voice(screenQuestion, 1);
     setTimeout(startQuestionInterval, 2000);
     clearPlayerAnswerText();
@@ -218,13 +242,13 @@ socket.on("daily_double_request", function(clueRequest, screenQuestion, boardCon
   Input:
   clueRequest: string ("category-x-price-y")
   screenQuestion: string
-  boardController: string (socket id)
+  boardController: string (socket ID)
   boardControllerNickname: string
    */
 
   if (isHost) {
     clearPlayerAnswerText();
-    playAudio("daily_double");
+    playAudio("daily_double", false);
     displayClue(clueRequest, screenQuestion, true);
     currentScreenQuestion = screenQuestion;
     setTimeout(function() {
@@ -272,6 +296,7 @@ socket.on("request_daily_double_wager", function(categoryName, player, newMaxWag
   }
 });
 
+// HOST
 socket.on("display_daily_double_clue", function(screenQuestion) {
   /*
   Input:
@@ -333,7 +358,7 @@ socket.on("answer_daily_double", function(player) {
 socket.on("buzzers_ready", function(playersAnswered) {
   /*
   Input:
-  playersAnswered: array of strings (socket ids)
+  playersAnswered: array of strings (socket IDs)
    */
 
   if (isHost) {
@@ -382,7 +407,7 @@ socket.on("answer", function(player) {
 
   if (isHost) {
     clearTimeout(buzzerTimeout);
-    playAudio("buzzer");
+    playAudio("buzzer", false);
     setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
     clearPlayerAnswerText();
   } else {
@@ -464,7 +489,7 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
 
   if (isHost) {
     if (timesUp) {
-      playAudio("times_up");
+      playAudio("times_up", false);
     }
     document.getElementById("player-livefeed-wrapper").className = "inactive";
     voice(getRandomAnswerIntro() + correctAnswer, .5);
@@ -495,7 +520,8 @@ socket.on("reveal_board", function(newUsedClues, remainingClueIds, boardControll
   /*
   Input:
   newUsedClues: array of strings ("category-x-price-y")
-  boardController: string (socket id)
+  remainingClueIds: array of strings ("category-x-price-y")
+  boardController: string (socket ID)
   boardControllerNickname: string
    */
 
@@ -553,6 +579,8 @@ socket.on("setup_double_jeoparty", function(categoryNames, categoryDates) {
 // HOST & CONTROLLER
 socket.on("setup_final_jeoparty", function(clue) {
   /*
+  Input:
+  clue: JSON (clue information)
    */
 
   finalJeoparty = true;
@@ -567,7 +595,7 @@ socket.on("setup_final_jeoparty", function(clue) {
     document.getElementById("clue-text").innerHTML = "";
     clearPlayerAnswerText();
     setTimeout(function() {
-      playAudio("final_jeoparty_category");
+      playAudio("final_jeoparty_category", false);
       voice(categoryName);
       displayFinalJeopartyCategory(categoryName);
       setTimeout(function() {
@@ -644,7 +672,7 @@ socket.on("display_final_jeoparty_clue", function() {
 // HOST & CONTROLLER
 socket.on("answer_final_jeoparty", function() {
   if (isHost) {
-    playAudio("think_music");
+    playAudio("think_music", false);
     startTimerAnimation(30);
   } else {
     if (joined) {
@@ -659,6 +687,11 @@ socket.on("answer_final_jeoparty", function() {
 
 // HOST & CONTROLLER
 socket.on("display_final_jeoparty_answer", function(players) {
+  /*
+  Input:
+  players: object of player objects
+   */
+
   if (isHost) {
     disableTimer();
 
@@ -673,7 +706,9 @@ socket.on("display_final_jeoparty_answer", function(players) {
   }
 });
 
+// HOST & CONTROLLER
 socket.on("reset_game", function() {
+  // Resetting all variables
   waitingToJoin = false;
   joined = false;
   currentScreenId = undefined;
@@ -695,6 +730,8 @@ socket.on("reset_game", function() {
   finalJeopartyClue = undefined;
   finalJeopartyPlayer = undefined;
 
+  // Refreshes the page to start from a blank slate if this device is
+  // still connected after the game ends
   document.location.reload();
 });
 
@@ -728,17 +765,13 @@ function declareAudioFiles() {
     };
 
     if (currentScreenId == "h-landing-screen") {
-      playAudio("landing_screen_theme");
-      loopMusicTimeout = setTimeout(function loop() {
-        playAudio("landing_screen_theme");
-        loopMusicTimeout = setTimeout(loop, audioFiles["landing_screen_theme"].duration * 1000);
-      }, audioFiles["landing_screen_theme"].duration * 1000);
+      playAudio("landing_screen_theme", true);
     }
   }
 }
 
 // HOST
-function playAudio(filename) {
+function playAudio(filename, loop) {
   /*
   Input:
   filename: string (audio filename)
@@ -749,14 +782,19 @@ function playAudio(filename) {
 
   if (audioAllowed) {
     if (audioFiles[filename].paused) {
-      audioFiles[filename].currentTime = 0;
       audioFiles[filename].play();
+      if (loop) {
+        audioFiles[filename].loop = true;
+      }
     }
   }
 }
 
+// CONTROLLER
 function joinSession() {
   /*
+  Result:
+  Sends the requested session ID to the server to attempt to join it
    */
 
   socket.emit("join_session", document.getElementById("session-id-form").value.toUpperCase());
@@ -1735,7 +1773,7 @@ function submitAnswer() {
 
   let answer = document.getElementById("answer-form").value;
 
-  if (answer.length > 30) {
+  if (answer.length > 40) {
     answer = "";
   }
 
@@ -1801,10 +1839,10 @@ function displayPlayerAnswer(player, answer, correct) {
 
   setTimeout(function() {
     if (correct) {
-      playAudio("applause");
+      playAudio("applause", false);
       playerAnswer.style.color = "#39FF14";
     } else {
-      playAudio("aww");
+      playAudio("aww", false);
       playerAnswer.style.color = "red";
     }
   }, 1000);
@@ -1906,6 +1944,8 @@ function updateScoreboard(players) {
   overflowRow.className = "inactive row overflow-row";
   overflow.innerHTML = "";
 
+  // Only shows as many podiums as there are players in the game or all 3
+  // and a text element on the bottom if the screen if there are more than 3
   if (playersLength <= 1) {
     podiumOne.className = "col-12";
     podiumTwo.className = "inactive";
@@ -1921,6 +1961,9 @@ function updateScoreboard(players) {
   } else if (playersLength > 4) {
     overflowRow.classList.remove("inactive");
 
+    // Sorts the players by their score to display the top 3 players in the
+    // game in "track podium" style. First in the middle, second on the left,
+    // and third on the right
     let keys = Object.keys(clone);
     keys.sort(function(a, b) {
       return clone[b].score - clone[a].score;
@@ -1955,6 +1998,7 @@ function updateScoreboard(players) {
         scoreText.style.color = "white";
       }
 
+      // Clears the score screen canvas and redraws the correct signature onto it
       let signatureCanvas = document.getElementById("player-" + i + "-signature-canvas");
       let ctx = signatureCanvas.getContext('2d');
       let signature = new Image();
@@ -2133,10 +2177,10 @@ function displayFinalJeopartyAnswers(players) {
     setTimeout(function() {
       playerAnswer.style.transitionDuration = "2s";
       if (correct) {
-        playAudio("applause");
+        playAudio("applause", false);
         playerAnswer.style.color = "#39FF14";
       } else {
-        playAudio("aww");
+        playAudio("aww", false);
         playerAnswer.style.color = "red";
       }
     }, 1000);
@@ -2153,6 +2197,15 @@ function displayFinalJeopartyAnswers(players) {
   }
 
   function endGame(nickname) {
+    /*
+    Input:
+    nickname: string
+
+    Result:
+    Shows the correct final jeoparty answer, then congratulates the
+    winning player by showing their nickname on screen
+     */
+
     socket.emit("request_players");
 
     let correctAnswer = finalJeopartyClue["screen_answer"].toUpperCase();
@@ -2174,14 +2227,10 @@ function displayFinalJeopartyAnswers(players) {
         changeScreen("clue-screen");
         clearPlayerAnswerText();
         clueText.innerHTML = "CONGRATULATIONS<br>" + nickname + "!";
-        playAudio("big_applause");
+        playAudio("big_applause", false);
         setTimeout(function() {
           clueText.innerHTML = "THANKS FOR PLAYING!";
-          playAudio("landing_screen_theme");
-          loopMusicTimeout = setTimeout(function loop() {
-            playAudio("landing_screen_theme");
-            loopMusicTimeout = setTimeout(loop, audioFiles["landing_screen_theme"].duration * 1000);
-          }, audioFiles["landing_screen_theme"].duration * 1000);
+          playAudio("landing_screen_theme", true);
         }, 10000);
       }, 5000);
     }, 5000);

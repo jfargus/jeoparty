@@ -719,15 +719,16 @@ button {
 /* Waiting screen */
 
 #c-waiting-screen {
-  line-height: 3vh;
   width: 100vw;
+
+  line-height: 3vh;
 }
 
 .waiting-screen-session-id-wrapper {
-  width: 100vw;
-
   position: absolute;
   top: 0;
+
+  width: 100vw;
 
   line-height: 6vh;
 }

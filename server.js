@@ -2,6 +2,7 @@
 
 // Socket logic
 
+// Node requirements
 let js = require("jservice-node");
 let removeAccents = require("remove-accents");
 let numberToWords = require("number-to-words");
@@ -91,6 +92,8 @@ io.on("connection", function(socket) {
   socket.on("set_host_socket", function() {
     let sessionId;
     while (true) {
+      // Returns a 5 character string composed of both letters and numbers
+      // to serve as the session's ID
       sessionId = Math.random().toString(36).substr(2, 5).toUpperCase();
       if (!sessions[sessionId]) {
         break;
@@ -100,11 +103,13 @@ io.on("connection", function(socket) {
     sessions[sessionId].sessionId = sessionId;
     socket.sessionId = sessionId;
 
+    socket.host = true;
+
     console.log("SESSION ID: " + sessionId);
 
     socket.join(sessionId);
 
-    socket.emit("update_session_id", sessionId);
+    socket.emit("update_session_id_text", sessionId);
 
     getCategories(socket);
     if (!sessions[sessionId].setDailyDoubles) {
@@ -120,10 +125,17 @@ io.on("connection", function(socket) {
   });
 
   socket.on("join_session", function(newSessionId) {
+    /*
+    Input:
+    newSessionId: string
+     */
+
     let sessionId = newSessionId.replace(/ /g, "");
 
     if (sessions[sessionId]) {
       socket.sessionId = sessionId;
+      socket.host = false;
+
       socket.join(sessionId);
 
       socket.emit("join_session_success", Object.keys(sessions[socket.sessionId].disconnectedPlayers).includes(socket.conn.remoteAddress), sessionId);
@@ -138,6 +150,7 @@ io.on("connection", function(socket) {
     nickname: string
     signature: image
      */
+
     if (sessions[socket.sessionId]) {
       if (!sessions[socket.sessionId].doubleJeoparty) {
         let player = new Object();
@@ -170,6 +183,8 @@ io.on("connection", function(socket) {
 
   socket.on("rejoin_game", function() {
     if (sessions[socket.sessionId]) {
+      // This can only get called if this player object was inside of the
+      // disconnectedPlayers object so this won't be a null reference
       let player = JSON.parse(JSON.stringify(sessions[socket.sessionId].disconnectedPlayers[socket.conn.remoteAddress]));
       sessions[socket.sessionId].players[socket.id] = player;
       sessions[socket.sessionId].players[socket.id].id = socket.id;
@@ -187,6 +202,9 @@ io.on("connection", function(socket) {
         sessions[socket.sessionId].requesting = true;
         io.in(socket.sessionId).emit("load_game", sessions[socket.sessionId].categoryNames, sessions[socket.sessionId].categoryDates, sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
       } else {
+        // The game relies heavily on the timing of the text to speech reading the
+        // question aloud so the game won't start unless the players have
+        // allowed audio to play
         socket.emit("start_game_failure");
       }
     }
@@ -249,12 +267,12 @@ io.on("connection", function(socket) {
   });
 
   socket.on("no_buzz", function() {
+    // Gets called by a timeout in the host's javascript if nobody buzzes in
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].buzzersReady = false;
       io.in(socket.sessionId).emit("display_correct_answer", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_answer"], true);
       setTimeout(function() {
         if (socket.sessionId) {
-
           io.in(socket.sessionId).emit("reveal_scores");
           reset(socket);
 
@@ -335,6 +353,7 @@ io.on("connection", function(socket) {
         setTimeout(function() {
           if (socket.sessionId) {
             if (correct) {
+              // This branch runs if the answer is correct
               sessions[socket.sessionId].boardController = socket.id;
               io.in(socket.sessionId).emit("reveal_scores");
               reset(socket);
@@ -354,7 +373,7 @@ io.on("connection", function(socket) {
               }, 5000);
             } else if (sessions[socket.sessionId].playersAnswered.length == Object.keys(sessions[socket.sessionId].players).length) {
               // This branch runs if all of the players in the game
-              // have attempted to answer
+              // have already attempted to answer
               io.in(socket.sessionId).emit("display_correct_answer", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_answer"], false);
               setTimeout(function() {
                 if (socket.sessionId) {
@@ -454,6 +473,8 @@ io.on("connection", function(socket) {
   socket.on("displayed_final_jeoparty_category", function() {
     if (sessions[socket.sessionId]) {
       for (let id in sessions[socket.sessionId].players) {
+        // Doesn't let any player who has less than or equal to 0 dollars
+        // participate in final jeoparty
         if (sessions[socket.sessionId].players[id].score > 0) {
           sessions[socket.sessionId].players[id].maxWager = getMaxWager(sessions[socket.sessionId].players[id].score, socket);
           sessions[socket.sessionId].finalJeopartyPlayers[id] = sessions[socket.sessionId].players[id];
@@ -492,7 +513,9 @@ io.on("connection", function(socket) {
               io.in(socket.sessionId).emit("reset_game");
               delete sessions[socket.sessionId];
             }
-          }, 60000 + ((Object.keys(sessions[socket.sessionId].players).length) * 5000));
+            // Resets the game in the amount of time it takes to display each players'
+            // clue plus a minute
+          }, 60000 + ((Object.keys(sessions[socket.sessionId].finalJeopartyPlayers).length) * 5000));
         }
       }, 30000);
     }
@@ -538,6 +561,10 @@ io.on("connection", function(socket) {
             // inside of the players object
           }
 
+          if (socket.host) {
+            delete sessions[socket.sessionId];
+          }
+
           socket.leave(socket.sessionId);
 
           try {
@@ -561,11 +588,15 @@ io.on("connection", function(socket) {
 
           if (sessions[socket.sessionId].gameActive) {
             if (sessions[socket.sessionId].boardController == socket.id) {
+              // If the disconnected player was the board controller, the role of
+              // board controller is moved to another player
               sessions[socket.sessionId].boardController = Object.keys(sessions[socket.sessionId].players)[0];
               io.in(socket.sessionId).emit("change_board_controller", sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
             }
 
             if (sessions[socket.sessionId].answering && (sessions[socket.sessionId].boardController == socket.id || sessions[socket.sessionId].buzzWinnerId == socket.id)) {
+              // If the disconnected player was in the middle of answering,
+              // the host cuts to displaying the correct answer and the game moves on
               io.in(socket.sessionId).emit("display_correct_answer", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["screen_answer"], false);
               setTimeout(function() {
                 if (socket.sessionId) {
@@ -589,17 +620,32 @@ io.on("connection", function(socket) {
 // Game logic
 
 function getStartingIndex(cluesCount) {
+  /*
+  Input:
+  cluesCount: number
+
+  Result:
+  Returns a multiple of 5 in the range of cluesCount (but not including cluesCount)
+
+  5 -> 0
+  15 -> 0, 5, 10
+  25 -> 0, 5, 10, 15, 20
+   */
+
   return (Math.round((Math.random() * (cluesCount - 5)) / 5) * 5);
 }
 
 function getCategories(socket) {
   /*
+  Input:
+  socket: string (socket ID)
+
   Result:
   Grabs random categories from jservice.io database
    */
 
   // Using a while loop that runs until 6 categories are approved
-  // froze the browser so I'm using this cheap fix instead
+  // froze the browser so I'm using this cheap for loop fix instead
   for (let i = 0; i < 20; i++) {
 
     let categoryId = Math.floor(Math.random() * 18418) + 1;
@@ -622,6 +668,7 @@ function approveCategory(category, startingIndex) {
   /*
   Input:
   category: JSON object
+  startingIndex: number
 
   Output:
   Returns true if all category questions meet criteria, else returns false
@@ -642,6 +689,8 @@ function loadCategory(category, startingIndex, socket) {
   /*
   Input:
   category: JSON object
+  startingIndex: number
+  socket: string (socket ID)
 
   Result:
   Adds category and its relevant data to a few global variables
@@ -676,6 +725,9 @@ function loadCategory(category, startingIndex, socket) {
 
 function setDailyDoubleIds(socket) {
   /*
+  Input:
+  socket: string (socket ID)
+
   Result:
   Selects 3 random clue ids to be daily double sessions[socket.sessionId].clues
    */
@@ -703,8 +755,6 @@ function setDailyDoubleIds(socket) {
 
     sessions[socket.sessionId].dailyDoubleIds.push("category-" + categoryNum + "-price-" + priceNum);
   }
-
-  console.log(sessions[socket.sessionId].dailyDoubleIds);
 }
 
 function formatRawText(original) {
@@ -776,6 +826,7 @@ function getMaxWager(score, socket) {
   /*
   Input:
   score: number
+  socket: string (socket ID)
 
   Output:
   Returns the highest value the player can wager
@@ -804,6 +855,7 @@ function evaluateAnswer(answer, socket) {
   /*
   Input:
   answer: string
+  socket: string (socket ID)
 
   Output:
   Returns true if the answer is correct (or is relatively close to correct),
@@ -859,6 +911,7 @@ function updateScore(id, correct, multiplier, dailyDouble, socket) {
   correct: boolean
   multiplier: number
   dailyDouble: boolean
+  socket: string (socket ID)
 
   Result:
   Changes the score variable of the given player object
@@ -883,6 +936,9 @@ function updateScore(id, correct, multiplier, dailyDouble, socket) {
 
 function reset(socket) {
   /*
+  Input:
+  socket: string (socket ID)
+
   Result:
   Resets variables between each round
    */
@@ -915,14 +971,13 @@ function reset(socket) {
     sessions[socket.sessionId].categoryDates = [];
     sessions[socket.sessionId].clues = {};
 
+    // Gives board control to the player in last place to begin
+    // double jeoparty
     let clone = JSON.parse(JSON.stringify(sessions[socket.sessionId].players));
-
     let keys = Object.keys(clone);
-
     keys.sort(function(a, b) {
       return clone[a].score - clone[b].score;
     });
-
     sessions[socket.sessionId].boardController = keys[0];
 
     getCategories(socket);
