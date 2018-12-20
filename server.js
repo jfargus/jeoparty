@@ -24,11 +24,18 @@ console.log("URL: " + ip.address() + ":3000");
 // Direct static file route to public folder
 app.use(express.static(path.join(__dirname, "public")));
 
+// This is bad coding practice but is here so that the server can't crash
 process.on("uncaughtException", (err) => {
   console.log(err);
   io.emit("reset_game");
   sessions = {};
 });
+
+// Each game that is occuring on the server simultaneously is given a
+// session object with which to operate from. Throughout this script,
+// game variables are referenced like this: sessions[socket.sessionId]
+// so that multiple games can occur at once and the server can access the
+// correct variables for each independent game
 
 function session() {
   this.audioAllowed = false;
