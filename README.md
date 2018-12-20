@@ -60,3 +60,5 @@ Go to the same URL as you did on your computer with your mobile device. Then, jo
 
 # Copyright
 The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
+
+Jeoparty! is not and never will be for profit, there are NO advertisements, and NO price to pay. If this game is distributed elsewhere with either of those costs, it is without my knowledge, and without my consent.
