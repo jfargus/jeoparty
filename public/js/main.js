@@ -289,7 +289,7 @@ socket.on("request_daily_double_wager", function(categoryName, player, newMaxWag
         maxWager = newMaxWager;
         startWagerLivefeedInterval();
         scrapeWagerTimeout = setTimeout(function() {
-          submitWager(true);
+          submitWager(true, true);
         }, 15000);
       }
     }
@@ -414,6 +414,7 @@ socket.on("answer", function(player) {
     if (joined) {
       toggleBlinkingBuzzerLight(false);
       if (socket.id == player.id) {
+        scrapeAnswerTimeout = setTimeout(submitAnswer, 15500);
         changeBuzzerLightColor(true, true);
         setTimeout(function() {
           changeScreen("answer-screen");
@@ -631,7 +632,7 @@ socket.on("request_final_jeoparty_wager", function(finalJeopartyPlayers) {
         startTimerAnimation(15);
         maxWager = finalJeopartyPlayers[socket.id].maxWager;
         scrapeWagerTimeout = setTimeout(function() {
-          submitWager(true);
+          submitWager(true, false);
         }, 15000);
       } else {
         changeWaitScreen("BANKRUPT", true);
@@ -1511,7 +1512,7 @@ function startWagerLivefeedInterval() {
 }
 
 // CONTROLLER
-function submitWager(timesUp) {
+function submitWager(timesUp, dailyDouble) {
   /*
   Input:
   timesUp: boolean
@@ -1532,16 +1533,12 @@ function submitWager(timesUp) {
   }
 
   if (timesUp) {
-    try {
-      clearInterval(wagerLivefeedInterval);
-    } catch (e) {
-      // In case wagerLivefeedInterval hasn't been set yet
-    }
+    clearInterval(wagerLivefeedInterval);
     clearTimeout(scrapeWagerTimeout);
-    if (finalJeoparty) {
-      changeWaitScreen("OTHER PLAYERS", false);
-    } else {
+    if (dailyDouble) {
       changeWaitScreen("SCREEN", false);
+    } else {
+      changeWaitScreen("OTHER PLAYERS", false);
     }
     if (!isNaN(wager) && Number(wager) > minWager && Number(wager) < maxWager) {
       if (dailyDouble) {
@@ -1577,10 +1574,10 @@ function submitWager(timesUp) {
         } else {
           socket.emit("final_jeoparty_wager", Number(wager));
         }
-        if (finalJeoparty) {
-          changeWaitScreen("OTHER PLAYERS", false);
-        } else {
+        if (dailyDouble) {
           changeWaitScreen("SCREEN", false);
+        } else {
+          changeWaitScreen("OTHER PLAYERS", false);
         }
         wagerForm.value = "";
       }
@@ -1718,12 +1715,6 @@ function buzz() {
    */
 
   socket.emit("buzz");
-  try {
-    clearTimeout(scrapeAnswerTimeout);
-  } catch (e) {
-    // In case scrapeAnswerTimeout has not been set
-  }
-  scrapeAnswerTimeout = setTimeout(submitAnswer, 15500);
 }
 
 // HOST
@@ -1773,16 +1764,12 @@ function submitAnswer() {
 
   let answer = document.getElementById("answer-form").value;
 
-  if (answer.length > 40) {
+  if (answer.length > 50) {
     answer = "";
   }
 
   clearInterval(livefeedInterval);
-  try {
-    clearTimeout(scrapeAnswerTimeout);
-  } catch (e) {
-    // In case scrapeAnswerTimeout has not been set
-  }
+  clearTimeout(scrapeAnswerTimeout);
 
   document.getElementById("submit-answer-button").className = "inactive submit-answer-button";
 
