@@ -4,7 +4,7 @@ A local multiplayer Jeopardy! game. Run the board screen on your laptop and use 
 # Installation Guide (to play locally)
 
 ## 1. Download Node
-This is a Node.js based application, so you need to have Node installed in order to use npm commands.
+This is a Node.js based application, so you need to have Node installed in order to use npm commands. Download links can be found on their website at https://nodejs.org/en/download/.
 
 ## 2. Download the repository
 Download this repository onto your computer by clicking the green
