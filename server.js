@@ -16,13 +16,16 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 // Turn on server port
-let ip = require("ip");
-server.listen(3000, ip.address());
+let port = process.env.port || 3000;
+server.listen(port);
 
-console.log("URL: " + ip.address() + ":3000");
+// Turn on server port
+let ip = require("ip");
+//console.log("URL: " + ip.address() + ":3000");
 
 // Direct static file route to public folder
-app.use(express.static(path.join(__dirname, "public")));
+//app.use(express.static(path.join(__dirname, "public")));
+app.set("public", path.join(__dirname, "public"));
 
 // This is bad coding practice but is here so that the server can't crash
 process.on("uncaughtException", (err) => {
