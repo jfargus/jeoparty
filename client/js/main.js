@@ -35,12 +35,7 @@ let scrapeWagerTimeout;
 let socket = io();
 
 // HOST & CONTROLLER
-socket.on("connect_device", function(gameURL) {
-  /*
-  Input:
-  gameURL: string (URL)
-   */
-
+socket.on("connect_device", function() {
   // Checks to see if this is a mobile device
   if (/Mobi/.test(navigator.userAgent)) {
     adjustMobileStyle();
@@ -52,7 +47,6 @@ socket.on("connect_device", function(gameURL) {
     document.body.style.backgroundImage = "url('/graphics/background.png')";
     document.getElementById("host").className = "";
     currentScreenId = "h-landing-screen";
-    document.getElementById("url-text").innerHTML = gameURL + ":3000";
     isHost = true;
   }
 });

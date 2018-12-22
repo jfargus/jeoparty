@@ -7,6 +7,7 @@ let js = require("jservice-node");
 let removeAccents = require("remove-accents");
 let numberToWords = require("number-to-words");
 let wordsToNumbers = require("words-to-numbers");
+let ip = require("ip");
 
 // Setup express server
 let express = require("express");
@@ -16,9 +17,6 @@ let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
 const PORT = process.env.PORT || 5000
-
-let ip = require("ip");
-//console.log("URL: " + ip.address() + ":3000");
 
 server.listen(PORT);
 
@@ -95,7 +93,7 @@ io.on("connection", function(socket) {
   socket: Socket.io object
    */
 
-  socket.emit("connect_device", ip.address());
+  socket.emit("connect_device");
 
   socket.on("set_host_socket", function() {
     let sessionId;
