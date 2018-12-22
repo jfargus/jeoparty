@@ -4,7 +4,7 @@ A local multiplayer Jeopardy! game. Run the board screen on your laptop and use 
 # Installation Guide (to play locally)
 
 ## 1. Download Node
-This is a Node.js based application, so you need to have Node installed in order to use npm commands. Download links can be found on their website at https://nodejs.org/en/download/.
+This is a Node.js based application, so you need to have Node installed in order to use npm commands in the terminal. Download links can be found on their website at https://nodejs.org/en/download/.
 
 ## 2. Download the repository
 Download this repository onto your computer by clicking the green
@@ -12,15 +12,14 @@ Download this repository onto your computer by clicking the green
 Make sure to unzip it before going on.
 
 ## 3. Navigate to the game folder
-Use the terminal to navigate to the folder where you saved the repository.
+Use the terminal to navigate to the folder where you saved the repository. Commands may be different on Windows.
 
 ```
 cd Documents/GitHub/jeoparty
 ```
 
 ## 4. Download Node dependencies
-This game requires a few packages from Node.js in order to function so now we
-need to install all of the things that the game needs. Node.js lets you do this easily with one command.
+Now we need to use Node.js to install all of the packages that this game needs to run.
 
 ```
 npm install
@@ -35,7 +34,7 @@ node server
 
 ## 6. Go to the game URL
 If the node server was enabled correctly, it should print out the URL of the
-game website and the session ID. Go to the given URL on your computer's browser. I strongly recommend using Google
+game website. Go to the given URL on your computer's browser. I strongly recommend using Google
 Chrome when playing, the graphics and text to speech functions run much more
 smoothly.
 
