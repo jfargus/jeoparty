@@ -2216,8 +2216,13 @@ function displayFinalJeopartyAnswers(players) {
         clueText.innerHTML = "CONGRATULATIONS<br>" + nickname + "!";
         playAudio("big_applause", false);
         setTimeout(function() {
-          clueText.innerHTML = "THANKS FOR PLAYING!";
+          clueText.className = "s-clue-text";
+          clueText.innerHTML = "SPECIAL THANKS TO:<br>MATT MORNINGSTAR<br>MAX THOMSEN<br>MATT BALDWIN<br>PRANIT NANDA<br>ATTIC STEIN BEATS";
           playAudio("landing_screen_theme", true);
+          setTimeout(function() {
+            clueText.className = "clue-text";
+            clueText.innerHTML = "THANKS FOR PLAYING!";
+          }, 10000);
         }, 10000);
       }, 5000);
     }, 5000);

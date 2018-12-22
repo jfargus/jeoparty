@@ -163,7 +163,7 @@ io.on("connection", function(socket) {
         player.id = socket.id;
         player.ip = socket.conn.remoteAddress;
         player.playerNumber = Object.keys(sessions[socket.sessionId].players).length + 1;
-        player.nickname = nickname.replace(/ /g, "");
+        player.nickname = nickname;
         player.signature = signature;
         player.score = 0;
         player.wager = 0;
