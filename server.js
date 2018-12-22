@@ -15,10 +15,12 @@ let path = require("path");
 let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
-// Turn on server port
+const PORT = process.env.PORT || 5000
+
 let ip = require("ip");
-server.listen(3000, ip.address());
-console.log("URL: " + ip.address() + ":3000");
+//console.log("URL: " + ip.address() + ":3000");
+
+server.listen(PORT);
 
 // Direct static file route to client folder
 app.use(express.static(path.join(__dirname, "client")));
