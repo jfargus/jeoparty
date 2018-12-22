@@ -1,6 +1,6 @@
 {
   "name": "jeoparty",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "A local multiplayer Jeopardy! game",
   "repository": "github:iRedlon/jeoparty",
   "homepage": "jeoparty.io",
