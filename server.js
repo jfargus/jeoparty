@@ -884,7 +884,7 @@ function evaluateAnswer(answer, socket) {
     return true;
   } else {
     // This check prevents players from trying to take advantage of a question like
-    // "This man named Jack was a blah blah blah" by only sessions[socket.sessionId].answering with "Jack",
+    // "This man named Jack was a blah blah blah" by only answering with "Jack",
     // if they do this, they need to have the answer completely correct
     if (question.includes(playerAnswer) || categoryName.includes(playerAnswer) || answer.length <= 2) {
       return false;
