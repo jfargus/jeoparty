@@ -761,6 +761,8 @@ function setDailyDoubleIds(socket) {
 
     sessions[socket.sessionId].dailyDoubleIds.push("category-" + categoryNum + "-price-" + priceNum);
   }
+
+  console.log(sessions[socket.sessionId].dailyDoubleIds);
 }
 
 function formatRawText(original) {

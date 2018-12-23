@@ -1506,7 +1506,7 @@ function startWagerLivefeedInterval() {
 }
 
 // CONTROLLER
-function submitWager(timesUp, dailyDouble) {
+function submitWager(timesUp) {
   /*
   Input:
   timesUp: boolean
@@ -1565,12 +1565,9 @@ function submitWager(timesUp, dailyDouble) {
         clearTimeout(scrapeWagerTimeout);
         if (dailyDouble) {
           socket.emit("daily_double_wager", Number(wager));
-        } else {
-          socket.emit("final_jeoparty_wager", Number(wager));
-        }
-        if (dailyDouble) {
           changeWaitScreen("SCREEN", false);
         } else {
+          socket.emit("final_jeoparty_wager", Number(wager));
           changeWaitScreen("OTHER PLAYERS", false);
         }
         wagerForm.value = "";
