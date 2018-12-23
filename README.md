@@ -3,25 +3,23 @@ A local multiplayer Jeopardy! game. Run the board screen on your laptop and use 
 
 # How to Play
 
-1. Go to [jeoparty.io](http://jeoparty.io) on your laptop and plug it in to a TV screen or monitor. If the page is blank, just refresh your window and it should show up. Make sure to click anywhere on the main screen to unmute the game.
+1. Go to [jeoparty.io](http://jeoparty.io) on your laptop and plug it in to a TV screen or monitor. If the page is blank, just refresh your window and it should show up. Make sure to click anywhere on the main screen to unmute the game. I would personally reccomend using Google Chrome on your laptop to serve as the main screen. Jeoparty! works in all major browsers but the text to speech and animation elements run more smoothly on Chrome.
 
-2. Go to the same URL on your mobile device(s). There will be a form prompting your for the "Session ID", which will be displayed on the main screen.
+2. Go to the same URL as before on your mobile device(s). There will be a form prompting your for the "Session ID" which will be displayed on the main screen.
 
-1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature; the lines will appear cleaner.
+3. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature; the lines will appear cleaner.
 
-2. Once the first player to join presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.
+4. Once the first player to join presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.
 
-3. Plug your laptop into a TV for maximum enjoyment.
+5. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.
 
-4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.
+6. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.
 
-5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.
-
-6. The rest of the game proceeds like the Jeopardy! TV series.
+7. The rest of the game proceeds like the Jeopardy! TV series.
 
 # Contributions
 
-If you'd like to contribute to Jeoparty! feel free to clone this repository and make a pull request. I will review it as soon as I can.
+If you'd like to contribute to Jeoparty! feel free to clone this repository and make a pull request.
 
 # Credits
 ## Tools used:
