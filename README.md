@@ -3,7 +3,7 @@ A local multiplayer Jeopardy! game. Run the board screen on your laptop and use 
 
 # How to Play
 
-1. Go to [jeoparty.io](jeoparty.io) on your laptop and plug it in to a TV screen or monitor. If the page is blank, just refresh your window and it should show up. Make sure to click anywhere on the main screen to unmute the game.
+1. Go to [jeoparty.io](http://jeoparty.io) on your laptop and plug it in to a TV screen or monitor. If the page is blank, just refresh your window and it should show up. Make sure to click anywhere on the main screen to unmute the game.
 
 2. Go to the same URL on your mobile device(s). There will be a form prompting your for the "Session ID", which will be displayed on the main screen.
 
