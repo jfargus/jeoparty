@@ -1,45 +1,25 @@
 # Jeoparty!
 A local multiplayer Jeopardy! game. Run the board screen on your laptop and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with a limitless number of friends!
 
-# Installation Guide (to play locally)
+# How to Play
 
-## 1. Download Node
-This is a Node.js based application, so you need to have Node installed in order to use npm commands in the terminal. Download links can be found on their website at https://nodejs.org/en/download/.
+## 1.
+Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.
 
-## 2. Download the repository
-Download this repository onto your computer by clicking the green
-"Clone or Download" button in the upper right hand corner of the repository's front page.
-Make sure to unzip it before going on.
+## 2.
+Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.
 
-## 3. Navigate to the game folder
-Use the terminal to navigate to the folder where you saved the repository. Commands may be different on Windows.
+## 3.
+Plug your laptop into a TV for maximum enjoyment.
 
-```
-cd Documents/GitHub/jeoparty
-```
+## 4.
+Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.
 
-## 4. Download Node dependencies
-Now we need to use Node.js to install all of the packages that this game needs to run.
+## 5.
+The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.
 
-```
-npm install
-```
-
-## 5. Run the node server
-Now we need to turn on a server so that the website has a local host.
-
-```
-node server
-```
-
-## 6. Go to the game URL
-If the node server was enabled correctly, it should print out the URL of the
-game website. Go to the given URL on your computer's browser. I strongly recommend using Google
-Chrome when playing, the graphics and text to speech functions run much more
-smoothly.
-
-## 7. Enjoy!
-Go to the same URL as you did on your computer with your mobile device. Then, join the session by entering the session ID displayed on screen and in the terminal. From there, follow the instructions on screen and have fun! Plug your laptop into a TV or monitor for maximum enjoyment.
+## 6.
+The rest of the game proceeds like the Jeopardy! TV series.
 
 # Credits
 ## Tools used:
