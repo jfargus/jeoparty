@@ -1,48 +1,29 @@
 # Jeoparty!
 A local multiplayer Jeopardy! game. Run the board screen on your laptop and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with a limitless number of friends!
 
-# Installation Guide (to play locally)
+# How to Play
 
-## 1. Download Node
-This is a Node.js based application, so you need to have Node installed in order to use npm commands in the terminal. Download links can be found on their website at https://nodejs.org/en/download/.
+1. Go to [jeoparty.io](http://jeoparty.io) on your laptop and plug it in to a TV screen or monitor. If the page is blank, just refresh your window and it should show up. Make sure to click anywhere on the main screen to unmute the game. I would personally reccomend using Google Chrome on your laptop to serve as the main screen. Jeoparty! works in all major browsers but the text to speech and animation elements run more smoothly on Chrome.
 
-## 2. Download the repository
-Download this repository onto your computer by clicking the green
-"Clone or Download" button in the upper right hand corner of the repository's front page.
-Make sure to unzip it before going on.
+2. Go to the same URL as before on your mobile device(s). There will be a form prompting your for the "Session ID" which will be displayed on the main screen.
 
-## 3. Navigate to the game folder
-Use the terminal to navigate to the folder where you saved the repository. Commands may be different on Windows.
+3. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature; the lines will appear cleaner.
 
-```
-cd Documents/GitHub/jeoparty
-```
+4. Once the first player to join presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.
 
-## 4. Download Node dependencies
-Now we need to use Node.js to install all of the packages that this game needs to run.
+5. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.
 
-```
-npm install
-```
+6. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.
 
-## 5. Run the node server
-Now we need to turn on a server so that the website has a local host.
+7. The rest of the game proceeds like the Jeopardy! TV series.
 
-```
-node server
-```
+# Contributions
 
-## 6. Go to the game URL
-If the node server was enabled correctly, it should print out the URL of the
-game website. Go to the given URL on your computer's browser. I strongly recommend using Google
-Chrome when playing, the graphics and text to speech functions run much more
-smoothly.
-
-## 7. Enjoy!
-Go to the same URL as you did on your computer with your mobile device. Then, join the session by entering the session ID displayed on screen and in the terminal. From there, follow the instructions on screen and have fun! Plug your laptop into a TV or monitor for maximum enjoyment.
+If you'd like to contribute to Jeoparty! feel free to clone this repository and make a pull request.
 
 # Credits
 ## Tools used:
+* [Heroku](https://www.heroku.com)
 * [jService.io](http://jservice.io)
 * [Socket.io](https://socket.io)
 * [Node](https://nodejs.org/en/)
@@ -63,4 +44,4 @@ Go to the same URL as you did on your computer with your mobile device. Then, jo
 # Copyright
 The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
 
-Jeoparty! is not and never will be for profit, there are NO advertisements, and NO price to pay. If this game is distributed elsewhere with either of those costs, it is without my knowledge, and without my consent.
+Jeoparty! is not and never will be for profit, there are NO advertisements, and there is NO price to pay. If this game is distributed elsewhere with either of those costs, it is without my knowledge, and without my consent.
