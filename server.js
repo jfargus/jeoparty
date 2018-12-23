@@ -109,7 +109,8 @@ io.on("connection", function(socket) {
 
     socket.host = true;
 
-    console.log("SESSION ID: " + sessionId);
+    console.log("IP Address: " + ip.address());
+    console.log("Session ID: " + sessionId);
 
     socket.join(sessionId);
 
@@ -759,8 +760,6 @@ function setDailyDoubleIds(socket) {
 
     sessions[socket.sessionId].dailyDoubleIds.push("category-" + categoryNum + "-price-" + priceNum);
   }
-
-  console.log(sessions[socket.sessionId].dailyDoubleIds);
 }
 
 function formatRawText(original) {
