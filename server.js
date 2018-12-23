@@ -26,8 +26,6 @@ app.use(express.static(path.join(__dirname, "client")));
 // This is bad coding practice but is here so that the server can't crash
 process.on("uncaughtException", (err) => {
   console.log(err);
-  io.emit("reset_game");
-  sessions = {};
 });
 
 // Each game that is occuring on the server simultaneously is given a
