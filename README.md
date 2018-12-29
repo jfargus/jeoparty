@@ -1,5 +1,5 @@
 # Jeoparty!
-A couch co-op Jeopardy! game. Display the board on your laptop and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with up to 98 friends!
+Display the board on your laptop and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with up to 98 friends!
 
 # How to Play
 
