@@ -222,20 +222,22 @@ io.on("connection", function(socket) {
      */
 
     if (sessions[socket.sessionId]) {
-      sessions[socket.sessionId].requesting = false;
+      if (remainingClueIds.includes(clueRequest)) {
+        sessions[socket.sessionId].requesting = false;
 
-      if ((!sessions[socket.sessionId].doubleJeoparty && clueRequest == sessions[socket.sessionId].dailyDoubleIds[0]) || (sessions[socket.sessionId].doubleJeoparty && (clueRequest == sessions[socket.sessionId].dailyDoubleIds[1] || clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]))) {
-        io.in(socket.sessionId).emit("daily_double_request", clueRequest, sessions[socket.sessionId].clues[clueRequest]["screen_question"], sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
-      } else {
-        io.in(socket.sessionId).emit("display_clue", clueRequest, sessions[socket.sessionId].clues[clueRequest]["screen_question"]);
+        if ((!sessions[socket.sessionId].doubleJeoparty && clueRequest == sessions[socket.sessionId].dailyDoubleIds[0]) || (sessions[socket.sessionId].doubleJeoparty && (clueRequest == sessions[socket.sessionId].dailyDoubleIds[1] || clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]))) {
+          io.in(socket.sessionId).emit("daily_double_request", clueRequest, sessions[socket.sessionId].clues[clueRequest]["screen_question"], sessions[socket.sessionId].boardController, sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].nickname);
+        } else {
+          io.in(socket.sessionId).emit("display_clue", clueRequest, sessions[socket.sessionId].clues[clueRequest]["screen_question"]);
+        }
+
+        sessions[socket.sessionId].remainingClueIds.splice(sessions[socket.sessionId].remainingClueIds.indexOf(clueRequest), 1);
+        sessions[socket.sessionId].usedClueIds.push(clueRequest);
+        // Splits ("category-x-price-y"), so that sessions[socket.sessionId].usedClueArray["category-x"].push("price-y")
+        sessions[socket.sessionId].usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
+
+        sessions[socket.sessionId].lastClueRequest = clueRequest;
       }
-
-      sessions[socket.sessionId].remainingClueIds.splice(sessions[socket.sessionId].remainingClueIds.indexOf(clueRequest), 1);
-      sessions[socket.sessionId].usedClueIds.push(clueRequest);
-      // Splits ("category-x-price-y"), so that sessions[socket.sessionId].usedClueArray["category-x"].push("price-y")
-      sessions[socket.sessionId].usedClueArray[clueRequest.slice(0, 10)].push(clueRequest.slice(11));
-
-      sessions[socket.sessionId].lastClueRequest = clueRequest;
     }
   });
 

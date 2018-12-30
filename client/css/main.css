@@ -1,4 +1,3 @@
-/* Font declarations */
 
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 
@@ -665,9 +664,11 @@ button {
 
 .help-menu-button {
   position: absolute;
-  right: 4vw;
 
+  font-family: 'Nunito', sans-serif;
   font-size: 4vh;
+
+  padding: 2vh;
 }
 
 .c-logo-text {

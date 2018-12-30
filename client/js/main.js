@@ -813,7 +813,11 @@ function alertHelpMenu() {
   Alerts the controller with a list of game instructions and copyright information
    */
 
-  alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for maximum enjoyment.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeopardy! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
+  if (currentScreenId == "join-session-screen") {
+    alert("Go to jeoparty.io on your computer to find a session ID");
+  } else {
+    alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for maximum enjoyment.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeopardy! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
+  }
 }
 
 // CONTROLLER
@@ -1116,6 +1120,8 @@ function pressClueButton(button) {
     }
     lastCategoryWrapperId = wrapper.id;
     lastCategoryId = button.id;
+
+    wrapper.classList.add("highlighted");
   }
 
   // Forces a category to be selected first
@@ -1128,10 +1134,10 @@ function pressClueButton(button) {
       }
       lastPriceWrapperId = wrapper.id;
       lastPriceId = button.id;
+
+      wrapper.classList.add("highlighted");
     }
   }
-
-  wrapper.classList.add("highlighted");
 }
 
 // HOST & CONTROLLER
