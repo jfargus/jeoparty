@@ -242,6 +242,8 @@ io.on("connection", function(socket) {
   socket.on("daily_double", function() {
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].answering = true;
+      io.in(socket.sessionId).emit("update_answering", sessions[socket.sessionId].answering);
+
       io.in(socket.sessionId).emit("request_daily_double_wager", sessions[socket.sessionId].clues[sessions[socket.sessionId].lastClueRequest]["category"]["title"], sessions[socket.sessionId].players[sessions[socket.sessionId].boardController], getMaxWager(sessions[socket.sessionId].players[sessions[socket.sessionId].boardController].score, socket));
     }
   });
@@ -309,6 +311,7 @@ io.on("connection", function(socket) {
         io.in(socket.sessionId).emit("answer", sessions[socket.sessionId].players[sessions[socket.sessionId].buzzWinnerId]);
 
         sessions[socket.sessionId].answering = true;
+        io.in(socket.sessionId).emit("update_answering", sessions[socket.sessionId].answering);
       }
     }
   });
@@ -343,6 +346,7 @@ io.on("connection", function(socket) {
 
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].answering = false;
+      io.in(socket.sessionId).emit("update_answering", sessions[socket.sessionId].answering);
 
       if (sessions[socket.sessionId].answerReady) {
         sessions[socket.sessionId].answerReady = false;
@@ -420,6 +424,7 @@ io.on("connection", function(socket) {
 
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].answering = false;
+      io.in(socket.sessionId).emit("update_answering", sessions[socket.sessionId].answering);
 
       let correct = evaluateAnswer(answer, socket);
 

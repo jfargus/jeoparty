@@ -6,6 +6,7 @@ let currentScreenId;
 let isHost;
 let audioAllowed = false;
 let audioFiles;
+let answering = false;
 let players;
 let lastCategoryWrapperId;
 let lastCategoryId;
@@ -122,6 +123,16 @@ socket.on("update_players_connected", function(playersConnected) {
       playersConnectedText.innerHTML = playersConnected + " PLAYERS JOINED";
     }
   }
+});
+
+// HOST & CONTROLLER
+socket.on("update_answering", function(newAnswering) {
+  /*
+  Input:
+  newAnswering: boolean
+   */
+
+  answering = newAnswering;
 });
 
 // CONTROLLER
@@ -1107,14 +1118,17 @@ function pressClueButton(button) {
     lastCategoryId = button.id;
   }
 
-  if (wrapper.classList.contains("price")) {
-    try {
-      document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
-    } catch (e) {
-      // In case lastPriceWrapperId has not been defined yet
+  // Forces a category to be selected first
+  if (lastCategoryWrapperId) {
+    if (wrapper.classList.contains("price")) {
+      try {
+        document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
+      } catch (e) {
+        // In case lastPriceWrapperId has not been defined yet
+      }
+      lastPriceWrapperId = wrapper.id;
+      lastPriceId = button.id;
     }
-    lastPriceWrapperId = wrapper.id;
-    lastPriceId = button.id;
   }
 
   wrapper.classList.add("highlighted");
@@ -1626,29 +1640,31 @@ function disableTimer() {
   Disables the timer and timer frame elements
    */
 
-  let timerId;
-  let timerFrameId;
+  if (!answering) {
+    let timerId;
+    let timerFrameId;
 
-  if (isHost) {
-    timerId = "h-timer";
-    timerFrameId = "h-timer-frame";
-  } else {
-    timerId = "c-timer";
-    timerFrameId = "c-timer-frame";
+    if (isHost) {
+      timerId = "h-timer";
+      timerFrameId = "h-timer-frame";
+    } else {
+      timerId = "c-timer";
+      timerFrameId = "c-timer-frame";
+    }
+
+    let timer = document.getElementById(timerId);
+    let timerFrame = document.getElementById(timerFrameId);
+
+    try {
+      timer.classList.add("inactive");
+      timer.classList.remove("animate");
+      timerFrame.classList.add("inactive");
+    } catch (e) {
+      // In case timer has already had the animate class removed
+    }
+
+    timer.offsetHeight;
   }
-
-  let timer = document.getElementById(timerId);
-  let timerFrame = document.getElementById(timerFrameId);
-
-  try {
-    timer.classList.add("inactive");
-    timer.classList.remove("animate");
-    timerFrame.classList.add("inactive");
-  } catch (e) {
-    // In case timer has already had the animate class removed
-  }
-
-  timer.offsetHeight;
 }
 
 // CONTROLLER
