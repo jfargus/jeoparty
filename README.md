@@ -1,9 +1,9 @@
 # Jeoparty!
-Display the board on your laptop and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with up to 98 friends!
+Display the board on your computer and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with up to 98 friends!
 
 # How to Play
 
-1. Go to [jeoparty.io](http://jeoparty.io) on your laptop and plug it in to a TV screen or monitor. If the page is blank, just refresh your window and it should show up. Make sure to click anywhere on the main screen to unmute the game. I would personally reccomend using Google Chrome on your laptop to serve as the main screen's browser. Jeoparty! works in all major browsers but the text to speech and animation elements run more smoothly on Chrome.
+1. Go to [jeoparty.io](http://jeoparty.io) on your computer and plug it in to a TV screen or monitor. If the page is blank, just refresh your window and it should show up. Make sure to click anywhere on the main screen to unmute the game. I would personally reccomend using Google Chrome on your computer to serve as the main screen's browser. Jeoparty! works in all major browsers but the text to speech and animation elements run more smoothly on Chrome.
 
 2. Go to the same URL as before on your mobile device(s). There will be a form prompting your for the "Session ID" which will be displayed on the main screen.
 
