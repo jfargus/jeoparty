@@ -222,7 +222,7 @@ io.on("connection", function(socket) {
      */
 
     if (sessions[socket.sessionId]) {
-      if (remainingClueIds.includes(clueRequest)) {
+      if (sessions[socket.sessionId].remainingClueIds.includes(clueRequest)) {
         sessions[socket.sessionId].requesting = false;
 
         if ((!sessions[socket.sessionId].doubleJeoparty && clueRequest == sessions[socket.sessionId].dailyDoubleIds[0]) || (sessions[socket.sessionId].doubleJeoparty && (clueRequest == sessions[socket.sessionId].dailyDoubleIds[1] || clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]))) {
