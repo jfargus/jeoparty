@@ -1124,19 +1124,16 @@ function pressClueButton(button) {
     wrapper.classList.add("highlighted");
   }
 
-  // Forces a category to be selected first
-  if (lastCategoryWrapperId) {
-    if (wrapper.classList.contains("price")) {
-      try {
-        document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
-      } catch (e) {
-        // In case lastPriceWrapperId has not been defined yet
-      }
-      lastPriceWrapperId = wrapper.id;
-      lastPriceId = button.id;
-
-      wrapper.classList.add("highlighted");
+  if (wrapper.classList.contains("price")) {
+    try {
+      document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
+    } catch (e) {
+      // In case lastPriceWrapperId has not been defined yet
     }
+    lastPriceWrapperId = wrapper.id;
+    lastPriceId = button.id;
+
+    wrapper.classList.add("highlighted");
   }
 }
 
