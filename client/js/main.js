@@ -339,15 +339,21 @@ socket.on("answer_daily_double", function(player) {
 
   buzzWinner = player;
 
+  disableTimer();
+
   if (isHost) {
-    startTimerAnimation(15);
+    setTimeout(function() {
+      startTimerAnimation(15);
+    }, 1);
     setupPlayerLivefeed(player, currentScreenQuestion);
     clearPlayerAnswerText();
   } else {
     if (joined) {
       if (socket.id == player.id) {
         disableTimer();
-        startTimerAnimation(15);
+        setTimeout(function() {
+          startTimerAnimation(15);
+        }, 1);
         scrapeAnswerTimeout = setTimeout(submitAnswer, 15000);
         changeScreen("answer-screen");
         toggleWagerForm(false);
@@ -408,7 +414,9 @@ socket.on("answer", function(player) {
   disableTimer();
   // Extra .5 seconds is to accomodate the .5 seconds that the buzzer
   // blinker shows either green or red depending on if the player won the buzz
-  startTimerAnimation(15.5);
+  setTimeout(function() {
+    startTimerAnimation(15);
+  }, 1);
 
   if (isHost) {
     clearTimeout(buzzerTimeout);
@@ -1618,19 +1626,18 @@ function startTimerAnimation(time) {
   let timer = document.getElementById(timerId);
   let timerFrame = document.getElementById(timerFrameId);
 
-  timer.classList.remove("inactive");
-  timerFrame.classList.remove("inactive");
+  timer.className = timerId;
+  timerFrame.className = timerFrameId;
 
   timer.style.transition = "linear transform " + time + "s";
 
   setTimeout(function() {
-    timer.classList.add("animate");
+    timer.className = "animate " + timerId;
   }, 100);
 
   timerTimeout = setTimeout(function() {
-    timer.classList.add("inactive");
-    timer.classList.remove("animate");
-    timerFrame.classList.add("inactive");
+    timer.className = "inactive " + timerId;
+    timerFrame.className = "inactive " + timerFrameId;
 
     timer.style.transition = "linear transform 0s";
   }, (time * 1000));
@@ -1658,13 +1665,8 @@ function disableTimer() {
     let timer = document.getElementById(timerId);
     let timerFrame = document.getElementById(timerFrameId);
 
-    try {
-      timer.classList.add("inactive");
-      timer.classList.remove("animate");
-      timerFrame.classList.add("inactive");
-    } catch (e) {
-      // In case timer has already had the animate class removed
-    }
+    timer.className = "inactive " + timerId;
+    timerFrame.className = "inactive " + timerFrameId;
 
     timer.offsetHeight;
   }

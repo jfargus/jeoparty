@@ -690,7 +690,10 @@ function approveCategory(category, startingIndex) {
     let rawQuestion = formatRawText(category[i]["question"]);
     let rawCategory = formatRawText(category[i]["category"]["title"]);
 
-    if (category[i]["invalid_count"] != null || rawQuestion.length == 0 || rawQuestion.includes("seenhere") || rawQuestion.includes("video") || rawCategory.includes("logo") || rawCategory.includes("video")) {
+    if (category[i]["invalid_count"] != null || rawQuestion.length == 0 ||
+      rawQuestion.includes("seenhere") || rawQuestion.includes("heardhere") ||
+      rawQuestion.includes("video") || rawCategory.includes("logo") ||
+      rawCategory.includes("video") || rawQuestion.length > 300) {
       return false;
     }
   }
