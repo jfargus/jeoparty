@@ -80,6 +80,10 @@ button {
   height: 15vh;
 }
 
+.date-text-color {
+  color: #D69F4C;
+}
+
 /* Animations */
 
 @keyframes color {

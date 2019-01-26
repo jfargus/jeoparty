@@ -281,8 +281,12 @@ socket.on("request_daily_double_wager", function(categoryName, player, newMaxWag
 
   dailyDouble = true;
 
+  disableTimer();
+
   if (isHost) {
-    startTimerAnimation(15);
+    setTimeout(function() {
+      startTimerAnimation(15);
+    }, 1);
     requestDailyDoubleWager(categoryName, player.nickname, player.score);
     voice(getRandomWagerIntro() + player.nickname, .1);
   } else {
@@ -290,7 +294,9 @@ socket.on("request_daily_double_wager", function(categoryName, player, newMaxWag
       if (socket.id == player.id) {
         toggleWagerForm(true);
         changeScreen("answer-screen");
-        startTimerAnimation(15);
+        setTimeout(function() {
+          startTimerAnimation(15);
+        }, 1);
         maxWager = newMaxWager;
         startWagerLivefeedInterval();
         scrapeWagerTimeout = setTimeout(function() {
@@ -372,8 +378,12 @@ socket.on("buzzers_ready", function(playersAnswered) {
   playersAnswered: array of strings (socket IDs)
    */
 
+  disableTimer();
+
   if (isHost) {
-    startTimerAnimation(5);
+    setTimeout(function() {
+      startTimerAnimation(5);
+    }, 1);
     if (playersAnswered.length > 0) {
       document.getElementById("clue-text").innerHTML = currentScreenQuestion;
       adjustClueFontSize(currentScreenQuestion, false);
@@ -390,7 +400,9 @@ socket.on("buzzers_ready", function(playersAnswered) {
       } else {
         changeScreen("buzzer-screen");
         toggleBlinkingBuzzerLight(true);
-        startTimerAnimation(5);
+        setTimeout(function() {
+          startTimerAnimation(5);
+        }, 1);
       }
     }
   }
@@ -601,6 +613,7 @@ socket.on("setup_final_jeoparty", function(clue) {
   finalJeopartyClue = clue;
 
   let categoryName = clue["category"]["title"];
+  let categoryDate = clue["airdate"].slice(0, 4);
 
   if (isHost) {
     document.getElementById("clue-screen").className = "static-clue-screen";
@@ -611,7 +624,7 @@ socket.on("setup_final_jeoparty", function(clue) {
     setTimeout(function() {
       playAudio("final_jeoparty_category", false);
       voice(categoryName);
-      displayFinalJeopartyCategory(categoryName);
+      displayFinalJeopartyCategory(categoryName, categoryDate);
       setTimeout(function() {
         socket.emit("displayed_final_jeoparty_category");
       }, 3000);
@@ -630,8 +643,12 @@ socket.on("request_final_jeoparty_wager", function(finalJeopartyPlayers) {
   finalJeopartyPlayers: object (player objects)
    */
 
+  disableTimer();
+
   if (isHost) {
-    startTimerAnimation(15);
+    setTimeout(function() {
+      startTimerAnimation(15);
+    }, 1);
     changeScreen("score-screen");
     changeTimerHeight(true);
     voice(getRandomWagerIntro());
@@ -642,7 +659,9 @@ socket.on("request_final_jeoparty_wager", function(finalJeopartyPlayers) {
         toggleWagerForm(true);
         startWagerLivefeedInterval();
         changeScreen("answer-screen");
-        startTimerAnimation(15);
+        setTimeout(function() {
+          startTimerAnimation(15);
+        }, 1);
         maxWager = finalJeopartyPlayers[socket.id].maxWager;
         scrapeWagerTimeout = setTimeout(function() {
           submitWager(true, false);
@@ -685,13 +704,19 @@ socket.on("display_final_jeoparty_clue", function() {
 
 // HOST & CONTROLLER
 socket.on("answer_final_jeoparty", function() {
+  disableTimer();
+
   if (isHost) {
     playAudio("think_music", false);
-    startTimerAnimation(30);
+    setTimeout(function() {
+      startTimerAnimation(30);
+    }, 1);
   } else {
     if (joined) {
       if (finalJeopartyPlayer) {
-        startTimerAnimation(30);
+        setTimeout(function() {
+          startTimerAnimation(30);
+        }, 1);
         changeScreen("answer-screen");
         startLivefeedInterval();
       }
@@ -1346,35 +1371,35 @@ function adjustClueFontSize(question, livefeed) {
    */
 
   let clueText = document.getElementById("clue-text");
-  let clueTextRow = document.getElementById("clue-text-row");
+  //let clueTextRow = document.getElementById("clue-text-row");
 
   if (livefeed) {
     if (question.length > 300) {
       clueText.className = "xxxs-clue-text";
-      clueTextRow.style.lineHeight = "5vh";
+      //clueTextRow.style.lineHeight = "5vh";
     } else if (question.length > 200) {
       clueText.className = "xxs-clue-text";
-      clueTextRow.style.lineHeight = "6vh";
+      //clueTextRow.style.lineHeight = "6vh";
     } else if (question.length > 145) {
       clueText.className = "xs-clue-text";
-      clueTextRow.style.lineHeight = "8vh";
+      //clueTextRow.style.lineHeight = "8vh";
     } else {
       clueText.className = "s-clue-text";
-      clueTextRow.style.lineHeight = "10vh";
+      //clueTextRow.style.lineHeight = "10vh";
     }
   } else {
     if (question.length > 300) {
       clueText.className = "xxs-clue-text";
-      clueTextRow.style.lineHeight = "6vh";
+      //clueTextRow.style.lineHeight = "6vh";
     } else if (question.length > 200) {
       clueText.className = "xs-clue-text";
-      clueTextRow.style.lineHeight = "8vh";
+      //clueTextRow.style.lineHeight = "8vh";
     } else if (question.length > 145) {
       clueText.className = "s-clue-text";
-      clueTextRow.style.lineHeight = "10vh";
+      //clueTextRow.style.lineHeight = "10vh";
     } else {
       clueText.className = "clue-text";
-      clueTextRow.style.lineHeight = "12vh";
+      //clueTextRow.style.lineHeight = "12vh";
     }
   }
 }
@@ -1957,7 +1982,7 @@ function updateScoreboard(players) {
     podiumOne.className = "col-4";
     podiumTwo.className = "col-4";
     podiumThree.className = "col-4";
-  } else if (playersLength > 4) {
+  } else if (playersLength > 3) {
     overflowRow.classList.remove("inactive");
 
     // Sorts the players by their score to display the top 3 players in the
@@ -2024,7 +2049,7 @@ function updateScoreboard(players) {
       } else {
         overflow.innerHTML += "$" + clone[id].score;
       }
-      if (i < 7) {
+      if (i < playersLength) {
         overflow.innerHTML += " ... ";
       }
     }
@@ -2112,7 +2137,7 @@ function getRandomFinalJeopartyIntro() {
 }
 
 // HOST
-function displayFinalJeopartyCategory(categoryName) {
+function displayFinalJeopartyCategory(categoryName, categoryDate) {
   /*
   Input:
   categoryName: string
@@ -2124,7 +2149,8 @@ function displayFinalJeopartyCategory(categoryName) {
   let clueText = document.getElementById("clue-text");
   clueText.className = "clue-text";
 
-  clueText.innerHTML = categoryName.toUpperCase();
+  clueText.innerHTML = categoryName.toUpperCase() + "<br><br>" +
+    "<span class='date-text-color'>(" + categoryDate + ")</span>";
 }
 
 // HOST
