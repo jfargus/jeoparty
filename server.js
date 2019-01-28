@@ -16,7 +16,7 @@ let path = require("path");
 let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT);
 
@@ -310,10 +310,12 @@ io.on("connection", function(socket) {
         sessions[socket.sessionId].buzzersReady = false;
         sessions[socket.sessionId].answerReady = true;
 
-        io.in(socket.sessionId).emit("answer", sessions[socket.sessionId].players[sessions[socket.sessionId].buzzWinnerId]);
+        setTimeout(function() {
+          io.in(socket.sessionId).emit("answer", sessions[socket.sessionId].players[sessions[socket.sessionId].buzzWinnerId]);
 
-        sessions[socket.sessionId].answering = true;
-        io.in(socket.sessionId).emit("update_answering", sessions[socket.sessionId].answering);
+          sessions[socket.sessionId].answering = true;
+          io.in(socket.sessionId).emit("update_answering", sessions[socket.sessionId].answering);
+        }, 100);
       }
     }
   });

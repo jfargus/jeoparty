@@ -307,16 +307,16 @@ socket.on("request_daily_double_wager", function(categoryName, player, newMaxWag
   }
 });
 
-// HOST
+// HOST & CONTROLLER
 socket.on("display_daily_double_clue", function(screenQuestion) {
   /*
   Input:
   screenQuestion: string
    */
 
-  if (isHost) {
-    disableTimer();
+  disableTimer();
 
+  if (isHost) {
     let clueText = document.getElementById("clue-text");
 
     clueText.innerHTML = screenQuestion;
@@ -344,8 +344,6 @@ socket.on("answer_daily_double", function(player) {
   }
 
   buzzWinner = player;
-
-  disableTimer();
 
   if (isHost) {
     setTimeout(function() {
@@ -717,6 +715,7 @@ socket.on("answer_final_jeoparty", function() {
         setTimeout(function() {
           startTimerAnimation(30);
         }, 1);
+        scrapeAnswerTimeout = setTimeout(submitAnswer, 30000);
         changeScreen("answer-screen");
         startLivefeedInterval();
       }
@@ -2149,7 +2148,7 @@ function displayFinalJeopartyCategory(categoryName, categoryDate) {
   let clueText = document.getElementById("clue-text");
   clueText.className = "clue-text";
 
-  clueText.innerHTML = categoryName.toUpperCase() + "<br><br>" +
+  clueText.innerHTML = categoryName.toUpperCase() + "<br>" +
     "<span class='date-text-color'>(" + categoryDate + ")</span>";
 }
 
