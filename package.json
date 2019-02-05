@@ -5,6 +5,7 @@
   "repository": "github:iRedlon/jeoparty",
   "homepage": "jeoparty.io",
   "dependencies": {
+    "cookie-parser": "^1.4.3",
     "express": "^4.15.2",
     "ip": "^1.1.5",
     "jservice-node": "^0.2.3",

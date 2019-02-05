@@ -314,7 +314,9 @@ socket.on("display_daily_double_clue", function(screenQuestion) {
   screenQuestion: string
    */
 
-  disableTimer();
+  setTimeout(function() {
+    disableTimer();
+  }, 1);
 
   if (isHost) {
     let clueText = document.getElementById("clue-text");

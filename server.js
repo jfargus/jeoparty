@@ -1,20 +1,18 @@
 "use strict";
 
-// Socket logic
-
 // Node requirements
-let js = require("jservice-node");
-let removeAccents = require("remove-accents");
-let numberToWords = require("number-to-words");
-let wordsToNumbers = require("words-to-numbers");
-let ip = require("ip");
+const js = require("jservice-node");
+const removeAccents = require("remove-accents");
+const numberToWords = require("number-to-words");
+const wordsToNumbers = require("words-to-numbers");
+const ip = require("ip");
 
 // Setup express server
-let express = require("express");
-let app = express();
-let path = require("path");
-let server = require("http").createServer(app);
-let io = require("socket.io")(server);
+const express = require("express");
+const app = express();
+const path = require("path");
+const server = require("http").createServer(app);
+const io = require("socket.io")(server);
 
 const PORT = process.env.PORT || 5000;
 
