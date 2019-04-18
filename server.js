@@ -6,6 +6,7 @@ const removeAccents = require("remove-accents");
 const numberToWords = require("number-to-words");
 const wordsToNumbers = require("words-to-numbers");
 const ip = require("ip");
+const Sentencer = require("sentencer");
 
 // Setup express server
 const express = require("express");
@@ -118,12 +119,8 @@ io.on("connection", function(socket) {
   socket.on("set_host_socket", function() {
     let sessionId;
     while (true) {
-      // Returns a 5 character string composed of both letters and numbers
-      // to serve as the session's ID
-      sessionId = Math.random()
-        .toString(36)
-        .substr(2, 5)
-        .toUpperCase();
+      sessionId = Sentencer.make("{{ noun }}").toUpperCase();
+
       if (!sessions[sessionId]) {
         break;
       }
@@ -299,6 +296,10 @@ io.on("connection", function(socket) {
         if (
           (!sessions[socket.sessionId].doubleJeoparty &&
             clueRequest == sessions[socket.sessionId].dailyDoubleIds[0]) ||
+          (!sessions[socket.sessionId].doubleJeoparty &&
+            clueRequest == sessions[socket.sessionId].dailyDoubleIds[1]) ||
+          (!sessions[socket.sessionId].doubleJeoparty &&
+            clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]) ||
           (sessions[socket.sessionId].doubleJeoparty &&
             (clueRequest == sessions[socket.sessionId].dailyDoubleIds[1] ||
               clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]))
