@@ -29,7 +29,7 @@ process.on("uncaughtException", err => {
 
 // Each game that is occuring on the server simultaneously is given a
 // session object with which to operate from. Throughout this script,
-// game variables are referenced like this: sessions[socket.sessionId]
+// game variables are referenced like: sessions[socket.sessionId].whatever
 // so that multiple games can occur at once and the server can access the
 // correct variables for each independent game
 
