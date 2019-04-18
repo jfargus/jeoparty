@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css?family=Nunito');
+@import url("https://fonts.googleapis.com/css?family=Nunito");
 
 @font-face {
   font-family: board;
@@ -28,13 +27,13 @@
 /* Base HTML classes */
 
 body {
-  overflow:hidden;
+  overflow: hidden;
 
   text-align: center;
 
   color: white;
 
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   font-size: 10vh;
 
   -webkit-font-smoothing: antialiased;
@@ -81,7 +80,7 @@ button {
 }
 
 .date-text-color {
-  color: #D69F4C;
+  color: #d69f4c;
 }
 
 /* Animations */
@@ -186,7 +185,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .7vh .7vh black;
+  text-shadow: 0.7vh 0.7vh black;
 
   font-family: board;
   font-size: 4.5vh;
@@ -197,7 +196,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .6vh .6vh black;
+  text-shadow: 0.6vh 0.6vh black;
 
   font-family: board;
   font-size: 3.5vh;
@@ -208,7 +207,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .5vh .5vh black;
+  text-shadow: 0.5vh 0.5vh black;
 
   font-family: board;
   font-size: 3vh;
@@ -219,7 +218,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .3vh .3vh black;
+  text-shadow: 0.3vh 0.3vh black;
 
   font-family: board;
   font-size: 2.8vh;
@@ -230,7 +229,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .3vh .3vh black;
+  text-shadow: 0.3vh 0.3vh black;
 
   font-family: board;
   font-size: 2.7vh;
@@ -248,8 +247,8 @@ button {
 
   vertical-align: text-bottom;
 
-  color: #D69F4C;
-  text-shadow: .4vh .4vh black;
+  color: #d69f4c;
+  text-shadow: 0.4vh 0.4vh black;
 
   font-family: board;
   font-size: 2vh;
@@ -257,9 +256,9 @@ button {
 }
 
 .h-price-text {
-  letter-spacing: .2vh;
+  letter-spacing: 0.2vh;
 
-  color: #D69F4C;
+  color: #d69f4c;
   text-shadow: 1vh 1vh black;
 
   font-family: board;
@@ -271,7 +270,7 @@ button {
   height: 100%;
 
   color: black;
-  border-width: .5vh;
+  border-width: 0.5vh;
   border-style: solid;
   border-bottom-width: 1vh;
 }
@@ -281,7 +280,7 @@ button {
   height: 100%;
 
   color: black;
-  border-width: .5vh;
+  border-width: 0.5vh;
   border-style: solid;
 }
 
@@ -296,14 +295,14 @@ button {
   width: 100%;
   height: 100%;
 
-  transform: scale(.13);
+  transform: scale(0.13);
 
-  opacity: .1;
+  opacity: 0.1;
   background-image: url("/graphics/background.png");
 }
 
 .clue-screen.animate {
-  transition: transform 1s, left 1s, bottom 1s, opacity .4s;
+  transition: transform 1s, left 1s, bottom 1s, opacity 0.4s;
   transform: scale(1);
 
   opacity: 1;
@@ -329,7 +328,7 @@ button {
 
 .clue-text {
   color: white;
-  text-shadow: .8vh .8vh #000000;
+  text-shadow: 0.8vh 0.8vh #000000;
 
   font-family: clue;
   font-size: 8vh;
@@ -337,7 +336,7 @@ button {
 
 .s-clue-text {
   color: white;
-  text-shadow: .6vh .6vh #000000;
+  text-shadow: 0.6vh 0.6vh #000000;
 
   font-family: clue;
   font-size: 6vh;
@@ -346,7 +345,7 @@ button {
 
 .xs-clue-text {
   color: white;
-  text-shadow: .5vh .5vh #000000;
+  text-shadow: 0.5vh 0.5vh #000000;
 
   font-family: clue;
   font-size: 5vh;
@@ -355,7 +354,7 @@ button {
 
 .xxs-clue-text {
   color: white;
-  text-shadow: .4vh .4vh #000000;
+  text-shadow: 0.4vh 0.4vh #000000;
 
   font-family: clue;
   font-size: 4vh;
@@ -364,7 +363,7 @@ button {
 
 .xxxs-clue-text {
   color: white;
-  text-shadow: .3vh .3vh #000000;
+  text-shadow: 0.3vh 0.3vh #000000;
 
   font-family: clue;
   font-size: 3vh;
@@ -375,7 +374,7 @@ button {
   transition: all 2s;
 
   color: white;
-  text-shadow: .8vh .8vh #000000;
+  text-shadow: 0.8vh 0.8vh #000000;
 
   font-family: clue;
   font-size: 8vh;
@@ -390,7 +389,7 @@ button {
   width: 100%;
   height: 100%;
 
-  transform: scale(.13);
+  transform: scale(0.13);
 }
 
 .daily-double-screen.animate {
@@ -410,7 +409,7 @@ button {
   }
 }
 
-.daily-double-wrapper-screen {
+.daily-double-wrapper-screen-1 {
   position: absolute;
   z-index: 1;
 
@@ -420,28 +419,53 @@ button {
   height: 100%;
 
   animation-name: daily-double;
-  animation-duration: .75s;
+  animation-duration: 0.75s;
   animation-iteration-count: 2;
 
-  background-image: url("/graphics/daily_double.jpg");
+  background-image: url("/graphics/daily_double_1.jpg");
+}
+
+.daily-double-wrapper-screen-2 {
+  position: absolute;
+  z-index: 1;
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  animation-name: daily-double;
+  animation-duration: 0.75s;
+  animation-iteration-count: 2;
+
+  background-image: url("/graphics/daily_double_2.jpg");
+}
+
+.daily-double-wrapper-screen-3 {
+  position: absolute;
+  z-index: 1;
+
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  animation-name: daily-double;
+  animation-duration: 0.75s;
+  animation-iteration-count: 2;
+
+  background-image: url("/graphics/daily_double_3.jpg");
 }
 
 .daily-double-text {
   z-index: 2;
 
   color: white;
-  text-shadow: 0 3px 0 #ccc,
-               0 4px 0 #c9c9c9,
-               0 5px 0 #bbb,
-               0 6px 0 #b9b9b9,
-               0 7px 0 #aaa,
-               0 8px 3px rgba(0,0,0,.1),
-               0 0 5px rgba(0,0,0,.1),
-               0 3px 5px rgba(0,0,0,.3),
-               0 5px 7px rgba(0,0,0,.2),
-               0 7px 12px rgba(0,0,0,.25),
-               0 12px 12px rgba(0,0,0,.2),
-               0 22px 22px rgba(0,0,0,.15);
+  text-shadow: 0 3px 0 #ccc, 0 4px 0 #c9c9c9, 0 5px 0 #bbb, 0 6px 0 #b9b9b9,
+    0 7px 0 #aaa, 0 8px 3px rgba(0, 0, 0, 0.1), 0 0 5px rgba(0, 0, 0, 0.1),
+    0 3px 5px rgba(0, 0, 0, 0.3), 0 5px 7px rgba(0, 0, 0, 0.2),
+    0 7px 12px rgba(0, 0, 0, 0.25), 0 12px 12px rgba(0, 0, 0, 0.2),
+    0 22px 22px rgba(0, 0, 0, 0.15);
 
   font-family: daily-double;
   font-size: 30vh;
@@ -455,7 +479,7 @@ button {
   position: absolute;
   z-index: 2;
 
-  display:inherit;
+  display: inherit;
 
   width: 100vw;
   height: 10vh;
@@ -478,7 +502,7 @@ button {
   width: 100vw;
   height: 10vh;
 
-  border: .5vh solid black;
+  border: 0.5vh solid black;
 }
 
 .h-timer-frame-divider {
@@ -487,7 +511,7 @@ button {
   width: 12.5%;
   height: 10vh;
 
-  border: .5vh solid black;
+  border: 0.5vh solid black;
 }
 
 /* Score screen */
@@ -539,31 +563,31 @@ button {
 }
 
 .nickname-text {
-  letter-spacing: .2vh;
+  letter-spacing: 0.2vh;
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .7vh .7vh black;
+  text-shadow: 0.7vh 0.7vh black;
 
   font-size: 12vh;
 }
 
 .s-nickname-text {
-  letter-spacing: .2vh;
+  letter-spacing: 0.2vh;
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .7vh .7vh black;
+  text-shadow: 0.7vh 0.7vh black;
 
   font-size: 7vh;
 }
 
 .xs-nickname-text {
-  letter-spacing: .2vh;
+  letter-spacing: 0.2vh;
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .7vh .7vh black;
+  text-shadow: 0.7vh 0.7vh black;
 
   font-size: 3.5vh;
 }
@@ -575,18 +599,18 @@ button {
   width: 24vw;
   height: 75%;
 
-  border: .6vh solid white;
-  background-color: #060CE9;
+  border: 0.6vh solid white;
+  background-color: #060ce9;
 }
 
 .score-text {
   width: 100%;
 
   text-align: center;
-  letter-spacing: .2vh;
+  letter-spacing: 0.2vh;
 
   color: white;
-  text-shadow: .6vh .6vh black;
+  text-shadow: 0.6vh 0.6vh black;
 
   font-size: 10vh;
 }
@@ -595,8 +619,8 @@ button {
   width: 24vw;
   height: 75%;
 
-  border: .6vh solid white;
-  background-color: #060CE9;
+  border: 0.6vh solid white;
+  background-color: #060ce9;
 }
 
 .signature {
@@ -614,10 +638,10 @@ button {
 }
 
 .overflow-text {
-  letter-spacing: .2vh;
+  letter-spacing: 0.2vh;
 
   color: white;
-  text-shadow: .5vh .5vh black;
+  text-shadow: 0.5vh 0.5vh black;
 
   font-size: 5vh;
 }
@@ -669,7 +693,7 @@ button {
 .help-menu-button {
   position: absolute;
 
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   font-size: 4vh;
 
   padding: 2vh;
@@ -772,7 +796,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .8vh .8vh black;
+  text-shadow: 0.8vh 0.8vh black;
 
   font-family: board;
   font-size: 4vh;
@@ -783,7 +807,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .7vh .7vh black;
+  text-shadow: 0.7vh 0.7vh black;
 
   font-family: board;
   font-size: 3.2vh;
@@ -794,7 +818,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .6vh .6vh black;
+  text-shadow: 0.6vh 0.6vh black;
 
   font-family: board;
   font-size: 3vh;
@@ -805,7 +829,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .5vh .5vh black;
+  text-shadow: 0.5vh 0.5vh black;
 
   font-family: board;
   font-size: 2.8vh;
@@ -813,10 +837,10 @@ button {
 }
 
 .c-price-text {
-  letter-spacing: .2vh;
+  letter-spacing: 0.2vh;
 
-  color: #D69F4C;
-  text-shadow: .8vh .8vh black;
+  color: #d69f4c;
+  text-shadow: 0.8vh 0.8vh black;
 
   font-family: board;
   font-size: 6.5vh;
@@ -826,7 +850,7 @@ button {
   word-wrap: break-word;
 
   color: white;
-  text-shadow: .8vh .8vh black;
+  text-shadow: 0.8vh 0.8vh black;
 
   font-family: board;
   font-size: 6vh;
@@ -842,7 +866,7 @@ button {
   padding-left: 0 !important;
 
   color: black;
-  border-width: .5vh;
+  border-width: 0.5vh;
   border-style: solid;
 }
 
@@ -854,7 +878,7 @@ button {
 
   width: 100vw;
 
-  background-color: #060CE9;
+  background-color: #060ce9;
 }
 
 .buzzer-screen-row {
@@ -863,7 +887,7 @@ button {
 }
 
 .buzzer {
-  position:absolute;
+  position: absolute;
   z-index: 3;
   top: 27vh;
 
@@ -873,25 +897,25 @@ button {
   -webkit-transition: all 0.1s;
   -moz-transition: all 0.1s;
   transition: all 0.1s;
-  text-align:center;
-  text-decoration:none;
+  text-align: center;
+  text-decoration: none;
 
-  color:#FFF;
-  border:solid .2vh #D94E3B;
+  color: #fff;
+  border: solid 0.2vh #d94e3b;
   border-radius: 20vh;
-  background:#cb3b27;
+  background: #cb3b27;
   -webkit-box-shadow: 0 1vh 0 #84261a;
   -moz-box-shadow: 0 1vh 0 #84261a;
   box-shadow: 0 1vh 0 #84261a;
 }
 
 .buzzer:active {
-  position:absolute;
+  position: absolute;
   top: 28vh;
 
-  -webkit-box-shadow: 0 .2vh 0  #84261a;
-  -moz-box-shadow: 0 .2vh 0  #84261a;
-  box-shadow: 0 .2vh 0 #84261a;
+  -webkit-box-shadow: 0 0.2vh 0 #84261a;
+  -moz-box-shadow: 0 0.2vh 0 #84261a;
+  box-shadow: 0 0.2vh 0 #84261a;
 }
 
 .buzzer-light {
@@ -913,7 +937,7 @@ button {
   height: 34vh;
 
   animation-name: blink;
-  animation-duration: .25s;
+  animation-duration: 0.25s;
   animation-iteration-count: infinite;
 
   border-radius: 25vh;
@@ -938,7 +962,7 @@ button {
   position: absolute;
   z-index: 2;
 
-  display:inherit;
+  display: inherit;
 
   width: 100vw;
   height: 5vh;
@@ -961,7 +985,7 @@ button {
   width: 100vw;
   height: 5vh;
 
-  border: .3vh solid black;
+  border: 0.3vh solid black;
 }
 
 .c-timer-frame-divider {
@@ -970,7 +994,7 @@ button {
   width: 12.5%;
   height: 5vh;
 
-  border: .3vh solid black;
+  border: 0.3vh solid black;
 }
 
 /* Answer screen */
@@ -981,7 +1005,7 @@ button {
 
   width: 100vw;
 
-  background-color: #060CE9;
+  background-color: #060ce9;
 }
 
 .answer-form {

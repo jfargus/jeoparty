@@ -18,6 +18,7 @@ let currentScreenQuestion;
 let doubleJeoparty = false;
 let maxWager;
 let dailyDouble = false;
+let dailyDoubleCounter = 0;
 let finalJeoparty = false;
 let finalJeopartyClue;
 let finalJeopartyPlayer;
@@ -79,7 +80,10 @@ socket.on("join_session_failure", function() {
 });
 
 // HOST & CONTROLLER
-socket.on("change_board_controller", function(boardController, boardControllerNickname) {
+socket.on("change_board_controller", function(
+  boardController,
+  boardControllerNickname
+) {
   /*
   Input:
   boardController: number (socket ID)
@@ -87,7 +91,7 @@ socket.on("change_board_controller", function(boardController, boardControllerNi
    */
 
   if (isHost) {
-    voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
+    voice(getRandomBoardControllerIntro() + boardControllerNickname, 0.1);
   } else {
     if (boardController == socket.id) {
       changeScreen("c-board-screen");
@@ -136,7 +140,13 @@ socket.on("update_answering", function(newAnswering) {
 });
 
 // CONTROLLER
-socket.on("join_success", function(categoryNames, boardController, gameActive, doubleJeoparty, rejoin) {
+socket.on("join_success", function(
+  categoryNames,
+  boardController,
+  gameActive,
+  doubleJeoparty,
+  rejoin
+) {
   /*
   Input:
   categoryNames: array of strings
@@ -174,7 +184,9 @@ socket.on("join_success", function(categoryNames, boardController, gameActive, d
 
 // CONTROLLER
 socket.on("start_game_failure", function() {
-  alert("You need to unmute the game in order to start (Click unmute on the host screen)");
+  alert(
+    "You need to unmute the game in order to start (Click unmute on the host screen)"
+  );
 });
 
 // HOST
@@ -190,7 +202,12 @@ socket.on("players", function(newPlayers) {
 });
 
 // HOST & CONTROLLER
-socket.on("load_game", function(categoryNames, categoryDates, boardController, boardControllerNickname) {
+socket.on("load_game", function(
+  categoryNames,
+  categoryDates,
+  boardController,
+  boardControllerNickname
+) {
   /*
   Input:
   categoryNames: array of strings
@@ -205,7 +222,7 @@ socket.on("load_game", function(categoryNames, categoryDates, boardController, b
     if (audioAllowed) {
       audioFiles["landing_screen_theme"].pause();
     }
-    voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
+    voice(getRandomBoardControllerIntro() + boardControllerNickname, 0.1);
     changeScreen("h-board-screen");
     updateScoreboard(players);
   } else {
@@ -242,7 +259,12 @@ socket.on("display_clue", function(clueRequest, screenQuestion) {
 });
 
 // HOST & CONTROLLER
-socket.on("daily_double_request", function(clueRequest, screenQuestion, boardController, boardControllerNickname) {
+socket.on("daily_double_request", function(
+  clueRequest,
+  screenQuestion,
+  boardController,
+  boardControllerNickname
+) {
   /*
   Input:
   clueRequest: string ("category-x-price-y")
@@ -257,12 +279,12 @@ socket.on("daily_double_request", function(clueRequest, screenQuestion, boardCon
     displayClue(clueRequest, screenQuestion, true);
     currentScreenQuestion = screenQuestion;
     setTimeout(function() {
-      socket.emit("daily_double")
+      socket.emit("daily_double");
     }, 3000);
   } else {
     if (joined) {
       if (socket.id == boardController) {
-        changeWaitScreen("SCREEN", false);
+        changeWaitScreen("SERVER", false);
       } else {
         changeWaitScreen(boardControllerNickname.toUpperCase(), false);
       }
@@ -271,7 +293,11 @@ socket.on("daily_double_request", function(clueRequest, screenQuestion, boardCon
 });
 
 // HOST & CONTROLLER
-socket.on("request_daily_double_wager", function(categoryName, player, newMaxWager) {
+socket.on("request_daily_double_wager", function(
+  categoryName,
+  player,
+  newMaxWager
+) {
   /*
   Input:
   categoryName: string
@@ -281,14 +307,12 @@ socket.on("request_daily_double_wager", function(categoryName, player, newMaxWag
 
   dailyDouble = true;
 
-  disableTimer();
-
   if (isHost) {
     setTimeout(function() {
       startTimerAnimation(15);
     }, 1);
     requestDailyDoubleWager(categoryName, player.nickname, player.score);
-    voice(getRandomWagerIntro() + player.nickname, .1);
+    voice(getRandomWagerIntro() + player.nickname, 0.1);
   } else {
     if (joined) {
       if (socket.id == player.id) {
@@ -324,11 +348,13 @@ socket.on("display_daily_double_clue", function(screenQuestion) {
     clueText.innerHTML = screenQuestion;
     adjustClueFontSize(screenQuestion, false);
 
-    voice(screenQuestion, .1);
+    voice(screenQuestion, 0.1);
     setTimeout(startQuestionInterval, 2000);
     clearPlayerAnswerText();
 
-    document.getElementById("player-livefeed-wrapper").classList.add("inactive");
+    document
+      .getElementById("player-livefeed-wrapper")
+      .classList.add("inactive");
   }
 });
 
@@ -356,7 +382,6 @@ socket.on("answer_daily_double", function(player) {
   } else {
     if (joined) {
       if (socket.id == player.id) {
-        disableTimer();
         setTimeout(function() {
           startTimerAnimation(15);
         }, 1);
@@ -467,7 +492,9 @@ socket.on("livefeed", function(livefeed) {
   if (isHost) {
     if (!finalJeoparty) {
       if (livefeed != "") {
-        document.getElementById("player-livefeed").innerHTML = livefeed.toUpperCase();
+        document.getElementById(
+          "player-livefeed"
+        ).innerHTML = livefeed.toUpperCase();
       }
     }
   }
@@ -482,7 +509,8 @@ socket.on("wager_livefeed", function(wagerLivefeed) {
 
   if (isHost && wagerLivefeed != "") {
     if (dailyDouble) {
-      document.getElementById("player-livefeed").innerHTML = "$" + wagerLivefeed.toUpperCase();
+      document.getElementById("player-livefeed").innerHTML =
+        "$" + wagerLivefeed.toUpperCase();
     }
   }
 });
@@ -500,7 +528,7 @@ socket.on("answer_submitted", function(answer, correct) {
     displayPlayerAnswer(buzzWinner, answer, correct);
   } else {
     if (joined) {
-      changeWaitScreen("SCREEN", false);
+      changeWaitScreen("SERVER", false);
     }
   }
 });
@@ -518,14 +546,14 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
       playAudio("times_up", false);
     }
     document.getElementById("player-livefeed-wrapper").className = "inactive";
-    voice(getRandomAnswerIntro() + correctAnswer, .5);
+    voice(getRandomAnswerIntro() + correctAnswer, 0.5);
     displayCorrectAnswer(correctAnswer);
   } else {
     if (joined) {
       if (timesUp) {
         toggleBlinkingBuzzerLight(false);
       }
-      changeWaitScreen("SCREEN", false);
+      changeWaitScreen("SERVER", false);
     }
   }
 });
@@ -542,7 +570,12 @@ socket.on("reveal_scores", function() {
 });
 
 // HOST & CONTROLLER
-socket.on("reveal_board", function(newUsedClues, remainingClueIds, boardController, boardControllerNickname) {
+socket.on("reveal_board", function(
+  newUsedClues,
+  remainingClueIds,
+  boardController,
+  boardControllerNickname
+) {
   /*
   Input:
   newUsedClues: array of strings ("category-x-price-y")
@@ -558,7 +591,7 @@ socket.on("reveal_board", function(newUsedClues, remainingClueIds, boardControll
       changeScreen("h-board-screen");
       document.getElementById("clue-screen").classList.remove("animate");
       if (remainingClueIds.length != 1) {
-        voice(getRandomBoardControllerIntro() + boardControllerNickname, .1);
+        voice(getRandomBoardControllerIntro() + boardControllerNickname, 0.1);
       }
     } else {
       if (joined || waitingToJoin) {
@@ -631,7 +664,7 @@ socket.on("setup_final_jeoparty", function(clue) {
     }, 3000);
   } else {
     if (joined) {
-      changeWaitScreen("SCREEN", false);
+      changeWaitScreen("SERVER", false);
     }
   }
 });
@@ -687,16 +720,18 @@ socket.on("display_final_jeoparty_clue", function() {
     clueText.innerHTML = screenQuestion;
     adjustClueFontSize(screenQuestion, false);
 
-    voice(screenQuestion, .1);
+    voice(screenQuestion, 0.1);
     setTimeout(startQuestionInterval, 2000);
     clearPlayerAnswerText();
 
-    document.getElementById("player-livefeed-wrapper").classList.add("inactive");
+    document
+      .getElementById("player-livefeed-wrapper")
+      .classList.add("inactive");
   } else {
     if (joined) {
       if (finalJeopartyPlayer) {
         toggleWagerForm(false);
-        changeWaitScreen("SCREEN", false);
+        changeWaitScreen("SERVER", false);
       }
     }
   }
@@ -740,7 +775,7 @@ socket.on("display_final_jeoparty_answer", function(players) {
     if (joined) {
       if (finalJeopartyPlayer) {
         disableTimer();
-        changeWaitScreen("SCREEN");
+        changeWaitScreen("SERVER");
       }
     }
   }
@@ -792,16 +827,16 @@ function declareAudioFiles() {
     socket.emit("audio_allowed");
 
     audioFiles = {
-      "landing_screen_theme": new Audio("/audio/landing_screen_theme.mp3"),
-      "clue_selected": new Audio("/audio/clue_selected.mp3"),
-      "buzzer": new Audio("/audio/buzzer.mp3"),
-      "times_up": new Audio("/audio/times_up.mp3"),
-      "applause": new Audio("/audio/applause.mp3"),
-      "aww": new Audio("/audio/aww.mp3"),
-      "daily_double": new Audio("/audio/daily_double.mp3"),
-      "final_jeoparty_category": new Audio("/audio/final_jeoparty_category.mp3"),
-      "think_music": new Audio("/audio/think_music.mp3"),
-      "big_applause": new Audio("/audio/big_applause.mp3"),
+      landing_screen_theme: new Audio("/audio/landing_screen_theme.mp3"),
+      clue_selected: new Audio("/audio/clue_selected.mp3"),
+      buzzer: new Audio("/audio/buzzer.mp3"),
+      times_up: new Audio("/audio/times_up.mp3"),
+      applause: new Audio("/audio/applause.mp3"),
+      aww: new Audio("/audio/aww.mp3"),
+      daily_double: new Audio("/audio/daily_double.mp3"),
+      final_jeoparty_category: new Audio("/audio/final_jeoparty_category.mp3"),
+      think_music: new Audio("/audio/think_music.mp3"),
+      big_applause: new Audio("/audio/big_applause.mp3")
     };
 
     if (currentScreenId == "h-landing-screen") {
@@ -837,7 +872,10 @@ function joinSession() {
   Sends the requested session ID to the server to attempt to join it
    */
 
-  socket.emit("join_session", document.getElementById("session-id-form").value.toUpperCase());
+  socket.emit(
+    "join_session",
+    document.getElementById("session-id-form").value.toUpperCase()
+  );
 }
 
 // CONTROLLER
@@ -850,7 +888,9 @@ function alertHelpMenu() {
   if (currentScreenId == "join-session-screen") {
     alert("Go to jeoparty.io on your computer to find a session ID");
   } else {
-    alert("Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for maximum enjoyment.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeopardy! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018.");
+    alert(
+      "Jeoparty!\r\r1. Choose a nickname and signature. These will represent you on your podium in the game. Press down hard on your screen to sign your signature, the lines will appear cleaner.\r\r2. Once the first player presses the 'Start Game' button, the game will begin, but any number of extra players can join anytime afterward.\r\r3. Plug your laptop into a TV for maximum enjoyment.\r\r4. Select clues on your phone by choosing a category, a price, then hitting the 'Submit Clue' button.\r\r5. The answer evaluator favors a 'less is more' approach. If you're worried about something being plural, just use the singular form. It's also preferable to answer with last names instead of full names when applicable.\r\r6. The rest of the game proceeds like the Jeopardy! TV series. Enjoy!\r\rThe Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This website is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.\r\rAn Isaac Redlon Production. 2018."
+    );
   }
 }
 
@@ -922,7 +962,8 @@ function setCategoryText(categoryNames, categoryDates) {
       categoryNameElement = document.getElementById("category-" + i + "-name");
       categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
 
-      document.getElementById("category-" + i + "-date").innerHTML = "(" + categoryDates[i - 1] + ")";
+      document.getElementById("category-" + i + "-date").innerHTML =
+        "(" + categoryDates[i - 1] + ")";
 
       if (categoryNames[i - 1].length > 45) {
         categoryNameElement.className = "xxxs-h-category-name";
@@ -1012,18 +1053,18 @@ function voice(text, delay) {
         } else {
           msg.voice = voices[0];
         }
-        msg.voiceURI = 'native';
+        msg.voiceURI = "native";
         msg.volume = 1;
         msg.rate = 1;
         msg.pitch = 1;
         msg.text = text;
-        msg.lang = 'en-US';
+        msg.lang = "en-US";
 
         if (!speechSynthesis.speaking) {
           speechSynthesis.speak(msg);
         }
       }
-    }, (delay * 1000));
+    }, delay * 1000);
   }
 }
 
@@ -1105,7 +1146,8 @@ function changeWaitScreen(waitingFor, override) {
     currentScreenId = "c-waiting-screen";
   }
 
-  document.getElementById("c-waiting-screen-text").innerHTML = prefix + waitingFor.toUpperCase();
+  document.getElementById("c-waiting-screen-text").innerHTML =
+    prefix + waitingFor.toUpperCase();
 }
 
 // CONTROLLER
@@ -1117,19 +1159,30 @@ function adjustMobileStyle() {
 
   document.body.style.position = "fixed";
 
-  let gameScreenIds = ["join-session-screen", "c-landing-screen", "c-waiting-screen", "start-game-screen", "c-board-screen", "buzzer-screen", "answer-screen"];
+  let gameScreenIds = [
+    "join-session-screen",
+    "c-landing-screen",
+    "c-waiting-screen",
+    "start-game-screen",
+    "c-board-screen",
+    "buzzer-screen",
+    "answer-screen"
+  ];
 
   for (let i = 0; i < gameScreenIds.length; i++) {
     // This is neccessary because 100vh on iOS Safari extends past the visible
     // screen area which makes the player swipe up and down to play the game
-    document.getElementById(gameScreenIds[i]).style.height = window.innerHeight + "px";
+    document.getElementById(gameScreenIds[i]).style.height =
+      window.innerHeight + "px";
   }
 
   for (let j = 1; j <= 5; j++) {
-    document.getElementById("c-board-row" + "-" + j).style.height = (window.innerHeight / 5) + "px";
+    document.getElementById("c-board-row" + "-" + j).style.height =
+      window.innerHeight / 5 + "px";
   }
 
-  document.getElementById("erase").style.left = (((window.innerWidth - 250) / 2) + 220) + "px";
+  document.getElementById("erase").style.left =
+    (window.innerWidth - 250) / 2 + 220 + "px";
 }
 
 // CONTROLLER
@@ -1148,7 +1201,9 @@ function pressClueButton(button) {
   if (wrapper.classList.contains("category")) {
     updateClueOptions(button.id);
     try {
-      document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
+      document
+        .getElementById(lastCategoryWrapperId)
+        .classList.remove("highlighted");
     } catch (e) {
       // In case lastCategoryWrapperId has not been defined yet
     }
@@ -1160,7 +1215,9 @@ function pressClueButton(button) {
 
   if (wrapper.classList.contains("price")) {
     try {
-      document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
+      document
+        .getElementById(lastPriceWrapperId)
+        .classList.remove("highlighted");
     } catch (e) {
       // In case lastPriceWrapperId has not been defined yet
     }
@@ -1188,20 +1245,24 @@ function updateCategoryOptions() {
 
   for (let i = 1; i < 7; i++) {
     let categoryButton = document.getElementById("category-" + i);
-    let categoryButtonText = document.getElementById("category-" + i + idSuffix);
+    let categoryButtonText = document.getElementById(
+      "category-" + i + idSuffix
+    );
 
     if (usedClues["category-" + i].length == 5) {
       categoryButton.disabled = true;
       categoryButtonText.innerHTML = "";
 
       if (isHost) {
-        document.getElementById("category-" + i + "-date-wrapper").className = "inactive category-date-wrapper";
+        document.getElementById("category-" + i + "-date-wrapper").className =
+          "inactive category-date-wrapper";
       }
     } else {
       categoryButton.disabled = false;
 
       if (isHost) {
-        document.getElementById("category-" + i + "-date-wrapper").className = "category-date-wrapper";
+        document.getElementById("category-" + i + "-date-wrapper").className =
+          "category-date-wrapper";
       }
     }
   }
@@ -1226,7 +1287,9 @@ function updateClueOptions(categoryId) {
 
     for (let i = 0; i < usedClues[categoryId].length; i++) {
       let priceButton = document.getElementById(usedClues[categoryId][i]);
-      let priceButtonText = document.getElementById(usedClues[categoryId][i] + "-text");
+      let priceButtonText = document.getElementById(
+        usedClues[categoryId][i] + "-text"
+      );
 
       priceButton.disabled = true;
 
@@ -1252,7 +1315,7 @@ function resetCluePriceButtons() {
       2: "$800",
       3: "$1.2K",
       4: "$1.6K",
-      5: "$2K",
+      5: "$2K"
     };
   } else {
     prices = {
@@ -1260,7 +1323,7 @@ function resetCluePriceButtons() {
       2: "$400",
       3: "$600",
       4: "$800",
-      5: "$1K",
+      5: "$1K"
     };
   }
 
@@ -1333,9 +1396,21 @@ function displayClue(clueRequest, screenQuestion, dailyDouble) {
   let clueText = document.getElementById("clue-text");
 
   if (dailyDouble) {
+    dailyDoubleCounter++;
+
     document.getElementById(clueRequest + "-text").innerHTML = "";
 
-    document.getElementById("daily-double-wrapper").className = "daily-double-wrapper-screen";
+    if (dailyDoubleCounter == 1) {
+      document.getElementById("daily-double-wrapper").className =
+        "daily-double-wrapper-screen-1";
+    } else if (dailyDoubleCounter == 2) {
+      document.getElementById("daily-double-wrapper").className =
+        "daily-double-wrapper-screen-2";
+    } else if (dailyDoubleCounter == 3) {
+      document.getElementById("daily-double-wrapper").className =
+        "daily-double-wrapper-screen-3";
+    }
+
     document.getElementById("clue-screen").className = "daily-double-screen";
 
     setTimeout(animateClueScreen, 10);
@@ -1430,7 +1505,7 @@ function moveClueScreen(clueRequest) {
     "price-2": "8vh",
     "price-3": "-8vh",
     "price-4": "-25vh",
-    "price-5": "-42vh",
+    "price-5": "-42vh"
   };
 
   let clueScreen = document.getElementById("clue-screen");
@@ -1488,17 +1563,9 @@ function getRandomWagerIntro() {
   let intros;
 
   if (finalJeoparty) {
-    intros = [
-      "Choose your wagers",
-      "Make your wagers",
-      "It's time to wager",
-    ];
+    intros = ["Choose your wagers", "Make your wagers", "It's time to wager"];
   } else {
-    intros = [
-      "Choose your wager ",
-      "Make a wager ",
-      "It's time to wager ",
-    ];
+    intros = ["Choose your wager ", "Make a wager ", "It's time to wager "];
   }
 
   let intro = intros[Math.floor(Math.random() * intros.length)];
@@ -1528,15 +1595,20 @@ function requestDailyDoubleWager(categoryName, nickname, score) {
   clueText.innerHTML = "CATEGORY:<br>" + categoryName.toUpperCase();
 
   if (score < 0) {
-    clueText.innerHTML += "<br>" + nickname.toUpperCase() + "'S MONEY:<br>-$" + Math.abs(score);
+    clueText.innerHTML +=
+      "<br>" + nickname.toUpperCase() + "'S MONEY:<br>-$" + Math.abs(score);
   } else {
-    clueText.innerHTML += "<br>" + nickname.toUpperCase() + "'S MONEY:<br>$" + score;
+    clueText.innerHTML +=
+      "<br>" + nickname.toUpperCase() + "'S MONEY:<br>$" + score;
   }
 
   document.getElementById("player-livefeed").innerHTML = "";
   document.getElementById("player-livefeed-spacer").style.height = "6vh";
-  document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
-  document.getElementById("player-livefeed-nickname").innerHTML = nickname.toUpperCase() + ":<br>";
+  document
+    .getElementById("player-livefeed-wrapper")
+    .classList.remove("inactive");
+  document.getElementById("player-livefeed-nickname").innerHTML =
+    nickname.toUpperCase() + ":<br>";
 }
 
 // CONTROLLER
@@ -1551,7 +1623,9 @@ function startWagerLivefeedInterval() {
   wagerLivefeedInterval = setInterval(function() {
     socket.emit("wager_livefeed", wagerForm.value);
     if (wagerForm.value.length > 0) {
-      document.getElementById("submit-wager-button").classList.remove("inactive");
+      document
+        .getElementById("submit-wager-button")
+        .classList.remove("inactive");
     }
   }, 100);
 }
@@ -1581,7 +1655,7 @@ function submitWager(timesUp) {
     clearInterval(wagerLivefeedInterval);
     clearTimeout(scrapeWagerTimeout);
     if (dailyDouble) {
-      changeWaitScreen("SCREEN", false);
+      changeWaitScreen("SERVER", false);
     } else {
       changeWaitScreen("OTHER PLAYERS", false);
     }
@@ -1616,7 +1690,7 @@ function submitWager(timesUp) {
         clearTimeout(scrapeWagerTimeout);
         if (dailyDouble) {
           socket.emit("daily_double_wager", Number(wager));
-          changeWaitScreen("SCREEN", false);
+          changeWaitScreen("SERVER", false);
         } else {
           socket.emit("final_jeoparty_wager", Number(wager));
           changeWaitScreen("OTHER PLAYERS", false);
@@ -1666,7 +1740,7 @@ function startTimerAnimation(time) {
     timerFrame.className = "inactive " + timerFrameId;
 
     timer.style.transition = "linear transform 0s";
-  }, (time * 1000));
+  }, time * 1000);
 }
 
 // HOST & CONTROLLER
@@ -1676,26 +1750,24 @@ function disableTimer() {
   Disables the timer and timer frame elements
    */
 
-  if (!answering) {
-    let timerId;
-    let timerFrameId;
+  let timerId;
+  let timerFrameId;
 
-    if (isHost) {
-      timerId = "h-timer";
-      timerFrameId = "h-timer-frame";
-    } else {
-      timerId = "c-timer";
-      timerFrameId = "c-timer-frame";
-    }
-
-    let timer = document.getElementById(timerId);
-    let timerFrame = document.getElementById(timerFrameId);
-
-    timer.className = "inactive " + timerId;
-    timerFrame.className = "inactive " + timerFrameId;
-
-    timer.offsetHeight;
+  if (isHost) {
+    timerId = "h-timer";
+    timerFrameId = "h-timer-frame";
+  } else {
+    timerId = "c-timer";
+    timerFrameId = "c-timer-frame";
   }
+
+  let timer = document.getElementById(timerId);
+  let timerFrame = document.getElementById(timerFrameId);
+
+  timer.className = "inactive " + timerId;
+  timerFrame.className = "inactive " + timerFrameId;
+
+  timer.offsetHeight;
 }
 
 // CONTROLLER
@@ -1770,8 +1842,11 @@ function setupPlayerLivefeed(player, screenQuestion) {
   adjustClueFontSize(screenQuestion, true);
 
   document.getElementById("player-answer").innerHTML = "";
-  document.getElementById("player-livefeed-wrapper").classList.remove("inactive");
-  document.getElementById("player-livefeed-nickname").innerHTML = player.nickname.toUpperCase() + ":<br>";
+  document
+    .getElementById("player-livefeed-wrapper")
+    .classList.remove("inactive");
+  document.getElementById("player-livefeed-nickname").innerHTML =
+    player.nickname.toUpperCase() + ":<br>";
 
   document.getElementById("player-livefeed").innerHTML = "";
 }
@@ -1788,7 +1863,9 @@ function startLivefeedInterval() {
   livefeedInterval = setInterval(function() {
     socket.emit("livefeed", answerForm.value);
     if (answerForm.value.length > 0) {
-      document.getElementById("submit-answer-button").classList.remove("inactive");
+      document
+        .getElementById("submit-answer-button")
+        .classList.remove("inactive");
     }
   }, 100);
 }
@@ -1809,7 +1886,8 @@ function submitAnswer() {
   clearInterval(livefeedInterval);
   clearTimeout(scrapeAnswerTimeout);
 
-  document.getElementById("submit-answer-button").className = "inactive submit-answer-button";
+  document.getElementById("submit-answer-button").className =
+    "inactive submit-answer-button";
 
   if (dailyDouble) {
     socket.emit("submit_daily_double_answer", answer);
@@ -1824,7 +1902,7 @@ function submitAnswer() {
   if (finalJeoparty) {
     changeWaitScreen("OTHER PLAYERS", false);
   } else {
-    changeWaitScreen("SCREEN", false);
+    changeWaitScreen("SERVER", false);
   }
 }
 
@@ -1844,8 +1922,12 @@ function displayPlayerAnswer(player, answer, correct) {
   let header;
 
   if (dailyDouble) {
-    header = player.nickname.toUpperCase() + "'S WAGER:<br>$" + player.wager + "<br><br>";
-    header += player.nickname.toUpperCase() + "'S RESPONSE:<br>"
+    header =
+      player.nickname.toUpperCase() +
+      "'S WAGER:<br>$" +
+      player.wager +
+      "<br><br>";
+    header += player.nickname.toUpperCase() + "'S RESPONSE:<br>";
   } else {
     header = player.nickname.toUpperCase() + "'S RESPONSE:<br>";
   }
@@ -1888,7 +1970,7 @@ function getRandomAnswerIntro() {
     "The answer is ",
     "The answer we were looking for is ",
     "The response we were looking for is ",
-    "How about ",
+    "How about "
   ];
 
   let intro = intros[Math.floor(Math.random() * intros.length)];
@@ -1924,7 +2006,7 @@ function clearPlayerAnswerText() {
    */
 
   let playerAnswer = document.getElementById("player-answer");
-  playerAnswer.className = "inactive clue-text"
+  playerAnswer.className = "inactive clue-text";
   playerAnswer.innerHTML = "";
   playerAnswer.style.color = "white";
 }
@@ -1938,7 +2020,9 @@ function resetClueButtons() {
 
   // Player's wrapper variables may still be undefined
   try {
-    document.getElementById(lastCategoryWrapperId).classList.remove("highlighted");
+    document
+      .getElementById(lastCategoryWrapperId)
+      .classList.remove("highlighted");
     document.getElementById(lastPriceWrapperId).classList.remove("highlighted");
   } catch (e) {
     // In case lastCategoryWrapperId and/or lastPriceWrapperId are undefined
@@ -2024,8 +2108,10 @@ function updateScoreboard(players) {
       }
 
       // Clears the score screen canvas and redraws the correct signature onto it
-      let signatureCanvas = document.getElementById("player-" + i + "-signature-canvas");
-      let ctx = signatureCanvas.getContext('2d');
+      let signatureCanvas = document.getElementById(
+        "player-" + i + "-signature-canvas"
+      );
+      let ctx = signatureCanvas.getContext("2d");
       let signature = new Image();
 
       signature.onload = function() {
@@ -2042,11 +2128,13 @@ function updateScoreboard(players) {
         ctx.drawImage(signature, 0, 0);
       };
       signature.src = clone[id].signature;
-
     } else if (i <= 7) {
       overflow.innerHTML += clone[id].nickname.toUpperCase() + ": ";
       if (clone[id].score < 0) {
-        overflow.innerHTML += "<span class='red-overflow-text'>-$" + Math.abs(clone[id].score) + "</span>";
+        overflow.innerHTML +=
+          "<span class='red-overflow-text'>-$" +
+          Math.abs(clone[id].score) +
+          "</span>";
       } else {
         overflow.innerHTML += "$" + clone[id].score;
       }
@@ -2073,21 +2161,23 @@ function setDoubleJeopartyPriceText() {
   if (isHost) {
     for (let i = 1; i <= 6; i++) {
       for (let j = 1; j <= 5; j++) {
-        priceText = document.getElementById("category-" + i + "-price-" + j + "-text");
-        priceText.innerHTML = "$" + (j * 400);
+        priceText = document.getElementById(
+          "category-" + i + "-price-" + j + "-text"
+        );
+        priceText.innerHTML = "$" + j * 400;
       }
     }
   } else {
     for (let i = 1; i <= 5; i++) {
       priceText = document.getElementById("price-" + i + "-text");
-      if ((i * 400) == 1200) {
+      if (i * 400 == 1200) {
         priceText.innerHTML = "$1.2K";
-      } else if ((i * 400) == 1600) {
+      } else if (i * 400 == 1600) {
         priceText.innerHTML = "$1.6K";
-      } else if ((i * 400) == 2000) {
+      } else if (i * 400 == 2000) {
         priceText.innerHTML = "2K";
       } else {
-        priceText.innerHTML = "$" + (i * 400);
+        priceText.innerHTML = "$" + i * 400;
       }
     }
   }
@@ -2128,9 +2218,7 @@ function getRandomFinalJeopartyIntro() {
   would sound like, "The final jeopardy category is..."
    */
 
-  let intros = [
-    "The final jeoparty category is ",
-  ];
+  let intros = ["The final jeoparty category is "];
 
   let intro = intros[Math.floor(Math.random() * intros.length)];
 
@@ -2150,8 +2238,12 @@ function displayFinalJeopartyCategory(categoryName, categoryDate) {
   let clueText = document.getElementById("clue-text");
   clueText.className = "clue-text";
 
-  clueText.innerHTML = categoryName.toUpperCase() + "<br>" +
-    "<span class='date-text-color'>(" + categoryDate + ")</span>";
+  clueText.innerHTML =
+    categoryName.toUpperCase() +
+    "<br>" +
+    "<span class='date-text-color'>(" +
+    categoryDate +
+    ")</span>";
 }
 
 // HOST
@@ -2185,7 +2277,6 @@ function displayFinalJeopartyAnswers(players) {
   displayFinalJeopartyAnswer();
 
   function displayFinalJeopartyAnswer() {
-
     let nickname, wager, answer, correct;
 
     nickname = players[playerIds[i]].nickname.toUpperCase();
@@ -2242,7 +2333,7 @@ function displayFinalJeopartyAnswers(players) {
     playerAnswer.style.color = "white";
     playerAnswer.innerHTML = correctAnswer;
 
-    voice(getRandomAnswerIntro() + correctAnswer, .5);
+    voice(getRandomAnswerIntro() + correctAnswer, 0.5);
 
     setTimeout(function() {
       changeScreen("score-screen");
@@ -2256,7 +2347,8 @@ function displayFinalJeopartyAnswers(players) {
         playAudio("big_applause", false);
         setTimeout(function() {
           clueText.className = "s-clue-text";
-          clueText.innerHTML = "SPECIAL THANKS TO:<br>MATT MORNINGSTAR<br>MAX THOMSEN<br>MATT BALDWIN<br>PRANIT NANDA<br>ATTIC STEIN BEATS";
+          clueText.innerHTML =
+            "SPECIAL THANKS TO:<br>MATT MORNINGSTAR<br>MAX THOMSEN<br>MATT BALDWIN<br>PRANIT NANDA<br>ATTIC STEIN BEATS";
           playAudio("landing_screen_theme", true);
           setTimeout(function() {
             clueText.className = "clue-text";
