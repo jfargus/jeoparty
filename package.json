@@ -9,6 +9,7 @@
     "express": "^4.15.2",
     "ip": "^1.1.5",
     "jservice-node": "^0.2.3",
+    "mongoose": "^5.5.2",
     "nosleep.js": "^0.9.0",
     "number-to-words": "^1.2.4",
     "remove-accents": "^0.4.2",

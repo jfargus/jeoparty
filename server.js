@@ -8,6 +8,49 @@ const wordsToNumbers = require("words-to-numbers");
 const ip = require("ip");
 const Sentencer = require("sentencer");
 
+/*
+// Setting up connection to MongoDB via mongoose
+let mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
+mongoose.connect(
+  "mongodb://iredlon:zorklantern02139@ds253804.mlab.com:53804/heroku_s6pk3wn4",
+  {
+    useNewUrlParser: true
+  }
+);
+mongoose.set("useFindAndModify", false);
+
+// Mongoose schema for saving each user's information to the DB
+let leaderSchema = new mongoose.Schema(
+  {
+    nickname: String,
+    money: Number
+  },
+  {
+    // Forces new leaders to be stored in the leaderboard collection
+    collection: "leaderboard"
+  }
+);
+let Leader = mongoose.model("Leader", leaderSchema);
+
+let newLeader = new Leader({
+  nickname: "Izik",
+  money: 0
+});
+newLeader.save();
+
+Leader.findOne(
+  {
+    nickname: "Izik"
+  },
+  "nickname money",
+  function(err, leader) {
+    if (err) throw err;
+    console.log(leader.money);
+  }
+).then(() => {});
+*/
+
 // Setup express server
 const express = require("express");
 const app = express();
@@ -296,10 +339,6 @@ io.on("connection", function(socket) {
         if (
           (!sessions[socket.sessionId].doubleJeoparty &&
             clueRequest == sessions[socket.sessionId].dailyDoubleIds[0]) ||
-          (!sessions[socket.sessionId].doubleJeoparty &&
-            clueRequest == sessions[socket.sessionId].dailyDoubleIds[1]) ||
-          (!sessions[socket.sessionId].doubleJeoparty &&
-            clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]) ||
           (sessions[socket.sessionId].doubleJeoparty &&
             (clueRequest == sessions[socket.sessionId].dailyDoubleIds[1] ||
               clueRequest == sessions[socket.sessionId].dailyDoubleIds[2]))
@@ -1147,7 +1186,6 @@ function setDailyDoubleIds(socket) {
     sessions[socket.sessionId].dailyDoubleIds.push(
       "category-" + categoryNum + "-price-" + priceNum
     );
-    console.log(sessions[socket.sessionId].dailyDoubleIds);
   }
 }
 
