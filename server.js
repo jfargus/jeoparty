@@ -53,7 +53,10 @@ Leader.findOne(
 
 // Setup express server
 const express = require("express");
+
 const app = express();
+app.disable("etag");
+
 const path = require("path");
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
@@ -1342,7 +1345,7 @@ function evaluateAnswer(answer, socket) {
             return false;
           }
         } else {
-          if (numberToWords.toWords(playerAnswer) == correctAnswer) {
+          if (correctAnswer.includes(numberToWords.toWords(playerAnswer))) {
             return true;
           } else {
             return false;

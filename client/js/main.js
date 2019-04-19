@@ -2057,8 +2057,8 @@ function updateScoreboard(players) {
   let overflowRow = document.getElementById("overflow-row");
   let overflow = document.getElementById("overflow-text");
 
-  overflowRow.className = "inactive row overflow-row";
-  overflow.innerHTML = "";
+  //overflowRow.className = "inactive row overflow-row";
+  //overflow.innerHTML = "";
 
   // Only shows as many podiums as there are players in the game or all 3
   // and a text element on the bottom if the screen if there are more than 3
@@ -2135,7 +2135,7 @@ function updateScoreboard(players) {
         ctx.drawImage(signature, 0, 0);
       };
       signature.src = clone[id].signature;
-    } else if (i <= 7) {
+    } else if (i <= 6) {
       overflow.innerHTML += clone[id].nickname.toUpperCase() + ": ";
       if (clone[id].score < 0) {
         overflow.innerHTML +=
