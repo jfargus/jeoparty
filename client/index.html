@@ -43,7 +43,7 @@ HTML documents for both the Host and Controller screens are stored here
     function enableNoSleep() {
       noSleep.enable();
     }
-   </script>
+  </script>
 </head>
 
 <body ontouchstart onload="init()">
@@ -66,7 +66,7 @@ HTML documents for both the Host and Controller screens are stored here
           </div>
           <div class="row justify-content-center">
             <div class="header-text col-12">
-              URL
+              <u>URL</u>
             </div>
             <div class="footer-text col-12">
               <span id="url-text">JEOPARTY.IO</span>
@@ -75,7 +75,7 @@ HTML documents for both the Host and Controller screens are stored here
           <div class="small-spacer"></div>
           <div class="row justify-content-center">
             <div class="header-text col-12">
-              SESSION ID
+              <u>SESSION ID</u>
             </div>
             <div class="footer-text col-12">
               <span id="session-id-text"></span>
@@ -347,15 +347,15 @@ HTML documents for both the Host and Controller screens are stored here
           </div>
           <div class="row justify-content-center">
             <div class="col-12">
-              <span class="session-id-header">ENTER SESSION ID<span>
+              <span class="session-id-header">ENTER SESSION ID</span>
             </div>
           </div>
-          <div id="session-id-form-wrapper" class="row justify-content-center">
-            <input type="text" id="session-id-form" class="session-id-form" />
+          <div class="row justify-content-center">
+            <input type="text" id="session-id-form" style="text-transform: uppercase; text-align:center" class="form-control-lg">
           </div>
           <div class="spacer"></div>
           <div class="row justify-content-center">
-            <div class="join-button" onclick="joinSession()">JOIN SESSION</div>
+            <button type="button" class="btn btn-outline-dark btn-lg join-button" onclick="joinSession()">JOIN</button>
           </div>
         </div>
       </div>
@@ -374,7 +374,7 @@ HTML documents for both the Host and Controller screens are stored here
             </div>
           </div>
           <div class="row justify-content-center">
-            <input type="text" id="nickname-form" class="nickname-form" />
+            <input type="text" id="nickname-form" style="text-transform: uppercase; text-align:center" class="form-control-lg">
           </div>
           <div class="row justify-content-center">
             <div class="col-12">
@@ -387,7 +387,7 @@ HTML documents for both the Host and Controller screens are stored here
           </div>
           <div class="small-spacer"></div>
           <div class="row justify-content-center">
-            <div class="join-button" onclick="joinGame()">JOIN GAME</div>
+            <button type="button" class="btn btn-outline-dark btn-lg join-button" onclick="joinGame()">JOIN</button>
           </div>
         </div>
       </div>
@@ -402,7 +402,7 @@ HTML documents for both the Host and Controller screens are stored here
           </div>
           <div class="spacer"></div>
           <div class="row justify-content-center">
-            <div id="start-game-button" class="join-button" onclick="startGame()">START GAME</div>
+            <button type="button" id="start-game-button" class="btn btn-outline-dark btn-lg join-button" onclick="startGame()">START GAME</button>
             <div id="rejoin-game-button" class="inactive join-button" onclick="rejoinGame()">REJOIN GAME</div>
           </div>
         </div>
@@ -510,15 +510,15 @@ HTML documents for both the Host and Controller screens are stored here
         <div class="container-fluid">
           <div class="answer-form-spacer"></div>
           <div id="answer-form-wrapper" class="row justify-content-center">
-            <input type="text" id="answer-form" class="answer-form" />
+            <input type="text" id="answer-form" style="text-transform: uppercase; text-align:center" class="form-control-lg">
           </div>
           <div id="wager-form-wrapper" class="row justify-content-center inactive">
-            <input type="tel" id="wager-form" class="wager-form" />
+            <input type="tel" id="wager-form" style="text-transform: uppercase; text-align:center" class="form-control-lg" />
           </div>
           <div class="row spacer"></div>
           <div class="row justify-content-center">
-            <div id="submit-answer-button" class="inactive submit-answer-button" onclick="submitAnswer()">SUBMIT</div>
-            <div id="submit-wager-button" class="inactive submit-answer-button" onclick="submitWager(false)">WAGER</div>
+            <button type="button" id="submit-answer-button" class="btn btn-danger btn-lg inactive submit-answer-button" onclick="submitAnswer()">SUBMIT</button>
+            <button type="button" id="submit-wager-button" class="btn btn-danger btn-lg inactive submit-answer-button" onclick="submitWager(false)">WAGER</button>
           </div>
         </div>
       </div>

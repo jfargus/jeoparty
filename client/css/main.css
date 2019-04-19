@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Nunito");
+@import url("https://fonts.googleapis.com/css?family=Roboto");
 
 @font-face {
   font-family: board;
@@ -33,7 +33,7 @@ body {
 
   color: white;
 
-  font-family: "Nunito", sans-serif;
+  font-family: "Roboto", sans-serif;
   font-size: 10vh;
 
   -webkit-font-smoothing: antialiased;
@@ -658,19 +658,8 @@ button {
 
 /* Join session screen */
 
-.session-id-form {
-  width: 35vw;
-  height: 8vh;
-  padding: 3vh;
-  padding-right: 1vh;
-  padding-left: 1vh;
-
-  text-transform: uppercase;
-
-  color: black;
-  border: none;
-
-  font-size: 4vh;
+#session-id-form {
+  width: 40vw;
 }
 
 /* Landing screen */
@@ -693,7 +682,7 @@ button {
 .help-menu-button {
   position: absolute;
 
-  font-family: "Nunito", sans-serif;
+  font-family: "Roboto", sans-serif;
   font-size: 4vh;
 
   padding: 2vh;
@@ -710,19 +699,8 @@ button {
   font-size: 4vh;
 }
 
-.nickname-form {
-  width: 70vw;
-  height: 8vh;
-  padding: 4.5vh;
-  padding-right: 1vh;
-  padding-left: 1vh;
-
-  text-transform: uppercase;
-
-  color: black;
-  border: none;
-
-  font-size: 4vh;
+#nickname-form {
+  width: 250px;
 }
 
 .erase {
@@ -735,6 +713,7 @@ button {
 }
 
 .join-button {
+  /*
   padding-right: 1vh;
   padding-left: 1vh;
 
@@ -743,6 +722,10 @@ button {
   background-color: white;
 
   font-size: 3vh;
+  */
+
+  background-color: white;
+  width: 40vw;
 }
 
 /* Waiting screen */
@@ -1008,42 +991,14 @@ button {
   background-color: #060ce9;
 }
 
-.answer-form {
+#answer-form {
   width: 80vw;
-  height: 8vh;
-  padding: 3vh;
-  padding-right: 1vh;
-  padding-left: 1vh;
-
-  text-transform: uppercase;
-
-  color: black;
-  border: none;
-
-  font-size: 4vh;
 }
 
-.wager-form {
-  width: 30vw;
-  height: 8vh;
-  padding: 3vh;
-  padding-right: 1vh;
-  padding-left: 1vh;
-
-  text-transform: uppercase;
-
-  color: black;
-  border: none;
-
-  font-size: 4vh;
+#wager-form {
+  width: 40vw;
 }
 
 .submit-answer-button {
-  padding: 1.5vh;
-
-  color: white;
-  border-radius: 1vh;
-  background-color: #cb3b27;
-
-  font-size: 4vh;
+  width: 30vw;
 }

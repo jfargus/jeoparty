@@ -17,6 +17,10 @@ https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
   width: 250px;
   height: 250px;
 
-  border-radius: 10px;
+  border-radius: 5px;
   background-color: white;
+
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
 }

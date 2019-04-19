@@ -159,6 +159,11 @@ io.on("connection", function(socket) {
 
   socket.emit("connect_device");
 
+  socket.on("reset_all", function() {
+    io.in(socket.sessionId).emit("reset_game", true);
+    socket.emit("reset_game", true);
+  });
+
   socket.on("set_host_socket", function() {
     let sessionId;
     while (true) {
@@ -855,17 +860,6 @@ io.on("connection", function(socket) {
             "display_final_jeoparty_answer",
             sessions[socket.sessionId].finalJeopartyPlayers
           );
-          setTimeout(function() {
-            if (socket.sessionId) {
-              io.in(socket.sessionId).emit("reset_game");
-              delete sessions[socket.sessionId];
-            }
-            // Resets the game in the amount of time it takes to display each players'
-            // clue plus a minute
-          }, 60000 +
-            Object.keys(sessions[socket.sessionId].finalJeopartyPlayers)
-              .length *
-              5000);
         }
       }, 30000);
     }
@@ -907,7 +901,7 @@ io.on("connection", function(socket) {
     if (socket.sessionId) {
       if (sessions[socket.sessionId]) {
         if (Object.keys(sessions[socket.sessionId].players).length == 1) {
-          io.in(socket.sessionId).emit("reset_game");
+          io.in(socket.sessionId).emit("reset_game", true);
           delete sessions[socket.sessionId];
         } else {
           try {
