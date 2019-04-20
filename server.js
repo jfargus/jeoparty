@@ -68,7 +68,6 @@ server.listen(PORT);
 // Direct static file route to client folder
 app.use(express.static(path.join(__dirname, "client")));
 
-// This is bad coding practice but is here so that the server can't crash
 process.on("uncaughtException", err => {
   console.log(err);
 });
@@ -152,13 +151,12 @@ function session() {
   this.finalJeopartyClue = undefined;
 }
 
+// Stores all game sessions currently going on
 let sessions = {};
 
+// Socket logic
+
 io.on("connection", function(socket) {
-  /*
-  Input:
-  socket: Socket.io object
-   */
 
   socket.emit("connect_device");
 
@@ -182,9 +180,6 @@ io.on("connection", function(socket) {
 
     socket.host = true;
 
-    console.log("IP Address: " + ip.address());
-    console.log("Session ID: " + sessionId);
-
     socket.join(sessionId);
 
     socket.emit("update_session_id_text", sessionId);
@@ -203,10 +198,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("join_session", function(newSessionId) {
-    /*
-    Input:
-    newSessionId: string
-     */
 
     let sessionId = newSessionId.replace(/ /g, "");
 
@@ -229,11 +220,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("join_game", function(nickname, signature) {
-    /*
-    Input:
-    nickname: string
-    signature: image
-     */
 
     if (sessions[socket.sessionId]) {
       if (!sessions[socket.sessionId].doubleJeoparty) {
@@ -335,10 +321,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("request_clue", function(clueRequest) {
-    /*
-    Input:
-    clueRequest: string ("category-x-price-y")
-     */
 
     if (sessions[socket.sessionId]) {
       if (sessions[socket.sessionId].remainingClueIds.includes(clueRequest)) {
@@ -410,10 +392,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("daily_double_wager", function(wager) {
-    /*
-    Input:
-    wager: number
-     */
 
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].players[
@@ -530,10 +508,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("livefeed", function(livefeed) {
-    /*
-    Input:
-    livefeed: string
-     */
 
     if (sessions[socket.sessionId]) {
       io.in(socket.sessionId).emit("livefeed", livefeed);
@@ -541,10 +515,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("wager_livefeed", function(wagerLivefeed) {
-    /*
-    Input:
-    wagerLivefeed: string number (i.e. '5' or '250')
-     */
 
     if (sessions[socket.sessionId]) {
       io.in(socket.sessionId).emit("wager_livefeed", wagerLivefeed);
@@ -552,10 +522,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("submit_answer", function(answer) {
-    /*
-    Input:
-    answer: string
-     */
 
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].answering = false;
@@ -698,10 +664,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("submit_daily_double_answer", function(answer) {
-    /*
-    Input:
-    answer: string
-     */
 
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].answering = false;
@@ -844,10 +806,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("final_jeoparty_wager", function(wager) {
-    /*
-    Input:
-    wager: number
-     */
 
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].finalJeopartyPlayers[socket.id].wager = wager;
@@ -869,10 +827,6 @@ io.on("connection", function(socket) {
   });
 
   socket.on("submit_final_jeoparty_answer", function(answer) {
-    /*
-    Input:
-    answer: string
-     */
 
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].finalJeopartyPlayers[
@@ -1013,10 +967,6 @@ io.on("connection", function(socket) {
 
 function getStartingIndex(cluesCount) {
   /*
-  Input:
-  cluesCount: number
-
-  Result:
   Returns a multiple of 5 in the range of cluesCount (but not including cluesCount)
 
   5 -> 0
@@ -1029,10 +979,6 @@ function getStartingIndex(cluesCount) {
 
 function getCategories(socket) {
   /*
-  Input:
-  socket: string (socket ID)
-
-  Result:
   Grabs random categories from jservice.io database
    */
 
@@ -1062,11 +1008,6 @@ function getCategories(socket) {
 
 function approveCategory(category, startingIndex) {
   /*
-  Input:
-  category: JSON object
-  startingIndex: number
-
-  Output:
   Returns true if all category questions meet criteria, else returns false
    */
 
@@ -1092,12 +1033,6 @@ function approveCategory(category, startingIndex) {
 
 function loadCategory(category, startingIndex, socket) {
   /*
-  Input:
-  category: JSON object
-  startingIndex: number
-  socket: string (socket ID)
-
-  Result:
   Adds category and its relevant data to a few global variables
   for use throughout the game
    */
@@ -1152,10 +1087,6 @@ function loadCategory(category, startingIndex, socket) {
 
 function setDailyDoubleIds(socket) {
   /*
-  Input:
-  socket: string (socket ID)
-
-  Result:
   Selects 3 random clue ids to be daily double sessions[socket.sessionId].clues
    */
 
@@ -1188,10 +1119,6 @@ function setDailyDoubleIds(socket) {
 
 function formatRawText(original) {
   /*
-  Input:
-  original: string
-
-  Output:
   Removes formatting and punctuation from original, then returns it
    */
 
@@ -1227,10 +1154,6 @@ function formatRawText(original) {
 
 function formatScreenAnswer(original) {
   /*
-  Input:
-  original: string
-
-  Output:
   Removes formatting and certain punctuations from original, then returns it
    */
 
@@ -1253,11 +1176,6 @@ function formatScreenAnswer(original) {
 
 function getMaxWager(score, socket) {
   /*
-  Input:
-  score: number
-  socket: string (socket ID)
-
-  Output:
   Returns the highest value the player can wager
    */
 
@@ -1282,11 +1200,6 @@ function getMaxWager(score, socket) {
 
 function evaluateAnswer(answer, socket) {
   /*
-  Input:
-  answer: string
-  socket: string (socket ID)
-
-  Output:
   Returns true if the answer is correct (or is relatively close to correct),
   else returns false
    */
@@ -1357,14 +1270,6 @@ function evaluateAnswer(answer, socket) {
 
 function updateScore(id, correct, multiplier, dailyDouble, socket) {
   /*
-  Input:
-  id: string (Socket id)
-  correct: boolean
-  multiplier: number
-  dailyDouble: boolean
-  socket: string (socket ID)
-
-  Result:
   Changes the score variable of the given player object
    */
 
@@ -1387,10 +1292,6 @@ function updateScore(id, correct, multiplier, dailyDouble, socket) {
 
 function reset(socket) {
   /*
-  Input:
-  socket: string (socket ID)
-
-  Result:
   Resets variables between each round
    */
 

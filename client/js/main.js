@@ -508,6 +508,7 @@ socket.on("answer_submitted", function(answer, correct) {
    */
 
   disableTimer();
+
   if (isHost) {
     displayPlayerAnswer(buzzWinner, answer, correct);
   } else {
@@ -524,6 +525,8 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
   correctAnswer: string
   timesUp: boolean
    */
+
+  disableTimer();
 
   if (isHost) {
     if (timesUp) {
