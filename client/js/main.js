@@ -26,7 +26,6 @@ let finalJeopartyPlayer;
 // Timeout/interval handlers
 let buzzerTimeout;
 let questionInterval;
-let timerTimeout;
 let livefeedInterval;
 let wagerLivefeedInterval;
 let scrapeAnswerTimeout;
@@ -339,7 +338,6 @@ socket.on("display_daily_double_clue", function(screenQuestion) {
    */
 
   setTimeout(function() {
-    console.log("display_daily_double_clue");
     disableTimer();
   }, 1);
 
@@ -365,8 +363,6 @@ socket.on("answer_daily_double", function(player) {
   Input:
   player: object (player)
    */
-
-  clearTimeout(timerTimeout);
 
   buzzWinner = player;
 
@@ -434,8 +430,6 @@ socket.on("answer", function(player) {
   Input:
   player: object (player)
    */
-
-  clearTimeout(timerTimeout);
 
   disableTimer();
 
@@ -513,7 +507,6 @@ socket.on("answer_submitted", function(answer, correct) {
   correct: boolean
    */
 
-   console.log("answer_submitted");
   disableTimer();
   if (isHost) {
     displayPlayerAnswer(buzzWinner, answer, correct);
@@ -667,7 +660,6 @@ socket.on("request_final_jeoparty_wager", function(finalJeopartyPlayers) {
   finalJeopartyPlayers: object (player objects)
    */
 
-  console.log("request_final_jeoparty_wager");
   disableTimer();
 
   if (isHost) {
@@ -704,7 +696,6 @@ socket.on("display_final_jeoparty_clue", function() {
     changeScreen("clue-screen");
     changeTimerHeight(false);
 
-    console.log("display_final_jeoparty_clue");
     disableTimer();
 
     let clueText = document.getElementById("clue-text");
@@ -733,7 +724,6 @@ socket.on("display_final_jeoparty_clue", function() {
 // HOST & CONTROLLER
 socket.on("answer_final_jeoparty", function() {
 
-  console.log("answer_final_jeoparty");
   disableTimer();
 
   if (isHost) {
@@ -763,14 +753,12 @@ socket.on("display_final_jeoparty_answer", function(players) {
    */
 
   if (isHost) {
-    console.log("display_final_jeoparty_answer");
     disableTimer();
 
     displayFinalJeopartyAnswers(players);
   } else {
     if (joined) {
       if (finalJeopartyPlayer) {
-        console.log("display_final_jeoparty_answer");
         disableTimer();
         changeWaitScreen("SCREEN");
       }
@@ -1739,13 +1727,6 @@ function startTimerAnimation(time) {
   setTimeout(function() {
     timer.className = "animate " + timerId;
   }, 100);
-
-  timerTimeout = setTimeout(function() {
-    timer.className = "inactive " + timerId;
-    timerFrame.className = "inactive " + timerFrameId;
-
-    timer.style.transition = "linear transform 0s";
-  }, time * 1000);
 }
 
 // HOST & CONTROLLER
