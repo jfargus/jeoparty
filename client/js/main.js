@@ -366,11 +366,7 @@ socket.on("answer_daily_double", function(player) {
   player: object (player)
    */
 
-  try {
-    clearTimeout(timerTimeout);
-  } catch (e) {
-    // In case timerTimeout had not been set
-  }
+  clearTimeout(timerTimeout);
 
   buzzWinner = player;
 
@@ -439,11 +435,7 @@ socket.on("answer", function(player) {
   player: object (player)
    */
 
-  try {
-    clearTimeout(timerTimeout);
-  } catch (e) {
-    // In case timerTimeout had not been set
-  }
+  clearTimeout(timerTimeout);
 
   disableTimer();
 
