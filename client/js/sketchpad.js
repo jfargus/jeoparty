@@ -1,6 +1,9 @@
 // Source:
 // https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
 
+var previousStates = [];
+var startingIndices = [];
+
 // Variables for referencing the canvas and 2dcanvas context
 var canvas, ctx;
 
@@ -10,9 +13,20 @@ var mouseX, mouseY, mouseDown = 0;
 // Variables to keep track of the touch position
 var touchX, touchY;
 
-// Draws a dot at a specific position on the supplied canvas name
+// Keep track of the old/last position when drawing a line
+// We set it to -1 at the start to indicate that we don't have a good value for it yet
+var lastX, lastY = -1;
+
+// Draws a line between the specified position on the supplied canvas name
 // Parameters are: A canvas context, the x position, the y position, the size of the dot
-function drawDot(ctx, x, y, size) {
+function drawLine(ctx, x, y, size) {
+
+  // If lastX is not set, set lastX and lastY to the current position
+  if (lastX == -1) {
+    lastX = x;
+    lastY = y;
+  }
+
   // Let's use black by setting RGB values to 0, and 255 alpha (completely opaque)
   r = 0;
   g = 0;
@@ -20,29 +34,52 @@ function drawDot(ctx, x, y, size) {
   a = 255;
 
   // Select a fill style
-  ctx.fillStyle = "rgba(" + r + "," + g + "," + b + "," + (a / 255) + ")";
+  ctx.strokeStyle = "rgba(" + r + "," + g + "," + b + "," + (a / 255) + ")";
 
-  // Draw a filled circle
+  // Set the line "cap" style to round, so lines at different angles can join into each other
+  ctx.lineCap = "round";
+
+  previousStates.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
+  // Draw a filled line
   ctx.beginPath();
-  ctx.arc(x, y, size, 0, Math.PI * 2, true);
+
+  // First, move to the old (previous) position
+  ctx.moveTo(lastX, lastY);
+
+  // Now draw a line to the current touch/pointer position
+  ctx.lineTo(x, y);
+
+  // Set the line thickness and draw the line
+  ctx.lineWidth = size;
+  ctx.stroke();
+
   ctx.closePath();
-  ctx.fill();
+
+  // Update the last position to reference the current position
+  lastX = x;
+  lastY = y;
 }
 
-// Clear the canvas context using the canvas width and height
-function clearCanvas(canvas, ctx) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function eraseLastStroke() {
+  ctx.putImageData(previousStates[startingIndices.pop()], 0, 0);
 }
 
 // Keep track of the mouse button being pressed and draw a dot at current location
 function sketchpad_mouseDown() {
   mouseDown = 1;
-  drawDot(ctx, mouseX, mouseY, 6);
+  drawLine(ctx, mouseX, mouseY, 10);
+
+  startingIndices.push(previousStates.length);
 }
 
 // Keep track of the mouse button being released
 function sketchpad_mouseUp() {
   mouseDown = 0;
+
+  // Reset lastX and lastY to -1 to indicate that they are now invalid, since we have lifted the "pen"
+  lastX = -1;
+  lastY = -1;
 }
 
 // Keep track of the mouse position and draw a dot if mouse button is currently pressed
@@ -52,7 +89,7 @@ function sketchpad_mouseMove(e) {
 
   // Draw a dot if the mouse button is currently being pressed
   if (mouseDown == 1) {
-    drawDot(ctx, mouseX, mouseY, 6);
+    drawLine(ctx, mouseX, mouseY, 10);
   }
 }
 
@@ -75,10 +112,18 @@ function sketchpad_touchStart() {
   // Update the touch co-ordinates
   getTouchPos();
 
-  drawDot(ctx, touchX, touchY, 6);
+  drawLine(ctx, touchX, touchY, 10);
+
+  startingIndices.push(previousStates.length);
 
   // Prevents an additional mousedown event being triggered
   event.preventDefault();
+}
+
+function sketchpad_touchEnd() {
+  // Reset lastX and lastY to -1 to indicate that they are now invalid, since we have lifted the "pen"
+  lastX = -1;
+  lastY = -1;
 }
 
 // Draw something and prevent the default scrolling when touch movement is detected
@@ -87,7 +132,7 @@ function sketchpad_touchMove(e) {
   getTouchPos(e);
 
   // During a touchmove event, unlike a mousemove event, we don't need to check if the touch is engaged, since there will always be contact with the screen by definition.
-  drawDot(ctx, touchX, touchY, 6);
+  drawLine(ctx, touchX, touchY, 10);
 
   // Prevent a scrolling action as a result of this touchmove triggering.
   event.preventDefault();
@@ -129,6 +174,7 @@ function init() {
 
     // React to touch events on the canvas
     canvas.addEventListener('touchstart', sketchpad_touchStart, false);
+    canvas.addEventListener('touchend', sketchpad_touchEnd, false);
     canvas.addEventListener('touchmove', sketchpad_touchMove, false);
   }
 }

@@ -1321,7 +1321,6 @@ function evaluateAnswer(answer, socket) {
     // "This man named Jack was a blah blah blah" by only answering with "Jack",
     // if they do this, they need to have the answer completely correct
     if (
-      question.includes(playerAnswer) ||
       categoryName.includes(playerAnswer) ||
       answer.length <= 2
     ) {
