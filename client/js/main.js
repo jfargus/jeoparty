@@ -54,11 +54,6 @@ socket.on("connect_device", function() {
 
 // CONTROLLER
 socket.on("join_session_success", function(rejoinable, sessionId) {
-  /*
-  Input:
-  rejoinable: boolean
-  sessionId: string (session ID)
-   */
 
   if (!isHost) {
     document.getElementById("session-id-footer").innerHTML = sessionId;
@@ -83,11 +78,6 @@ socket.on("change_board_controller", function(
   boardController,
   boardControllerNickname
 ) {
-  /*
-  Input:
-  boardController: number (socket ID)
-  boardControllerNickname: string
-   */
 
   if (isHost) {
     voice(getRandomBoardControllerIntro() + boardControllerNickname, 0.1);
@@ -102,20 +92,12 @@ socket.on("change_board_controller", function(
 
 // CONTROLLER
 socket.on("update_session_id_text", function(sessionId) {
-  /*
-  Input:
-  sessionId: string (session ID)
-   */
 
   document.getElementById("session-id-text").innerHTML = sessionId;
 });
 
 // HOST
 socket.on("update_players_connected", function(playersConnected) {
-  /*
-  Input:
-  playersConnected: array of strings (socket IDs)
-   */
 
   if (isHost) {
     let playersConnectedText = document.getElementById("players-connected");
@@ -130,10 +112,6 @@ socket.on("update_players_connected", function(playersConnected) {
 
 // HOST & CONTROLLER
 socket.on("update_answering", function(newAnswering) {
-  /*
-  Input:
-  newAnswering: boolean
-   */
 
   answering = newAnswering;
 });
@@ -146,14 +124,6 @@ socket.on("join_success", function(
   doubleJeoparty,
   rejoin
 ) {
-  /*
-  Input:
-  categoryNames: array of strings
-  boardController: string (socket ID)
-  gameActive: boolean
-  doubleJeoparty: boolean
-  rejoin: boolean
-   */
 
   // If a player is allowed to rejoin they must wait until the end of the
   // next clue to participate
@@ -184,10 +154,6 @@ socket.on("start_game_failure", function() {
 
 // HOST
 socket.on("players", function(newPlayers) {
-  /*
-  Input:
-  newPlayers: array of objects (players)
-   */
 
   if (isHost) {
     players = newPlayers;
@@ -201,13 +167,6 @@ socket.on("load_game", function(
   boardController,
   boardControllerNickname
 ) {
-  /*
-  Input:
-  categoryNames: array of strings
-  categoryDates: array of numbers
-  boardController: string (socket ID)
-  boardControllerNickname: string
-   */
 
   setCategoryText(categoryNames, categoryDates);
 
@@ -231,11 +190,6 @@ socket.on("load_game", function(
 
 // HOST & CONTROLLER
 socket.on("display_clue", function(clueRequest, screenQuestion) {
-  /*
-  Input:
-  clueRequest: string ("category-x-price-y")
-  screenQuestion: string
-   */
 
   if (isHost) {
     playAudio("clue_selected", false);
@@ -258,13 +212,6 @@ socket.on("daily_double_request", function(
   boardController,
   boardControllerNickname
 ) {
-  /*
-  Input:
-  clueRequest: string ("category-x-price-y")
-  screenQuestion: string
-  boardController: string (socket ID)
-  boardControllerNickname: string
-   */
 
   if (isHost) {
     clearPlayerAnswerText();
@@ -291,12 +238,6 @@ socket.on("request_daily_double_wager", function(
   player,
   newMaxWager
 ) {
-  /*
-  Input:
-  categoryName: string
-  player: object (player)
-  newMaxWager: number
-   */
 
   dailyDouble = true;
 
@@ -326,10 +267,6 @@ socket.on("request_daily_double_wager", function(
 
 // HOST & CONTROLLER
 socket.on("display_daily_double_clue", function(screenQuestion) {
-  /*
-  Input:
-  screenQuestion: string
-   */
 
   setTimeout(function() {
     disableTimer();
@@ -353,10 +290,6 @@ socket.on("display_daily_double_clue", function(screenQuestion) {
 
 // HOST & CONTROLLER
 socket.on("answer_daily_double", function(player) {
-  /*
-  Input:
-  player: object (player)
-   */
 
   buzzWinner = player;
 
@@ -385,10 +318,6 @@ socket.on("answer_daily_double", function(player) {
 
 // HOST & CONTROLLER
 socket.on("buzzers_ready", function(playersAnswered) {
-  /*
-  Input:
-  playersAnswered: array of strings (socket IDs)
-   */
 
   if (isHost) {
     setTimeout(function() {
@@ -420,10 +349,6 @@ socket.on("buzzers_ready", function(playersAnswered) {
 
 // HOST & CONTROLLER
 socket.on("answer", function(player) {
-  /*
-  Input:
-  player: object (player)
-   */
 
   disableTimer();
 
@@ -462,10 +387,6 @@ socket.on("answer", function(player) {
 
 // HOST
 socket.on("livefeed", function(livefeed) {
-  /*
-  Input:
-  livefeed: string
-   */
 
   if (isHost) {
     if (!finalJeoparty) {
@@ -480,10 +401,6 @@ socket.on("livefeed", function(livefeed) {
 
 // HOST
 socket.on("wager_livefeed", function(wagerLivefeed) {
-  /*
-  Input:
-  wagerLivefeed: number
-   */
 
   if (isHost && wagerLivefeed != "") {
     if (dailyDouble) {
@@ -495,11 +412,6 @@ socket.on("wager_livefeed", function(wagerLivefeed) {
 
 // HOST & CONTROLLER
 socket.on("answer_submitted", function(answer, correct) {
-  /*
-  Input:
-  answer: string
-  correct: boolean
-   */
 
   disableTimer();
 
@@ -514,11 +426,6 @@ socket.on("answer_submitted", function(answer, correct) {
 
 // HOST & CONTROLLER
 socket.on("display_correct_answer", function(correctAnswer, timesUp) {
-  /*
-  Input:
-  correctAnswer: string
-  timesUp: boolean
-   */
 
   disableTimer();
 
@@ -557,13 +464,6 @@ socket.on("reveal_board", function(
   boardController,
   boardControllerNickname
 ) {
-  /*
-  Input:
-  newUsedClues: array of strings ("category-x-price-y")
-  remainingClueIds: array of strings ("category-x-price-y")
-  boardController: string (socket ID)
-  boardControllerNickname: string
-   */
 
   if (!finalJeoparty) {
     dailyDouble = false;
@@ -603,11 +503,6 @@ socket.on("reveal_board", function(
 
 // HOST & CONTROLLER
 socket.on("setup_double_jeoparty", function(categoryNames, categoryDates) {
-  /*
-  Input:
-  categoryNames: array of strings
-  categoryDates: array of numbers
-   */
 
   setDoubleJeopartyPriceText();
   setCategoryText(categoryNames, categoryDates);
@@ -618,10 +513,6 @@ socket.on("setup_double_jeoparty", function(categoryNames, categoryDates) {
 
 // HOST & CONTROLLER
 socket.on("setup_final_jeoparty", function(clue) {
-  /*
-  Input:
-  clue: JSON (clue information)
-   */
 
   finalJeoparty = true;
   finalJeopartyClue = clue;
@@ -652,10 +543,6 @@ socket.on("setup_final_jeoparty", function(clue) {
 
 // HOST & CONTROLLER
 socket.on("request_final_jeoparty_wager", function(finalJeopartyPlayers) {
-  /*
-  Input:
-  finalJeopartyPlayers: object (player objects)
-   */
 
   disableTimer();
 
@@ -744,10 +631,6 @@ socket.on("answer_final_jeoparty", function() {
 
 // HOST & CONTROLLER
 socket.on("display_final_jeoparty_answer", function(players) {
-  /*
-  Input:
-  players: object of player objects
-   */
 
   if (isHost) {
     disableTimer();
@@ -801,7 +684,6 @@ function resetGame(refresh) {
 // HOST
 function declareAudioFiles() {
   /*
-  Result:
   Declares every audio file used throughout the game. This needs to be called
   by a user input in order for the browser to allow any audio to be played
    */
@@ -834,10 +716,6 @@ function declareAudioFiles() {
 // HOST
 function playAudio(filename, loop) {
   /*
-  Input:
-  filename: string (audio filename)
-
-  Result:
   Plays filename's audio clip
    */
 
@@ -854,7 +732,6 @@ function playAudio(filename, loop) {
 // CONTROLLER
 function joinSession() {
   /*
-  Result:
   Sends the requested session ID to the server to attempt to join it
    */
 
@@ -867,7 +744,6 @@ function joinSession() {
 // CONTROLLER
 function alertHelpMenu() {
   /*
-  Result:
   Alerts the controller with a list of game instructions and copyright information
    */
 
@@ -883,10 +759,6 @@ function alertHelpMenu() {
 // CONTROLLER
 function toggleRejoinGameButton(on) {
   /*
-  Input:
-  on: boolean
-
-  Result:
   If on, activates a button to let the player rejoin the game, else,
   reactivates the start game button
    */
@@ -906,7 +778,6 @@ function toggleRejoinGameButton(on) {
 // CONTROLLER
 function rejoinGame() {
   /*
-  Result:
   Sends a signal to the server to attempt to rejoin the game
    */
 
@@ -916,7 +787,6 @@ function rejoinGame() {
 // CONTROLLER
 function joinGame() {
   /*
-  Result:
   Sends the player's custom nickname and signature to the server
    */
 
@@ -933,11 +803,6 @@ function joinGame() {
 // HOST
 function setCategoryText(categoryNames, categoryDates) {
   /*
-  Input:
-  categoryNames: array of strings
-  categoryDates: array of numbers
-
-  Result:
   Displays each category name and date in the appropriate box on the board screen
    */
 
@@ -980,7 +845,6 @@ function setCategoryText(categoryNames, categoryDates) {
 // CONTROLLER
 function startGame() {
   /*
-  Result:
   Signals the server to begin the game
    */
 
@@ -994,10 +858,6 @@ function startGame() {
 // HOST & CONTROLLER
 function changeScreen(newScreen) {
   /*
-  Input:
-  newScreen: string (element id)
-
-  Result:
   Disables the current screen element and enables newScreen
    */
 
@@ -1009,11 +869,6 @@ function changeScreen(newScreen) {
 // HOST
 function voice(text, delay) {
   /*
-  Input:
-  text: string
-  delay: number
-
-  Result:
   Uses the browser's built-in speech synthesis to speak text out loud
    */
 
@@ -1057,10 +912,6 @@ function voice(text, delay) {
 // HOST
 function removeBlanks(text) {
   /*
-  Input:
-  text: string
-
-  Result:
   Turns any series of underscores in text into the word blank so that
   the text to speech delivers the blank section as "blank" instead of
   "underscore underscore underscore"
@@ -1088,7 +939,6 @@ function removeBlanks(text) {
 // HOST
 function startQuestionInterval() {
   /*
-  Result:
   Starts interval to check if the question is done being read by text to speech
    */
 
@@ -1109,11 +959,6 @@ function startQuestionInterval() {
 // CONTROLLER
 function changeWaitScreen(waitingFor, override) {
   /*
-  Input:
-  waitingFor: string
-  override: boolean
-
-  Result:
   Displays the waiting screen and shows who is being waited for
    */
 
@@ -1139,7 +984,6 @@ function changeWaitScreen(waitingFor, override) {
 // CONTROLLER
 function adjustMobileStyle() {
   /*
-  Result:
   Changes the styling of controller screens to fit with the device's screen size
    */
 
@@ -1174,10 +1018,6 @@ function adjustMobileStyle() {
 // CONTROLLER
 function pressClueButton(button) {
   /*
-  Input:
-  button: HTML element
-
-  Result:
   Highlights the button that was pressed and un-highlights the last button of
   that type to be pressed
    */
@@ -1217,7 +1057,6 @@ function pressClueButton(button) {
 // HOST & CONTROLLER
 function updateCategoryOptions() {
   /*
-  Result:
   Removes the categoryName on the board screen of any completed category
    */
 
@@ -1257,10 +1096,6 @@ function updateCategoryOptions() {
 // CONTROLLER
 function updateClueOptions(categoryId) {
   /*
-  Input:
-  categoryId: string ("category-x")
-
-  Result:
   Removes the option to select certain price values depending on the category
   that the player pressed
 
@@ -1287,7 +1122,6 @@ function updateClueOptions(categoryId) {
 // CONTROLLER
 function resetCluePriceButtons() {
   /*
-  Result:
   Activates and resets the text of every clue price button
   on the controller board screen. This is to make the board screen
   a blank slate for the player's selection
@@ -1324,7 +1158,6 @@ function resetCluePriceButtons() {
 // HOST
 function getRandomBoardControllerIntro() {
   /*
-  Output:
   Returns a random string from intros for the text to speech say before
   asking the board controller to select a clue. A full text to speech statement
   would sound like, "Pick a category nickname"
@@ -1349,7 +1182,6 @@ function getRandomBoardControllerIntro() {
 // CONTROLLER
 function sendClueRequest() {
   /*
-  Result:
   Sends the requested clue to the server
    */
 
@@ -1365,12 +1197,6 @@ function sendClueRequest() {
 // HOST
 function displayClue(clueRequest, screenQuestion, dailyDouble) {
   /*
-  Input:
-  clueRequest: string ("category-x-price-y")
-  screenQuestion: string
-  dailyDouble: boolean
-
-  Result:
   Highglights the clue element on the host board screen then animates the
   clue screen to appear overtop of the board
    */
@@ -1423,11 +1249,6 @@ function displayClue(clueRequest, screenQuestion, dailyDouble) {
 // HOST
 function adjustClueFontSize(question, livefeed) {
   /*
-  Input:
-  question: string
-  livefeed: boolean
-
-  Result:
   Adjusts the font size of the clue depending on how long it is,
   and whether or not it is being displayed on top of a livefeed or not
    */
@@ -1469,10 +1290,6 @@ function adjustClueFontSize(question, livefeed) {
 // HOST
 function moveClueScreen(clueRequest) {
   /*
-  Input:
-  clueRequest: string ("category-x-price-y")
-
-  Result:
   Changes the position of the clue screen to be above the clue element
   of the clue that was selected
    */
@@ -1503,7 +1320,6 @@ function moveClueScreen(clueRequest) {
 // HOST
 function animateClueScreen() {
   /*
-  Result:
   Animates the rapid scaling and opacity increase of the clue screen
    */
 
@@ -1516,10 +1332,6 @@ function animateClueScreen() {
 // CONTROLLER
 function toggleWagerForm(on) {
   /*
-  Input:
-  on: boolean
-
-  Result:
   If on is true, this activates the wager form, else it is deactivated
    */
 
@@ -1540,7 +1352,6 @@ function toggleWagerForm(on) {
 // HOST
 function getRandomWagerIntro() {
   /*
-  Output:
   Returns a random string from intros for the text to speech say before
   asking the player(s) to make a wager. A full text to speech statement
   would sound like, "Choose you wager nickname"
@@ -1562,12 +1373,6 @@ function getRandomWagerIntro() {
 // HOST
 function requestDailyDoubleWager(categoryName, nickname, score) {
   /*
-  Input:
-  categoryName: string
-  nickname: string
-  score: number
-
-  Result:
   Displays some important data on the clue screen while the daily double
   winner is deciding their wager
    */
@@ -1604,7 +1409,6 @@ function requestDailyDoubleWager(categoryName, nickname, score) {
 // CONTROLLER
 function startWagerLivefeedInterval() {
   /*
-  Result:
   Starts interval to send the player's wager form to the server as they are typing
    */
 
@@ -1623,10 +1427,6 @@ function startWagerLivefeedInterval() {
 // CONTROLLER
 function submitWager(timesUp) {
   /*
-  Input:
-  timesUp: boolean
-
-  Result:
   Sends the player's wager to the server if it meets certain criteria
    */
 
@@ -1694,10 +1494,6 @@ function submitWager(timesUp) {
 // HOST & CONTROLLER
 function startTimerAnimation(time) {
   /*
-  Input:
-  time: number
-
-  Result:
   Activates the timer and timer frame elements, then animates the timer
   decreasing over the given time period
    */
@@ -1729,7 +1525,6 @@ function startTimerAnimation(time) {
 // HOST & CONTROLLER
 function disableTimer() {
   /*
-  Result:
   Disables the timer and timer frame elements
    */
 
@@ -1756,10 +1551,6 @@ function disableTimer() {
 // CONTROLLER
 function toggleBlinkingBuzzerLight(blinking) {
   /*
-  Input:
-  blinking: boolean
-
-  Result:
   If blinking is true, enables the blinking light, else, disables
   the blinking light
    */
@@ -1776,11 +1567,6 @@ function toggleBlinkingBuzzerLight(blinking) {
 // CONTROLLER
 function changeBuzzerLightColor(active, correct) {
   /*
-  Input:
-  active: boolean
-  correct: boolean
-
-  Result:
   Enables or disables the buzzer light depending on active, then changes
   it to green or red depending on correct
    */
@@ -1803,7 +1589,6 @@ function changeBuzzerLightColor(active, correct) {
 // CONTROLLER
 function buzz() {
   /*
-  Result:
   Sends a signal to the server that this device buzzed in to answer the clue
    */
 
@@ -1813,11 +1598,6 @@ function buzz() {
 // HOST
 function setupPlayerLivefeed(player, screenQuestion) {
   /*
-  Input:
-  player: object (player)
-  screenQuestion: string
-
-  Result:
   Organizes the screen so that the clue text is formatted clearly for the
   livefeed to appear on the bottom of the clue screen
    */
@@ -1837,7 +1617,6 @@ function setupPlayerLivefeed(player, screenQuestion) {
 // HOST
 function startLivefeedInterval() {
   /*
-  Result:
   Starts interval to send the player's answer form to the server as they are typing
    */
 
@@ -1856,7 +1635,6 @@ function startLivefeedInterval() {
 // CONTROLLER
 function submitAnswer() {
   /*
-  Result:
   Sends the player's answer to the server
    */
 
@@ -1892,12 +1670,6 @@ function submitAnswer() {
 // HOST
 function displayPlayerAnswer(player, answer, correct) {
   /*
-  Input:
-  player: object (player)
-  answer: string
-  correct: boolean
-
-  Result:
   Displays the player's answer on screen and changes its color to either
   green or red depending on correct
    */
@@ -1942,7 +1714,6 @@ function displayPlayerAnswer(player, answer, correct) {
 // HOST
 function getRandomAnswerIntro() {
   /*
-  Output:
   Returns a random string from intros for the text to speech say before
   stating the correct answer to the clue. A full text to speech statement
   would sound like, "The correct answer is something"
@@ -1965,10 +1736,6 @@ function getRandomAnswerIntro() {
 // HOST
 function displayCorrectAnswer(correctAnswer) {
   /*
-  Input:
-  correctAnswer: string
-
-  Result:
   Displays the correct answer to the clue on screen
    */
 
@@ -1986,7 +1753,6 @@ function displayCorrectAnswer(correctAnswer) {
 // HOST
 function clearPlayerAnswerText() {
   /*
-  Result:
   Deactivates and empties the text inside of the player-answer element
    */
 
@@ -1999,7 +1765,6 @@ function clearPlayerAnswerText() {
 // CONTROLLER
 function resetClueButtons() {
   /*
-  Result:
   Unhighlights any board buttons that were highlighted
    */
 
@@ -2017,10 +1782,6 @@ function resetClueButtons() {
 // HOST
 function updateScoreboard(players) {
   /*
-  Input:
-  players: array of objects (players)
-
-  Result:
   Updates the HTML elements of the scoreboard to reflect the new scores
   and/or positions of each player
    */
@@ -2134,7 +1895,6 @@ function updateScoreboard(players) {
 // HOST & CONTROLLER
 function setDoubleJeopartyPriceText() {
   /*
-  Result:
   Change the dollar value text on each board scree to show the doubled amounts
   available in Double Jeoparty
    */
@@ -2171,10 +1931,6 @@ function setDoubleJeopartyPriceText() {
 // HOST
 function changeTimerHeight(half) {
   /*
-  Input:
-  half: boolean
-
-  Result:
   If half, decreases the size of the host's timer to half of its normal height,
   else returns the timer height to its normal height
    */
@@ -2197,7 +1953,6 @@ function changeTimerHeight(half) {
 // HOST
 function getRandomFinalJeopartyIntro() {
   /*
-  Output:
   Returns a random string from intros for the text to speech say before
   introducing the final jeoparty category. A full text to speech statement
   would sound like, "The final jeopardy category is..."
@@ -2213,10 +1968,6 @@ function getRandomFinalJeopartyIntro() {
 // HOST
 function displayFinalJeopartyCategory(categoryName, categoryDate) {
   /*
-  Input:
-  categoryName: string
-
-  Result:
   Displays the final jeoparty category's name on screen
    */
 
@@ -2234,10 +1985,6 @@ function displayFinalJeopartyCategory(categoryName, categoryDate) {
 // HOST
 function displayFinalJeopartyAnswers(players) {
   /*
-  Input:
-  players: object (player objects)
-
-  Result:
   Displays the final jeoparty answers of each player who submitted one
   before revealing the correct answer and ending the game
    */
@@ -2301,10 +2048,6 @@ function displayFinalJeopartyAnswers(players) {
 
   function endGame(nickname) {
     /*
-    Input:
-    nickname: string
-
-    Result:
     Shows the correct final jeoparty answer, then congratulates the
     winning player by showing their nickname on screen
      */
@@ -2343,7 +2086,7 @@ function displayFinalJeopartyAnswers(players) {
             setTimeout(function() {
               socket.emit("reset_all");
             });
-          }, 10000);
+          }, 20000);
         }, 10000);
       }, 5000);
     }, 5000);
