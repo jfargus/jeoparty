@@ -72,9 +72,9 @@ socket.on("join_session_success", function(rejoinable, sessionId) {
 });
 
 // CONTROLLER
-socket.on("join_session_failure", function() {
+socket.on("join_session_failure", function(sessionId) {
   if (!isHost) {
-    alert("That is not a valid session ID");
+    alert(sessionId + " is not a valid session ID");
   }
 });
 
@@ -155,28 +155,22 @@ socket.on("join_success", function(
   rejoin: boolean
    */
 
-  // A new player can't join the game if they didn't play in the first half
-  if (doubleJeoparty && !rejoin) {
-    alert("The game's too far along for you to join, sorry!");
-    changeWaitScreen("", true);
+  // If a player is allowed to rejoin they must wait until the end of the
+  // next clue to participate
+  if (gameActive) {
+    waitingToJoin = true;
+    changeWaitScreen("NEXT CLUE", false);
   } else {
-    // If a player is allowed to rejoin they must wait until the end of the
-    // next clue to participate
-    if (gameActive) {
-      waitingToJoin = true;
-      changeWaitScreen("NEXT CLUE", false);
-    } else {
-      joined = true;
-    }
+    joined = true;
+  }
 
-    setCategoryText(categoryNames, []);
+  setCategoryText(categoryNames, []);
 
-    if (socket.id == boardController && !gameActive) {
-      changeScreen("start-game-screen");
-    } else {
-      if (!waitingToJoin) {
-        changeWaitScreen("GAME TO START", false);
-      }
+  if (socket.id == boardController && !gameActive) {
+    changeScreen("start-game-screen");
+  } else {
+    if (!waitingToJoin) {
+      changeWaitScreen("GAME TO START", false);
     }
   }
 });
@@ -408,7 +402,7 @@ socket.on("buzzers_ready", function(playersAnswered) {
 
     buzzerTimeout = setTimeout(function() {
       socket.emit("no_buzz");
-    }, 5000);
+    }, 4900);
   } else {
     if (joined) {
       if (playersAnswered.includes(socket.id)) {

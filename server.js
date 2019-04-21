@@ -215,7 +215,7 @@ io.on("connection", function(socket) {
         sessionId
       );
     } else {
-      socket.emit("join_session_failure");
+      socket.emit("join_session_failure", sessionId);
     }
   });
 
