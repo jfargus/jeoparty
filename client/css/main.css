@@ -713,19 +713,13 @@ button {
 }
 
 .join-button {
-  /*
-  padding-right: 1vh;
-  padding-left: 1vh;
-
-  color: black;
-  border-radius: 1vh;
-  background-color: white;
-
-  font-size: 3vh;
-  */
-
   background-color: white;
   width: 40vw;
+}
+
+.rejoin-button {
+  background-color: white;
+  width: 50vw;
 }
 
 /* Waiting screen */

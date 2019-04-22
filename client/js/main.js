@@ -331,7 +331,7 @@ socket.on("buzzers_ready", function(playersAnswered) {
 
     buzzerTimeout = setTimeout(function() {
       socket.emit("no_buzz");
-    }, 4900);
+    }, 5000);
   } else {
     if (joined) {
       if (playersAnswered.includes(socket.id)) {
@@ -1884,7 +1884,7 @@ function updateScoreboard(players) {
       } else {
         overflow.innerHTML += "$" + clone[id].score;
       }
-      if (i < playersLength) {
+      if (i < 6) {
         overflow.innerHTML += " ... ";
       }
     }

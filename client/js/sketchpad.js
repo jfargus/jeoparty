@@ -62,13 +62,7 @@ function drawLine(ctx, x, y, size) {
 }
 
 function eraseLastStroke() {
-  for (let i = startingIndices.length - 1; i >= 0; i--) {
-    if (previousStates[startingIndices[i]] != ctx.getImageData(0, 0, canvas.width, canvas.height)) {
-      ctx.putImageData(previousStates[startingIndices[i]], 0, 0);
-      startingIndices = startingIndices.slice(0, i);
-      break;
-    }
-  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 // Keep track of the mouse button being pressed and draw a dot at current location

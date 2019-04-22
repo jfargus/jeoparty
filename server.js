@@ -210,7 +210,7 @@ io.on("connection", function(socket) {
       socket.emit(
         "join_session_success",
         Object.keys(sessions[socket.sessionId].disconnectedPlayers).includes(
-          socket.conn.remoteAddress
+          socket.handshake.address
         ),
         sessionId
       );
@@ -225,7 +225,7 @@ io.on("connection", function(socket) {
       if (!sessions[socket.sessionId].doubleJeoparty) {
         let player = new Object();
         player.id = socket.id;
-        player.ip = socket.conn.remoteAddress;
+        player.ip = socket.handshake.address;
         player.playerNumber =
           Object.keys(sessions[socket.sessionId].players).length + 1;
         player.nickname = nickname;
@@ -272,14 +272,14 @@ io.on("connection", function(socket) {
       let player = JSON.parse(
         JSON.stringify(
           sessions[socket.sessionId].disconnectedPlayers[
-            socket.conn.remoteAddress
+            socket.handshake.address
           ]
         )
       );
       sessions[socket.sessionId].players[socket.id] = player;
       sessions[socket.sessionId].players[socket.id].id = socket.id;
       delete sessions[socket.sessionId].disconnectedPlayers[
-        socket.conn.remoteAddress
+        socket.handshake.address
       ];
 
       socket.emit(
@@ -868,7 +868,7 @@ io.on("connection", function(socket) {
               JSON.stringify(sessions[socket.sessionId].players[socket.id])
             );
             sessions[socket.sessionId].disconnectedPlayers[
-              socket.conn.remoteAddress
+              socket.handshake.address
             ] = player;
           } catch (e) {
             // If player hasn't joined the game yet and wouldn't have a position
