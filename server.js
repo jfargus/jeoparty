@@ -201,6 +201,12 @@ io.on("connection", function(socket) {
 
       socket.join(sessionId);
 
+      console.log("Disconnected players IPs");
+      console.log(Object.keys(sessions[socket.sessionId].disconnectedPlayers));
+
+      console.log("Joiner's IP");
+      console.log((socket.handshake.address).toString());
+
       socket.emit(
         "join_session_success",
         // True if this player was previously disconnected from this session, else returns false
@@ -259,6 +265,7 @@ io.on("connection", function(socket) {
       // This can only get called if this player object was inside of the
       // disconnectedPlayers object so this can't be a null reference
       let player = new Object();
+
       let playerData = sessions[socket.sessionId].disconnectedPlayers[(socket.handshake.address).toString()];
 
       player.id = playerData[0];
@@ -743,14 +750,12 @@ io.on("connection", function(socket) {
             // did not intend to disconnect from the game
             let player = sessions[socket.sessionId].players[socket.id];
 
+            console.log("Disconnecter's IP");
+            console.log((socket.handshake.address).toString());
+
             sessions[socket.sessionId].disconnectedPlayers[
               (socket.handshake.address).toString()
             ] = [player.id, player.nickname, player.signature, player.score, player.wager, player.maxWager, player.answer, player.correct];
-
-            Object.keys(sessions[socket.sessionId].disconnectedPlayers).forEach(function(ip) {
-              console.log(ip);
-              console.log(sessions[socket.sessionId].disconnectedPlayers[ip]);
-            });
 
           } catch (e) {
             // If player hasn't joined the game yet and wouldn't have a position
