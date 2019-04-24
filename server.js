@@ -71,6 +71,9 @@ process.on("uncaughtException", err => {
   console.log(err);
 });
 
+// Debug tools
+let finalJeopartyDebug = false;
+
 // Each game that is occuring on the server simultaneously is given a
 // session object with which to operate from. Throughout this script,
 // game variables are referenced like: sessions[socket.sessionId].whatever
@@ -221,7 +224,7 @@ io.on("connection", function(socket) {
       player.id = socket.id;
       player.nickname = nickname;
       player.signature = signature;
-      player.score = 0;
+      player.score = 1500;
       player.wager = 0;
       player.maxWager = 0;
 
@@ -564,7 +567,7 @@ io.on("connection", function(socket) {
   });
 
   socket.on("no_buzz", function() {
-    // Gets called by a timeout in the host's main.js if nobody buzzes in
+    // Gets called by a timeout in the host's client.js if nobody buzzes in
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].buzzersReady = false;
 
@@ -687,6 +690,9 @@ io.on("connection", function(socket) {
   socket.on("request_final_jeoparty_answer", function() {
     if (sessions[socket.sessionId]) {
       io.in(socket.sessionId).emit("get_answer_final_jeoparty");
+
+      // Displays each player's final jeoparty answer after giving 30 seconds
+      // for them to answer
       setTimeout(function() {
         if (socket.sessionId) {
           io.in(socket.sessionId).emit(
@@ -694,12 +700,11 @@ io.on("connection", function(socket) {
             sessions[socket.sessionId].finalJeopartyPlayers
           );
         }
-      }, 40000);
+      }, 30000);
     }
   });
 
   socket.on("submit_final_jeoparty_answer", function(answer) {
-
     if (sessions[socket.sessionId]) {
       sessions[socket.sessionId].finalJeopartyPlayers[
         socket.id
@@ -744,7 +749,9 @@ io.on("connection", function(socket) {
 
           try {
             // This gives players an opportunity to rejoin the game if they
-            // did not intend to disconnect from the game
+            // did not intend to disconnect from the game by identifying them
+            // in the disconnectedPlayers object by their "cookie", a string
+            // of numbers that was assigned in joinSession() in client.js
             let player = sessions[socket.sessionId].players[socket.id];
 
             sessions[socket.sessionId].disconnectedPlayers[
@@ -1274,8 +1281,9 @@ function resetVariables(socket) {
   }
   // If all double jeoparty clues are used, start final jeoparty
   else if (
-    sessions[socket.sessionId].usedClueIds.length == 30 &&
-      sessions[socket.sessionId].doubleJeoparty
+    (sessions[socket.sessionId].usedClueIds.length == 30 &&
+      sessions[socket.sessionId].doubleJeoparty) ||
+      finalJeopartyDebug
   ) {
     sessions[socket.sessionId].finalJeoparty = true;
     sessions[socket.sessionId].doubleJeoparty = false;

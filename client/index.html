@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <!--
-HTML documents for both the Host and Controller screens are stored here
+HTML information for both the Host and Controller screens are stored here
 -->
 
 <html lang="en">
@@ -30,8 +30,8 @@ HTML documents for both the Host and Controller screens are stored here
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- Jeoparty! modules -->
-  <script src="/js/main.js"></script>
-  <link rel="stylesheet" href="/css/main.css">
+  <script src="/js/client.js"></script>
+  <link rel="stylesheet" href="/css/client.css">
   <script src="/js/sketchpad.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/sketchpad.css">
 
@@ -40,6 +40,7 @@ HTML documents for both the Host and Controller screens are stored here
   <script>
     let noSleep = new NoSleep();
 
+    // noSleep prevents a phone from automatically falling asleep
     function enableNoSleep() {
       noSleep.enable();
     }
@@ -383,7 +384,7 @@ HTML documents for both the Host and Controller screens are stored here
             </div>
           </div>
           <div class="row justify-content-center">
-            <div id="erase" class="erase" onclick="eraseLastStroke(); return false;">X</div>
+            <div id="erase" class="erase" onclick="erase(); return false;">X</div>
             <canvas id="sketchpad" height="250" width="250"></canvas>
           </div>
           <div class="small-spacer"></div>

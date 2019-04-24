@@ -1,8 +1,5 @@
-// Source:
+// Source
 // https://zipso.net/a-simple-touchscreen-sketchpad-using-javascript-and-html5/
-
-var previousStates = [];
-var startingIndices = [];
 
 // Variables for referencing the canvas and 2dcanvas context
 var canvas, ctx;
@@ -39,8 +36,6 @@ function drawLine(ctx, x, y, size) {
   // Set the line "cap" style to round, so lines at different angles can join into each other
   ctx.lineCap = "round";
 
-  previousStates.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-
   // Draw a filled line
   ctx.beginPath();
 
@@ -61,7 +56,8 @@ function drawLine(ctx, x, y, size) {
   lastY = y;
 }
 
-function eraseLastStroke() {
+function erase() {
+  // Erases all lines on the canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -69,8 +65,6 @@ function eraseLastStroke() {
 function sketchpad_mouseDown() {
   mouseDown = 1;
   drawLine(ctx, mouseX, mouseY, 10);
-
-  startingIndices.push(previousStates.length);
 }
 
 // Keep track of the mouse button being released
@@ -113,8 +107,6 @@ function sketchpad_touchStart() {
   getTouchPos();
 
   drawLine(ctx, touchX, touchY, 10);
-
-  startingIndices.push(previousStates.length);
 
   // Prevents an additional mousedown event being triggered
   event.preventDefault();

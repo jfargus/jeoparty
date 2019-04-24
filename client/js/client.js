@@ -140,10 +140,12 @@ socket.on("load_game", function(
   boardControllerNickname
 ) {
 
-  updateScoreboard();
   setCategoryText(categoryNames, categoryDates);
 
   if (isHost) {
+    // Adjusts the scoreboard to reflect the number of players at the game when it starts
+    // This prevents the disjointing appearance of 3 empty podiums switching to just 2
+    updateScoreboard(players);
     audioFiles["landing_screen_theme"].pause();
     say(getRandomBoardControllerIntro() + boardControllerNickname, 0.1);
     changeScreen("h-board-screen");
@@ -508,8 +510,6 @@ socket.on("get_answer", function(player) {
 });
 
 socket.on("get_final_jeoparty_wager", function(finalJeopartyPlayers) {
-  disableTimer();
-
   if (isHost) {
     startTimerAnimation(15);
     changeScreen("score-screen");
@@ -540,11 +540,11 @@ socket.on("get_final_jeoparty_wager", function(finalJeopartyPlayers) {
 
 
 socket.on("display_final_jeoparty_clue", function() {
+  disableTimer();
+
   if (isHost) {
     changeScreen("clue-screen");
     changeTimerHeight(false);
-
-    disableTimer();
 
     let clueText = document.getElementById("clue-text");
     let screenQuestion = finalJeopartyClue["screen_question"];
@@ -659,6 +659,7 @@ function resetGame(refresh) {
   finalJeopartyPlayer = undefined;
 
   if (refresh) {
+    // Refreshes the browser
     window.location.href = window.location.href;
   }
 }
@@ -717,6 +718,8 @@ function joinSession() {
   Sends the requested session ID to the server to attempt to join it
    */
 
+  // Cookie variable holds a random string of numbers that represent this device
+  // This is meant to replace using an IP address which isn't static for phones
   if (document.cookie != "") {
     document.cookie = Math.random().toString(36).substr(2, 5).toUpperCase();
   }
@@ -872,9 +875,12 @@ function say(text, delay) {
       function textToSpeech(text) {
         let msg = new SpeechSynthesisUtterance();
         let voices = window.speechSynthesis.getVoices();
+
         if (voices.length > 48) {
+          // Attempts to get the Google UK Male voice (if the browser is Chrome)
           msg.voice = voices[50];
         } else {
+          // Settles with an American accent :(
           msg.voice = voices[0];
         }
         msg.voiceURI = "native";
@@ -1173,6 +1179,7 @@ function getRandomBoardControllerIntro() {
 
 
 function sendClueRequest() {
+
   // lastCategoryId and lastPriceId are assigned when the player presses buttons
   // on the clue selection screen so if nothing has been clicked, no clue has
   // been requested
@@ -1422,8 +1429,8 @@ function submitWager(timesUp) {
   clearInterval(wagerLivefeedInterval);
   clearTimeout(scrapeWagerTimeout);
 
-  // If the player's time to wager is up they don't get the choice to change
-  // their wager of course
+  // If the player's time to wager is up there will be no alert to warn them
+  // that their wager won't work
   if (timesUp) {
     if (dailyDouble) {
       changeWaitScreen("SCREEN");
@@ -1431,6 +1438,9 @@ function submitWager(timesUp) {
       changeWaitScreen("OTHER PLAYERS");
     }
 
+    // Wager being anything besides a number and this number being less than
+    // the minimum wager or more than the maximum wager constitutes an illegal
+    // wager and it is assumed to be whatever minWager was set to above
     if (!isNaN(wager) && (Number(wager) > minWager) && (Number(wager) < maxWager)) {
       if (dailyDouble) {
         socket.emit("daily_double_wager", Number(wager));
@@ -1564,11 +1574,9 @@ function changeBuzzerLightColor(active, correct) {
   }
 }
 
-
 function buzz() {
   socket.emit("buzz");
 }
-
 
 function setupPlayerLivefeed(player, screenQuestion) {
   /*
@@ -1588,7 +1596,6 @@ function setupPlayerLivefeed(player, screenQuestion) {
   document.getElementById("player-livefeed").innerHTML = "";
 }
 
-
 function startAnswerLivefeedInterval() {
   /*
   Starts interval to send the player's answer form to the server as they are typing
@@ -1605,7 +1612,6 @@ function startAnswerLivefeedInterval() {
     }
   }, 100);
 }
-
 
 function submitAnswer() {
   let answer = document.getElementById("answer-form").value;
@@ -1638,7 +1644,6 @@ function submitAnswer() {
     changeWaitScreen("SCREEN");
   }
 }
-
 
 function displayPlayerAnswer(player, answer, correct) {
   let header;
@@ -1682,7 +1687,6 @@ function displayPlayerAnswer(player, answer, correct) {
   }, 1000);
 }
 
-
 function getRandomAnswerIntro() {
   /*
   Returns a random string from intros for the text to speech say before
@@ -1704,7 +1708,6 @@ function getRandomAnswerIntro() {
   return intro;
 }
 
-
 function displayCorrectAnswer(correctAnswer) {
   /*
   Displays the correct answer to the clue on screen
@@ -1721,7 +1724,6 @@ function displayCorrectAnswer(correctAnswer) {
   playerAnswer.innerHTML = correctAnswer.toUpperCase();
 }
 
-
 function clearLastPlayerAnswer() {
   /*
   Deactivates and empties the text inside of the player-answer element
@@ -1732,7 +1734,6 @@ function clearLastPlayerAnswer() {
   playerAnswer.innerHTML = "";
   playerAnswer.style.color = "white";
 }
-
 
 function resetClueButtons() {
   /*
@@ -1749,7 +1750,6 @@ function resetClueButtons() {
     // In case lastCategoryWrapperId and/or lastPriceWrapperId are undefined
   }
 }
-
 
 function updateScoreboard(players) {
   /*
@@ -1932,7 +1932,7 @@ function getRandomFinalJeopartyIntro() {
   would sound like, "The final jeopardy category is..."
    */
 
-  let intros = ["The final jeoparty category is "];
+  let intros = ["The final je-party category is "];
 
   let intro = intros[Math.floor(Math.random() * intros.length)];
 
@@ -1954,7 +1954,6 @@ function displayFinalJeopartyCategory(categoryName, categoryDate) {
     categoryDate +
     ")</span>";
 }
-
 
 function displayFinalJeopartyAnswers(players) {
   /*
@@ -1980,9 +1979,9 @@ function displayFinalJeopartyAnswers(players) {
 
   let i = 0;
 
-  displayCorrectFinalJeopartyAnswer();
+  displayEachFinalJeopartyAnswer();
 
-  function displayCorrectFinalJeopartyAnswer() {
+  function displayEachFinalJeopartyAnswer() {
     let nickname, wager, answer, correct;
 
     nickname = players[playerIds[i]].nickname.toUpperCase();
@@ -2016,7 +2015,7 @@ function displayFinalJeopartyAnswers(players) {
         endGame(nickname);
       }, 5000);
     } else {
-      setTimeout(displayFinalJeopartyAnswer, 5000);
+      setTimeout(displayEachFinalJeopartyAnswer, 5000);
     }
   }
 
@@ -2063,7 +2062,7 @@ function displayFinalJeopartyAnswers(players) {
             resetGame(false);
             setTimeout(function() {
               socket.emit("reset_all");
-            });
+            }, 10000);
           }, 20000);
         }, 10000);
       }, 5000);
