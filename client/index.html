@@ -47,14 +47,14 @@ HTML documents for both the Host and Controller screens are stored here
 </head>
 
 <body ontouchstart onload="init()">
-  <div id="document-wrapper" onclick="enableNoSleep()">
+  <div id="document-wrapper">
     <!-- Host -->
     <div id="host" class="inactive">
 
       <!-- Landing screen -->
       <div id="h-landing-screen" class="h-landing-screen" onclick="declareAudioFiles()">
         <div class="container-fluid">
-          <div id="unmute-text" class="row justify-content-center">
+          <div id="unmute-text" class="row justify-content-center" onclick="enableNoSleep()">
             <div class="unmute-text col-3">
               CLICK TO UNMUTE
             </div>
@@ -324,7 +324,7 @@ HTML documents for both the Host and Controller screens are stored here
               </div>
             </div>
           </div>
-          <div id="overflow-row" class="inactive row overflow-row">
+          <div id="overflow-row" class="row inactive overflow-row">
             <div class="col-12 overflow-divider">
               <span id="overflow-text" class="overflow-text">
               </span>
@@ -352,7 +352,7 @@ HTML documents for both the Host and Controller screens are stored here
             </div>
           </div>
           <div class="row justify-content-center">
-            <input type="text" id="session-id-form" style="text-transform: uppercase; text-align:center" class="form-control-lg">
+            <input type="text" onClick="enableNoSleep()" id="session-id-form" style="text-transform: uppercase; text-align:center" class="form-control-lg">
           </div>
           <div class="spacer"></div>
           <div class="row justify-content-center">

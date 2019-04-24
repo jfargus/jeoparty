@@ -492,7 +492,7 @@ button {
   align-items: center;
 
   width: 100vw;
-  height: 90vh;
+  height: 95vh;
 
   background-image: url("/graphics/background.png");
 
@@ -537,7 +537,7 @@ button {
   color: white;
   text-shadow: 0.7vh 0.7vh black;
 
-  font-size: 12vh;
+  font-size: 10vh;
 }
 
 .s-nickname-text {
@@ -600,14 +600,12 @@ button {
   display: flex;
   align-items: center;
 
-  height: 5vh;
+  height: 6vh;
 
   text-align: center;
 }
 
 .overflow-text {
-  letter-spacing: 0.2vh;
-
   color: white;
   text-shadow: 0.5vh 0.5vh black;
 

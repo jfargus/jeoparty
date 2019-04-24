@@ -73,7 +73,6 @@ socket.on("join_session_success", function(rejoinable, sessionId) {
   }
 });
 
-
 socket.on("join_session_failure", function(attemptedSessionId) {
   if (!isHost) {
     alert(attemptedSessionId + " is not a valid session ID");
@@ -101,7 +100,6 @@ socket.on("update_players", function(newPlayers) {
 });
 
 socket.on("join_success", function(
-  categoryNames,
   boardController,
   gameActive
 ) {
@@ -138,21 +136,23 @@ socket.on("start_game_failure", function() {
 socket.on("load_game", function(
   categoryNames,
   categoryDates,
-  boardController
+  boardController,
+  boardControllerNickname
 ) {
 
+  updateScoreboard();
   setCategoryText(categoryNames, categoryDates);
 
   if (isHost) {
     audioFiles["landing_screen_theme"].pause();
-    say(getRandomBoardControllerIntro() + boardController.nickname, 0.1);
+    say(getRandomBoardControllerIntro() + boardControllerNickname, 0.1);
     changeScreen("h-board-screen");
   } else {
     if (joined) {
       if (socket.id == boardController) {
         changeScreen("c-board-screen");
       } else {
-        changeWaitScreen(boardController.nickname.toUpperCase());
+        changeWaitScreen(boardControllerNickname.toUpperCase());
       }
     } else if (!waitingToJoin) {
       resetGame(true);
@@ -511,9 +511,7 @@ socket.on("get_final_jeoparty_wager", function(finalJeopartyPlayers) {
   disableTimer();
 
   if (isHost) {
-    setTimeout(function() {
-      startTimerAnimation(15);
-    }, 1);
+    startTimerAnimation(15);
     changeScreen("score-screen");
     changeTimerHeight(true);
     say(getRandomWagerIntro());
@@ -525,9 +523,7 @@ socket.on("get_final_jeoparty_wager", function(finalJeopartyPlayers) {
         startWagerLivefeedInterval();
         changeScreen("answer-screen");
 
-        setTimeout(function() {
-          startTimerAnimation(15);
-        }, 1);
+        startTimerAnimation(15);
 
         maxWager = finalJeopartyPlayers[socket.id].maxWager;
         scrapeWagerTimeout = setTimeout(function() {
@@ -721,9 +717,14 @@ function joinSession() {
   Sends the requested session ID to the server to attempt to join it
    */
 
+  if (document.cookie != "") {
+    document.cookie = Math.random().toString(36).substr(2, 5).toUpperCase();
+  }
+
   socket.emit(
     "join_session",
-    document.getElementById("session-id-form").value.toUpperCase()
+    document.getElementById("session-id-form").value.toUpperCase(),
+    document.cookie
   );
 }
 

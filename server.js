@@ -192,26 +192,21 @@ io.on("connection", function(socket) {
     }
   });
 
-  socket.on("join_session", function(requestedSessionId) {
+  socket.on("join_session", function(requestedSessionId, cookie) {
     let sessionId = requestedSessionId.replace(/ /g, "");
 
     if (sessions[sessionId]) {
       socket.sessionId = sessionId;
+      socket.cookie = cookie;
       socket.isHost = false;
 
       socket.join(sessionId);
-
-      console.log("Disconnected players IPs");
-      console.log(Object.keys(sessions[socket.sessionId].disconnectedPlayers));
-
-      console.log("Joiner's IP");
-      console.log((socket.handshake.address).toString());
 
       socket.emit(
         "join_session_success",
         // True if this player was previously disconnected from this session, else returns false
         Object.keys(sessions[socket.sessionId].disconnectedPlayers).includes(
-          (socket.handshake.address).toString()
+          socket.cookie
         ),
         sessionId
       );
@@ -253,7 +248,6 @@ io.on("connection", function(socket) {
 
       socket.emit(
         "join_success",
-        sessions[socket.sessionId].categoryNames,
         sessions[socket.sessionId].boardController,
         sessions[socket.sessionId].gameActive
       );
@@ -266,7 +260,7 @@ io.on("connection", function(socket) {
       // disconnectedPlayers object so this can't be a null reference
       let player = new Object();
 
-      let playerData = sessions[socket.sessionId].disconnectedPlayers[(socket.handshake.address).toString()];
+      let playerData = sessions[socket.sessionId].disconnectedPlayers[socket.cookie];
 
       player.id = playerData[0];
       player.nickname = playerData[1];
@@ -283,12 +277,11 @@ io.on("connection", function(socket) {
       sessions[socket.sessionId].players[socket.id] = player;
       sessions[socket.sessionId].players[socket.id].id = socket.id;
       delete sessions[socket.sessionId].disconnectedPlayers[
-        (socket.handshake.address).toString()
+        socket.cookie
       ];
 
       socket.emit(
         "join_success",
-        sessions[socket.sessionId].categoryNames,
         sessions[socket.sessionId].boardController,
         sessions[socket.sessionId].gameActive
       );
@@ -628,23 +621,27 @@ io.on("connection", function(socket) {
 
   socket.on("buzz", function() {
     if (sessions[socket.sessionId]) {
-      if (sessions[socket.sessionId].buzzersReady) {
-        sessions[socket.sessionId].buzzWinnerId = socket.id;
-        sessions[socket.sessionId].buzzersReady = false;
-        sessions[socket.sessionId].answerReady = true;
+      // Delays this check for 1 milisecond to make sure buzzersReady is properly
+      // updated (like if it gets changed to false in no_buzz)
+      setTimeout(function() {
+        if (sessions[socket.sessionId].buzzersReady) {
+          sessions[socket.sessionId].buzzWinnerId = socket.id;
+          sessions[socket.sessionId].buzzersReady = false;
+          sessions[socket.sessionId].answerReady = true;
 
-        // Leaves 200 ms for players to see whether they won the buzz or not
-        setTimeout(function() {
-          io.in(socket.sessionId).emit(
-            "get_answer",
-            sessions[socket.sessionId].players[
-              sessions[socket.sessionId].buzzWinnerId
-            ]
-          );
+          // Leaves 200 ms for players to see whether they won the buzz or not
+          setTimeout(function() {
+            io.in(socket.sessionId).emit(
+              "get_answer",
+              sessions[socket.sessionId].players[
+                sessions[socket.sessionId].buzzWinnerId
+              ]
+            );
 
-          sessions[socket.sessionId].answering = true;
-        }, 200);
-      }
+            sessions[socket.sessionId].answering = true;
+          }, 200);
+        }
+      }, 1);
     }
   });
 
@@ -663,7 +660,7 @@ io.on("connection", function(socket) {
         }
       }
 
-      if (sessions[socket.sessionId].finalJeopartyPlayers.length > 0) {
+      if (Object.keys(sessions[socket.sessionId].finalJeopartyPlayers).length > 0) {
         io.in(socket.sessionId).emit(
           "get_final_jeoparty_wager",
           sessions[socket.sessionId].finalJeopartyPlayers
@@ -750,11 +747,8 @@ io.on("connection", function(socket) {
             // did not intend to disconnect from the game
             let player = sessions[socket.sessionId].players[socket.id];
 
-            console.log("Disconnecter's IP");
-            console.log((socket.handshake.address).toString());
-
             sessions[socket.sessionId].disconnectedPlayers[
-              (socket.handshake.address).toString()
+              socket.cookie
             ] = [player.id, player.nickname, player.signature, player.score, player.wager, player.maxWager, player.answer, player.correct];
 
           } catch (e) {
@@ -895,7 +889,7 @@ function generateCategories(socket) {
       });
 
       // Breaks the interval when 6 approved categories have been chosen
-      if (categoriesLoaded >= 6 || !sessions[socket.sessionId]) {
+      if (categoriesLoaded > 7 || !sessions[socket.sessionId]) {
         clearInterval(checkInterval);
       }
     }, 100);
