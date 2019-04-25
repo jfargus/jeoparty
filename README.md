@@ -38,17 +38,17 @@ If you'd like to contribute to Jeoparty! feel free to clone this repository and 
 * [Grawlix Racism](https://github.com/tinwatchman/grawlix-racism)
 
 ## Fonts, graphics, and sounds
+* [1001 Free Fonts](https://www.1001freefonts.com)
 * [Wallpaper Cave](https://wallpapercave.com/wallpaper-gif)
 * [Noise Texture Generator](http://www.noisetexturegenerator.com)
+* [Attic Stein Beats](https://www.youtube.com/user/AtticStein)
 * [Freesound](https://freesound.org)
-* [1001 Free Fonts](https://www.1001freefonts.com)
 
 ## Special thanks to
 * Matt Morningstar
 * Max Thomsen
 * Matt Baldwin
 * Pranit Nanda
-* Attic Stein Beats
 
 # Copyright
 The Jeopardy! game show and all elements thereof, including but not limited to copyright and trademark thereto, are the property of Jeopardy Productions, Inc. and are protected under law. This repository is not affiliated with, sponsored by, or operated by Jeopardy Productions, Inc.
