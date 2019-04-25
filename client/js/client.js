@@ -7,6 +7,7 @@ let isHost;
 let audioAllowed = false;
 let audioFiles;
 let players;
+let overflowNicknames;
 let lastCategoryWrapperId;
 let lastCategoryId;
 let lastPriceWrapperId;
@@ -89,12 +90,45 @@ socket.on("join_session_failure", function(attemptedSessionId) {
   }
 });
 
-socket.on("update_players_connected", function(nickname, playerNum) {
+socket.on("update_players_connected", function(nickname, playerNum, connecting) {
+  // Connecting is a boolean that is true if the player is trying to connect
+  // or is disconnecting
+
   if (isHost) {
-    if (playerNum <= 8) {
-      let element = document.getElementById("player-" + playerNum);
-      element.innerHTML = nickname.toUpperCase();
-      element.classList.add("animate");
+    if (connecting) {
+      if (playerNum <= 8) {
+        // Shows the connected player's nickname on screen
+        let element = document.getElementById("player-" + playerNum);
+        element.innerHTML = nickname.toUpperCase();
+        // Adds an opacity animation that shows the nickname "fading in"
+        element.classList.add("animate");
+      } else {
+        overflowNicknames.push(nickname);
+      }
+    } else {
+      for (let i = 1; i <= 8; i++) {
+        let element = document.getElementById("player-" + i);
+
+        if (element.innerHTML == nickname.toUpperCase()) {
+          // Pushes all nicknames up one space so there's no whitespace left by
+          // the disconnected player's nickname
+          for (let j = 1; j <= 7; j++) {
+            document.getElementById("player-" + j).innerHTML = document.getElementById("player-" + (j + 1)).innerHTML;
+
+            if (document.getElementById("player-" + j).innerHTML == "") {
+              document.getElementById("player-" + j).className = "";
+            }
+          }
+
+          // The above loop could leave the 8th player position empty and if there
+          // is another player to occupy that position, this pushes the nickname to that position
+          if (playerNum >= 8) {
+            document.getElementById("player-" + 8).innerHTML = overflowNicknames.shift();
+          }
+
+          break;
+        }
+      }
     }
   }
 });
@@ -129,6 +163,14 @@ socket.on("join_success", function(
   } else {
     if (!gameActive) {
       changeWaitScreen("GAME TO START");
+    }
+  }
+});
+
+socket.on("change_start_game_player", function(boardController) {
+  if (!isHost) {
+    if (socket.id == boardController) {
+      changeScreen("start-game-screen");
     }
   }
 });

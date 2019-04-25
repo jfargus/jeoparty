@@ -247,7 +247,8 @@ io.on("connection", function(socket) {
       io.in(socket.sessionId).emit(
         "update_players_connected",
         nickname,
-        Object.keys(sessions[socket.sessionId].players).length
+        Object.keys(sessions[socket.sessionId].players).length,
+        true
       );
 
       io.in(socket.sessionId).emit(
@@ -298,6 +299,13 @@ io.on("connection", function(socket) {
       io.in(socket.sessionId).emit(
         "update_players",
         sessions[socket.sessionId].players
+      );
+
+      io.in(socket.sessionId).emit(
+        "update_players_connected",
+        playerData[1],
+        Object.keys(sessions[socket.sessionId].players).length,
+        true
       );
     }
   });
@@ -771,6 +779,13 @@ io.on("connection", function(socket) {
             // inside of the players object
           }
 
+          io.in(socket.sessionId).emit(
+            "update_players_connected",
+            sessions[socket.sessionId].players[socket.id].nickname,
+            (Object.keys(sessions[socket.sessionId].players).length - 1),
+            false
+          );
+
           socket.leave(socket.sessionId);
 
           try {
@@ -790,12 +805,8 @@ io.on("connection", function(socket) {
           }
 
           io.in(socket.sessionId).emit(
-            "updateplayers",
+            "update_players",
             sessions[socket.sessionId].players
-          );
-          io.in(socket.sessionId).emit(
-            "update_players_connected",
-            Object.keys(sessions[socket.sessionId].players).length
           );
 
           if (sessions[socket.sessionId].gameActive) {
@@ -849,6 +860,15 @@ io.on("connection", function(socket) {
                   }, 5000);
                 }
               }, 5000);
+            }
+            // Game isn't active yet
+          } else {
+            if (sessions[socket.sessionId].boardController == socket.id) {
+              sessions[socket.sessionId].boardController = Object.keys(
+                sessions[socket.sessionId].players
+              )[0];
+
+              io.in(socket.sessionId).emit("change_start_game_player", sessions[socket.sessionId].boardController);
             }
           }
         }
