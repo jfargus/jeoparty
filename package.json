@@ -5,9 +5,10 @@
   "repository": "github:iRedlon/jeoparty",
   "homepage": "jeoparty.io",
   "dependencies": {
-    "bad-words": "^3.0.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.15.2",
+    "grawlix": "^1.0.6",
+    "grawlix-racism": "^1.0.2",
     "ip": "^1.1.5",
     "jservice-node": "^0.2.3",
     "mongoose": "^5.5.2",

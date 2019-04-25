@@ -882,6 +882,8 @@ u {
 
   font-family: logo;
   font-size: 10vh;
+
+  text-shadow: 1px 1px 4px #fff, 1px 1px 4px #ccc;
 }
 
 .c-landing-screen-text {

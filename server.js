@@ -7,8 +7,10 @@ const numberToWords = require("number-to-words");
 const wordsToNumbers = require("words-to-numbers");
 const ip = require("ip");
 const Sentencer = require("sentencer");
-const Filter = require('bad-words'),
-    filter = new Filter();
+const grawlix = require("grawlix");
+grawlix.loadPlugin("grawlix-racism", {
+  style: false
+});
 
 // Setting up connection to MongoDB via mongoose
 let mongoose = require("mongoose");
@@ -176,7 +178,9 @@ io.on("connection", function(socket) {
 
     Leader.find({}, function(err, leaders) {
       leaders.forEach(function(leader) {
-        leadersObject[leader.position] = [filter.clean(leader.nickname), leader.score];
+        // Grawlix filters racist profanity from nicknames displayed on the
+        // leaderboard
+        leadersObject[leader.position] = [grawlix(leader.nickname), leader.score];
       });
     }).then(() => {
       socket.emit("update_leaderboard", leadersObject);
@@ -626,7 +630,7 @@ io.on("connection", function(socket) {
 
   socket.on("buzz", function() {
     if (sessions[socket.sessionId]) {
-      // Delays this check for 1 milisecond to make sure buzzersReady is properly
+      // Delays this check for 250ms to make sure buzzersReady is properly
       // updated (like if it gets changed to false in no_buzz)
       setTimeout(function() {
         if (sessions[socket.sessionId].buzzersReady) {
@@ -634,7 +638,7 @@ io.on("connection", function(socket) {
           sessions[socket.sessionId].buzzersReady = false;
           sessions[socket.sessionId].answerReady = true;
 
-          // Leaves 200 ms for players to see whether they won the buzz or not
+          // Leaves 250 ms for players to see whether they won the buzz or not
           setTimeout(function() {
             io.in(socket.sessionId).emit(
               "get_answer",
@@ -644,9 +648,9 @@ io.on("connection", function(socket) {
             );
 
             sessions[socket.sessionId].answering = true;
-          }, 200);
+          }, 250);
         }
-      }, 100);
+      }, 250);
     }
   });
 
