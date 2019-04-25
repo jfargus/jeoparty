@@ -720,7 +720,7 @@ io.on("connection", function(socket) {
           sessions[socket.sessionId].finalJeopartyPlayers[socket.id].wager;
       }
 
-      //updateLeaderboard(sessions[socket.sessionId].finalJeopartyPlayers[socket.id]);
+      updateLeaderboard(sessions[socket.sessionId].finalJeopartyPlayers[socket.id]);
     }
   });
 
@@ -1209,7 +1209,6 @@ function updateScore(id, correct, multiplier, dailyDouble, socket) {
   }
 }
 
-/*
 function updateLeaderboard(player) {
   Leader.find({}, function(err, leaders) {
 
@@ -1218,7 +1217,7 @@ function updateLeaderboard(player) {
     checkLeaders();
 
     function checkLeaders() {
-      leader = leaders[i];
+      let leader = leaders[i];
 
       if (player.score > leader.score) {
         let j = i + 1;
@@ -1249,64 +1248,7 @@ function updateLeaderboard(player) {
             position: i + 1
           }, {
             nickname: player.nickname,
-            score: score
-          },
-          function(err) {
-            if (err) throw err;
-          }
-        );
-      } else {
-        i++;
-
-        if (i <= 9) {
-          checkLeaders();
-        }
-      }
-    }
-  });
-}
-*/
-
-function updateLeaderboard(nickname, score) {
-  Leader.find({}, function(err, leaders) {
-
-    let i = 0;
-
-    checkLeaders();
-
-    function checkLeaders() {
-      leader = leaders[i];
-
-      if (score > leader.score) {
-        let j = i + 1;
-
-        pushLeader();
-
-        function pushLeader() {
-
-          Leader.findOneAndUpdate({
-              position: j + 1
-            }, {
-              nickname: leaders[j - 1].nickname,
-              score: leaders[j - 1].score
-            },
-            function(err) {
-              if (err) throw err;
-            }
-          ).then(() => {
-            j++;
-
-            if (j <= 10) {
-              pushLeader();
-            }
-          });
-        }
-
-        Leader.findOneAndUpdate({
-            position: i + 1
-          }, {
-            nickname: nickname,
-            score: score
+            score: player.score
           },
           function(err) {
             if (err) throw err;

@@ -341,10 +341,13 @@ socket.on("setup_final_jeoparty", function(clue) {
     clearLastPlayerAnswer();
 
     setTimeout(function() {
-      playAudio("final_jeoparty_category");
-      say(categoryName);
+      playAudio("final_jeoparty");
+      say(categoryName, .5);
       displayFinalJeopartyCategory(categoryName, categoryDate);
       setTimeout(function() {
+        let clueText = document.getElementById("clue-text");
+        clueText.className = "clue-text";
+
         socket.emit("request_final_jeoparty_wager");
       }, 3000);
     }, 3000);
@@ -365,7 +368,7 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
       playAudio("times_up");
     }
     document.getElementById("player-livefeed-wrapper").className = "inactive";
-    say(getRandomAnswerIntro() + correctAnswer, 0.5);
+    say(getRandomAnswerIntro() + correctAnswer, 1);
     displayCorrectAnswer(correctAnswer);
   } else {
     if (joined) {
@@ -557,7 +560,8 @@ socket.on("display_final_jeoparty_clue", function() {
     clueText.innerHTML = screenQuestion;
     adjustClueFontSize(screenQuestion, false);
 
-    say(screenQuestion, 0.1);
+    playAudio("final_jeoparty");
+    say(screenQuestion, 0.5);
     setTimeout(startQuestionInterval, 2500);
     clearLastPlayerAnswer();
 
@@ -692,7 +696,7 @@ function declareAudioFiles() {
       applause: new Audio("/audio/applause.mp3"),
       aww: new Audio("/audio/aww.mp3"),
       daily_double: new Audio("/audio/daily_double.mp3"),
-      final_jeoparty_category: new Audio("/audio/final_jeoparty_category.mp3"),
+      final_jeoparty: new Audio("/audio/final_jeoparty.mp3"),
       think_music: new Audio("/audio/think_music.mp3"),
       big_applause: new Audio("/audio/big_applause.mp3")
     };
@@ -1949,7 +1953,7 @@ function displayFinalJeopartyCategory(categoryName, categoryDate) {
    */
 
   let clueText = document.getElementById("clue-text");
-  clueText.className = "clue-text";
+  clueText.className = "h-final-jeoparty-category-name";
 
   clueText.innerHTML =
     categoryName.toUpperCase() +

@@ -252,6 +252,14 @@ button {
   text-align: center;
 }
 
+.h-final-jeoparty-category-name {
+  color: white;
+  text-shadow: 0.8vh 0.8vh #000000;
+
+  font-family: board;
+  font-size: 8vh;
+}
+
 .h-category-name {
   word-wrap: break-word;
 
