@@ -94,6 +94,7 @@ socket.on("update_players_connected", function(nickname, playerNum) {
     if (playerNum <= 8) {
       let element = document.getElementById("player-" + playerNum);
       element.innerHTML = nickname.toUpperCase();
+      element.classList.add("animate");
     }
   }
 });

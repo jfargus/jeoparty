@@ -157,6 +157,107 @@ button {
   */
 }
 
+#player-1 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-1.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+#player-2 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-2.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+#player-3 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-3.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+#player-4 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-4.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+
+#player-5 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-5.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+
+#player-6 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-6.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+
+#player-7 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-7.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+
+#player-8 {
+  opacity: 0;
+
+  display: inline-block;
+}
+
+#player-8.animate {
+  transition: opacity 0.4s;
+
+  opacity: 1;
+}
+
+
 #unmute-text {
   font-size: 3vh;
 
