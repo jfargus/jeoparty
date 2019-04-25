@@ -61,6 +61,12 @@ button {
   font-size: 5vh;
 }
 
+u {
+  border-bottom: solid 2px #000000;
+  display: inline;
+  padding-bottom: 3px;
+}
+
 /* Custom classes */
 
 .inactive {
@@ -120,6 +126,36 @@ button {
   }
   100% {
     background-color: #e6261f;
+  }
+}
+
+@keyframes scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes oscillate {
+  0% {
+    top: 0;
+  }
+  25% {
+    top: 1vh;
+  }
+  50% {
+    top: 0vh;
+  }
+  75% {
+    top: -1vh;
+  }
+  100% {
+    top: 0vh;
   }
 }
 
@@ -301,9 +337,9 @@ button {
 }
 
 .players-connected {
-  font-size: 3.5vh;
+  font-size: 3vh;
   text-align: left;
-  line-height: 4.5vh;
+  line-height: 4vh;
 }
 
 .players-connected-spacer {
@@ -315,8 +351,10 @@ button {
 }
 
 .leaderboard {
-  font-size: 3.4vh;
-  line-height: 4.5vh;
+  font-size: 3vh;
+  line-height: 4vh;
+
+  white-space: nowrap;
 }
 
 .leaderboard-players {
@@ -358,7 +396,7 @@ button {
   text-shadow: 0.8vh 0.8vh #000000;
 
   font-family: board;
-  font-size: 8vh;
+  font-size: 10vh;
 }
 
 .h-category-name {
@@ -1008,7 +1046,8 @@ button {
 
   width: 100vw;
 
-  background-color: #060ce9;
+  background-image: url("/graphics/landing_screen.gif");
+  background-size: cover;
 }
 
 .buzzer-screen-row {
@@ -1135,7 +1174,8 @@ button {
 
   width: 100vw;
 
-  background-color: #060ce9;
+  background-image: url("/graphics/landing_screen.gif");
+  background-size: cover;
 }
 
 #answer-form {

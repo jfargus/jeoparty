@@ -63,7 +63,7 @@ socket.on("update_leaderboard", function(leadersObject) {
     for (let i = 1; i <= 10; i++) {
       if (leadersObject[i][0] != "") {
         document.getElementById("player-" + i + "-leaderboard-nickname").innerHTML = (leadersObject[i][0]).toUpperCase();
-        document.getElementById("player-" + i + "-leaderboard-score").innerHTML = leadersObject[i][1];
+        document.getElementById("player-" + i + "-leaderboard-score").innerHTML = numberWithCommas(leadersObject[i][1]);
       }
     }
   }
@@ -369,7 +369,7 @@ socket.on("display_correct_answer", function(correctAnswer, timesUp) {
       playAudio("times_up");
     }
     document.getElementById("player-livefeed-wrapper").className = "inactive";
-    say(getRandomAnswerIntro() + correctAnswer, 1);
+    say(getRandomAnswerIntro() + correctAnswer, .5);
     displayCorrectAnswer(correctAnswer);
   } else {
     if (joined) {
@@ -789,7 +789,7 @@ function joinGame() {
   let signature = document.getElementById("sketchpad").toDataURL("image/png");
 
   // Names that are too long slow down the game from being read out lou
-  if (nickname.length <= 25) {
+  if (nickname.length <= 15) {
     socket.emit("join_game", nickname, signature);
   } else {
     alert("Your nickname is too long");
@@ -1665,9 +1665,9 @@ function displayPlayerAnswer(player, answer, correct) {
       "'S WAGER</u><br>$" +
       player.wager +
       "<br><br>";
-    header += "<u>" + player.nickname.toUpperCase() + "'S RESPONSE</u><br>";
+    header += "<u>" + player.nickname.toUpperCase() + "'S ANSWER</u><br>";
   } else {
-    header = "<u>" + player.nickname.toUpperCase() + "'S RESPONSE</u><br>";
+    header = "<u>" + player.nickname.toUpperCase() + "'S ANSWER</u><br>";
   }
 
   document.getElementById("clue-text").className = "clue-text";
@@ -1724,7 +1724,7 @@ function displayCorrectAnswer(correctAnswer) {
 
   document.getElementById("clue-text").className = "clue-text";
   document.getElementById("clue-text").innerHTML =
-    "<u>CORRECT RESPONSE</u><br>";
+    "<u>CORRECT ANSWER</u><br>";
 
   let playerAnswer = document.getElementById("player-answer");
   playerAnswer.classList.remove("inactive");
@@ -1827,10 +1827,10 @@ function updateScoreboard(players) {
       let scoreText = document.getElementById("player-" + i + "-score-text");
       // Changes the score to be negative and red if it is beneath 0
       if (clone[id].score < 0) {
-        scoreText.innerHTML = "-$" + Math.abs(clone[id].score);
+        scoreText.innerHTML = "-$" + numberWithCommas(Math.abs(clone[id].score));
         scoreText.style.color = "red";
       } else {
-        scoreText.innerHTML = "$" + clone[id].score;
+        scoreText.innerHTML = "$" + numberWithCommas(clone[id].score);
         scoreText.style.color = "white";
       }
 
@@ -2000,7 +2000,7 @@ function displayFinalJeopartyAnswers(players) {
 
     clueText.innerHTML =
       "<u>" + nickname + "'S WAGER</u><br>$" + wager + "<br><br>";
-    clueText.innerHTML += "<u>" + nickname + "'S RESPONSE</u><br>";
+    clueText.innerHTML += "<u>" + nickname + "'S ANSWER</u><br>";
 
     playerAnswer.style.transitionDuration = "0s";
     playerAnswer.style.color = "white";
@@ -2038,7 +2038,7 @@ function displayFinalJeopartyAnswers(players) {
 
     let correctAnswer = finalJeopartyClue["screen_answer"].toUpperCase();
 
-    clueText.innerHTML = "<u>CORRECT RESPONSE</u><br>";
+    clueText.innerHTML = "<u>CORRECT ANSWER</u><br>";
 
     playerAnswer.style.transitionDuration = "0s";
     playerAnswer.style.color = "white";
@@ -2077,4 +2077,8 @@ function displayFinalJeopartyAnswers(players) {
       }, 5000);
     }, 5000);
   }
+}
+
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

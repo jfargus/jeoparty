@@ -646,7 +646,7 @@ io.on("connection", function(socket) {
             sessions[socket.sessionId].answering = true;
           }, 200);
         }
-      }, 1);
+      }, 100);
     }
   });
 
@@ -926,7 +926,7 @@ function approveCategory(category, startingIndex) {
       rawQuestion.includes("video") ||
       rawCategory.includes("logo") ||
       rawCategory.includes("video") ||
-      rawQuestion.length > 300
+      rawQuestion.length > 200
     ) {
       return false;
     }
