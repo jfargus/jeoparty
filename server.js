@@ -223,7 +223,7 @@ io.on("connection", function(socket) {
       player.id = socket.id;
       player.nickname = nickname;
       player.signature = signature;
-      player.score = 1500;
+      player.score = 0;
       player.wager = 0;
       player.maxWager = 0;
 
@@ -1209,23 +1209,115 @@ function updateScore(id, correct, multiplier, dailyDouble, socket) {
   }
 }
 
+/*
 function updateLeaderboard(player) {
   Leader.find({}, function(err, leaders) {
-    for (let i = 0; i <= 9; i++) {
-      leader = leaders[i]
+
+    let i = 0;
+
+    checkLeaders();
+
+    function checkLeaders() {
+      leader = leaders[i];
 
       if (player.score > leader.score) {
-        for (let j = i + 1; j <= 9; j++) {
-          // Use findOneAndUpdate
-          leaders[j].nickname = leaders[j - 1].nickname;
-          leaders[j].score = leaders[j - 1].score;
+        let j = i + 1;
+
+        pushLeader();
+
+        function pushLeader() {
+
+          Leader.findOneAndUpdate({
+              position: j + 1
+            }, {
+              nickname: leaders[j - 1].nickname,
+              score: leaders[j - 1].score
+            },
+            function(err) {
+              if (err) throw err;
+            }
+          ).then(() => {
+            j++;
+
+            if (j <= 10) {
+              pushLeader();
+            }
+          });
         }
 
-        // Use findOneAndUpdate
-        leader.nickname = player.nickname;
-        leader.score = score;
+        Leader.findOneAndUpdate({
+            position: i + 1
+          }, {
+            nickname: player.nickname,
+            score: score
+          },
+          function(err) {
+            if (err) throw err;
+          }
+        );
+      } else {
+        i++;
 
-        break;
+        if (i <= 9) {
+          checkLeaders();
+        }
+      }
+    }
+  });
+}
+*/
+
+function updateLeaderboard(nickname, score) {
+  Leader.find({}, function(err, leaders) {
+
+    let i = 0;
+
+    checkLeaders();
+
+    function checkLeaders() {
+      leader = leaders[i];
+
+      if (score > leader.score) {
+        let j = i + 1;
+
+        pushLeader();
+
+        function pushLeader() {
+
+          Leader.findOneAndUpdate({
+              position: j + 1
+            }, {
+              nickname: leaders[j - 1].nickname,
+              score: leaders[j - 1].score
+            },
+            function(err) {
+              if (err) throw err;
+            }
+          ).then(() => {
+            j++;
+
+            if (j <= 10) {
+              pushLeader();
+            }
+          });
+        }
+
+        Leader.findOneAndUpdate({
+            position: i + 1
+          }, {
+            nickname: nickname,
+            score: score
+          },
+          function(err) {
+            if (err) throw err;
+          }
+        );
+      } else {
+        i++;
+
+        if (i <= 9) {
+          checkLeaders();
+        }
       }
     }
   });
