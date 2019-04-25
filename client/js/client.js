@@ -952,7 +952,7 @@ function startQuestionInterval() {
         socket.emit("activate_buzzers");
       }
     }
-  }, 100);
+  }, 250);
 }
 
 
