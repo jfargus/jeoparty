@@ -33,6 +33,15 @@ If you'd like to contribute to Jeoparty! feel free to clone this repository and 
 * [Remove Accents](https://github.com/tyxla/remove-accents)
 * [Number to Words](https://github.com/marlun78/number-to-words)
 * [Words to Numbers](https://github.com/finnfiddle/words-to-numbers)
+* [Sentencer](https://github.com/kylestetz/Sentencer)
+* [Grawlix](https://github.com/tinwatchman/grawlix)
+* [Grawlix Racism](https://github.com/tinwatchman/grawlix-racism)
+
+## Fonts, graphics, and sounds:
+* [Wallpaper Cave](https://wallpapercave.com/wallpaper-gif)
+* [Noise Texture Generator](http://www.noisetexturegenerator.com)
+* [Freesound](https://freesound.org)
+* [1001 Free Fonts](https://www.1001freefonts.com)
 
 ## Special thanks to:
 * Matt Morningstar
