@@ -7,6 +7,8 @@ const numberToWords = require("number-to-words");
 const wordsToNumbers = require("words-to-numbers");
 const ip = require("ip");
 const Sentencer = require("sentencer");
+const Filter = require('bad-words'),
+    filter = new Filter();
 
 // Setting up connection to MongoDB via mongoose
 let mongoose = require("mongoose");
@@ -174,7 +176,7 @@ io.on("connection", function(socket) {
 
     Leader.find({}, function(err, leaders) {
       leaders.forEach(function(leader) {
-        leadersObject[leader.position] = [leader.nickname, leader.score];
+        leadersObject[leader.position] = [filter.clean(leader.nickname), leader.score];
       });
     }).then(() => {
       socket.emit("update_leaderboard", leadersObject);
