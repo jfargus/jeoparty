@@ -62,7 +62,7 @@ socket.on("update_leaderboard", function(leadersObject) {
   if (isHost) {
     for (let i = 1; i <= 10; i++) {
       if (leadersObject[i][0] != "") {
-        document.getElementById("player-" + i + "-leaderboard-nickname").innerHTML = leadersObject[i][0];
+        document.getElementById("player-" + i + "-leaderboard-nickname").innerHTML = (leadersObject[i][0]).toUpperCase();
         document.getElementById("player-" + i + "-leaderboard-score").innerHTML = leadersObject[i][1];
       }
     }
