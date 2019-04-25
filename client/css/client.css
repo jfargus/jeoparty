@@ -1,6 +1,10 @@
 /* Fonts */
 
-@import url("https://fonts.googleapis.com/css?family=Roboto");
+@font-face {
+  font-family: landing-screen;
+
+  src: url(/fonts/landing_screen.ttf);
+}
 
 @font-face {
   font-family: board;
@@ -35,7 +39,7 @@ body {
 
   color: white;
 
-  font-family: "Roboto", sans-serif;
+  font-family: landing-screen;
   font-size: 10vh;
 
   -webkit-font-smoothing: antialiased;
@@ -117,6 +121,18 @@ button {
   }
 }
 
+@keyframes opacity {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* HOST */
 
 /* Landing screen */
@@ -127,34 +143,85 @@ button {
   width: 100vw;
   height: 100vh;
 
+  background-image: url("/graphics/landing_screen.gif");
+  background-size: cover;
+
+  /*
   animation-name: color;
   animation-duration: 20s;
   animation-iteration-count: infinite;
 
   background-color: red;
+  */
 }
 
-.unmute-text {
-  position: absolute;
-  top: 0;
-  right: 0;
+#unmute-text {
+  font-size: 3vh;
 
-  font-size: 6vh;
+  text-align: center;
+
+  animation-name: opacity;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+}
+
+.header-text-wrapper {
+  height: 10vh;
 }
 
 .header-text {
-  font-size: 6vh;
+  font-size: 5vh;
 }
 
-.footer-text {
-  font-size: 10vh;
+.footer-text-wrapper {
+  height: 20vh;
+}
+
+#session-id-text {
+  font-size: 14vh;
+  letter-spacing: 0.5vh;
+}
+
+.h-logo-text-wrapper {
+  height: 30vh;
+
+  line-height: 34vh;
 }
 
 .h-logo-text {
   color: white;
 
   font-family: logo;
-  font-size: 20vh;
+  font-size: 28vh;
+
+  text-shadow: 1px 1px 11px #fff, 1px 1px 11px #ccc;
+}
+
+.players-connected {
+  font-size: 3.5vh;
+  text-align: left;
+  line-height: 4.5vh;
+}
+
+.players-connected-spacer {
+  width: 10vw;
+}
+
+.top-player-text {
+  font-size: 4vh;
+}
+
+.leaderboard {
+  font-size: 3.4vh;
+  line-height: 4.5vh;
+}
+
+.leaderboard-players {
+  text-align: right;
+}
+
+.leaderboard-scores {
+  text-align: left;
 }
 
 /* Board screen */
@@ -638,11 +705,16 @@ button {
 
   width: 100vw;
 
+  background-image: url("/graphics/landing_screen.gif");
+  background-size: cover;
+
+  /*
   animation-name: color;
   animation-duration: 20s;
   animation-iteration-count: infinite;
 
   background-color: red;
+  */
 
   line-height: 8vh;
 }
@@ -652,7 +724,7 @@ button {
 
   padding: 2vh;
 
-  font-family: "Roboto", sans-serif;
+  font-family: landing-screen;
   font-size: 4vh;
 }
 

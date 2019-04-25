@@ -45,7 +45,6 @@ socket.on("connect_device", function() {
     isHost = false;
   } else {
     socket.emit("set_host_socket");
-    document.body.style.backgroundImage = "url('/graphics/background.png')";
     // Makes the host part of index.html visible, leaving the controller part
     // invisible
     document.getElementById("host").className = "";
@@ -57,6 +56,17 @@ socket.on("connect_device", function() {
 
 socket.on("update_session_id_text", function(sessionId) {
   document.getElementById("session-id-text").innerHTML = sessionId;
+});
+
+socket.on("update_leaderboard", function(leadersObject) {
+  if (isHost) {
+    for (let i = 1; i <= 10; i++) {
+      if (leadersObject[i][0] != "") {
+        document.getElementById("player-" + i + "-leaderboard-nickname").innerHTML = leadersObject[i][0];
+        document.getElementById("player-" + i + "-leaderboard-score").innerHTML = leadersObject[i][1];
+      }
+    }
+  }
 });
 
 socket.on("join_session_success", function(rejoinable, sessionId) {
@@ -79,16 +89,11 @@ socket.on("join_session_failure", function(attemptedSessionId) {
   }
 });
 
-socket.on("update_players_connected", function(playersConnected) {
+socket.on("update_players_connected", function(nickname, playerNum) {
   if (isHost) {
-    // Shows the number of players that have connected to the game on the host screen
-
-    let playersConnectedText = document.getElementById("players-connected");
-
-    if (playersConnected == 1) {
-      playersConnectedText.innerHTML = playersConnected + " PLAYER JOINED";
-    } else {
-      playersConnectedText.innerHTML = playersConnected + " PLAYERS JOINED";
+    if (playerNum <= 8) {
+      let element = document.getElementById("player-" + playerNum);
+      element.innerHTML = nickname.toUpperCase();
     }
   }
 });
@@ -730,7 +735,6 @@ function joinSession() {
     document.cookie
   );
 }
-
 
 function alertHelpMenu() {
   /*

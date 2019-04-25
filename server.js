@@ -8,48 +8,26 @@ const wordsToNumbers = require("words-to-numbers");
 const ip = require("ip");
 const Sentencer = require("sentencer");
 
-/*
 // Setting up connection to MongoDB via mongoose
 let mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 mongoose.connect(
-  "mongodb://iredlon:zorklantern02139@ds253804.mlab.com:53804/heroku_s6pk3wn4",
-  {
+  "mongodb://iredlon:zorklantern02139@ds253804.mlab.com:53804/heroku_s6pk3wn4", {
     useNewUrlParser: true
   }
 );
 mongoose.set("useFindAndModify", false);
 
-// Mongoose schema for saving each user's information to the DB
-let leaderSchema = new mongoose.Schema(
-  {
-    nickname: String,
-    money: Number
-  },
-  {
-    // Forces new leaders to be stored in the leaderboard collection
-    collection: "leaderboard"
-  }
-);
-let Leader = mongoose.model("Leader", leaderSchema);
-
-let newLeader = new Leader({
-  nickname: "Izik",
-  money: 0
+// Mongoose schema for saving each leader's information to the DB
+let leaderSchema = new mongoose.Schema({
+  position: Number,
+  nickname: String,
+  score: Number
+}, {
+  // Forces new leaders to be stored in the leaderboard collection
+  collection: "leaderboard"
 });
-newLeader.save();
-
-Leader.findOne(
-  {
-    nickname: "Izik"
-  },
-  "nickname money",
-  function(err, leader) {
-    if (err) throw err;
-    console.log(leader.money);
-  }
-).then(() => {});
-*/
+let Leader = mongoose.model("Leader", leaderSchema);
 
 // Setup express server
 const express = require("express");
@@ -181,6 +159,27 @@ io.on("connection", function(socket) {
 
     socket.emit("update_session_id_text", sessionId);
 
+    let leadersObject = {
+      1: [],
+      2: [],
+      3: [],
+      4: [],
+      5: [],
+      6: [],
+      7: [],
+      8: [],
+      9: [],
+      10: []
+    }
+
+    Leader.find({}, function(err, leaders) {
+      leaders.forEach(function(leader) {
+        leadersObject[leader.position] = [leader.nickname, leader.score];
+      });
+    }).then(() => {
+      socket.emit("update_leaderboard", leadersObject);
+    });
+
     generateCategories(socket);
 
     if (!sessions[sessionId].dailyDoublesSet) {
@@ -241,6 +240,7 @@ io.on("connection", function(socket) {
 
       io.in(socket.sessionId).emit(
         "update_players_connected",
+        nickname,
         Object.keys(sessions[socket.sessionId].players).length
       );
 
@@ -719,6 +719,8 @@ io.on("connection", function(socket) {
         sessions[socket.sessionId].finalJeopartyPlayers[socket.id].score -=
           sessions[socket.sessionId].finalJeopartyPlayers[socket.id].wager;
       }
+
+      //updateLeaderboard(sessions[socket.sessionId].finalJeopartyPlayers[socket.id]);
     }
   });
 
@@ -1207,6 +1209,28 @@ function updateScore(id, correct, multiplier, dailyDouble, socket) {
   }
 }
 
+function updateLeaderboard(player) {
+  Leader.find({}, function(err, leaders) {
+    for (let i = 0; i <= 9; i++) {
+      leader = leaders[i]
+
+      if (player.score > leader.score) {
+        for (let j = i + 1; j <= 9; j++) {
+          // Use findOneAndUpdate
+          leaders[j].nickname = leaders[j - 1].nickname;
+          leaders[j].score = leaders[j - 1].score;
+        }
+
+        // Use findOneAndUpdate
+        leader.nickname = player.nickname;
+        leader.score = score;
+
+        break;
+      }
+    }
+  });
+}
+
 function resetVariables(socket) {
   /*
   Resets variables that change between rounds
@@ -1283,7 +1307,7 @@ function resetVariables(socket) {
   else if (
     (sessions[socket.sessionId].usedClueIds.length == 30 &&
       sessions[socket.sessionId].doubleJeoparty) ||
-      finalJeopartyDebug
+    finalJeopartyDebug
   ) {
     sessions[socket.sessionId].finalJeoparty = true;
     sessions[socket.sessionId].doubleJeoparty = false;
