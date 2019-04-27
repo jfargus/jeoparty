@@ -1372,17 +1372,24 @@ function animateClueScreen() {
 
 
 function toggleWagerForm(on) {
-  let answerFormWrapper = document.getElementById("answer-form-wrapper");
-  let wagerFormWrapper = document.getElementById("wager-form-wrapper");
+  let answerForm = document.getElementById("answer-form-wrapper");
+  let wagerForm = document.getElementById("wager-form-wrapper");
+
+  let submitAnswerButton = document.getElementById("submit-answer-button");
+  let submitWagerButton = document.getElementById("submit-wager-button");
 
   if (on) {
-    answerFormWrapper.classList.add("inactive");
-    wagerFormWrapper.classList.remove("inactive");
-  } else {
-    answerFormWrapper.classList.remove("inactive");
-    wagerFormWrapper.classList.add("inactive");
+    answerForm.classList.add("inactive");
+    wagerForm.classList.remove("inactive");
 
-    document.getElementById("submit-wager-button").classList.add("inactive");
+    submitAnswerButton.classList.add("inactive");
+    submitWagerButton.classList.remove("inactive");
+  } else {
+    answerForm.classList.remove("inactive");
+    wagerForm.classList.add("inactive");
+
+    submitAnswerButton.classList.remove("inactive");
+    submitWagerButton.classList.add("inactive");
   }
 }
 
