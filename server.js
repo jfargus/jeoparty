@@ -264,7 +264,9 @@ io.on("connection", function(socket) {
       socket.emit(
         "join_success",
         sessions[socket.sessionId].boardController,
-        sessions[socket.sessionId].gameActive
+        sessions[socket.sessionId].gameActive,
+        sessions[socket.sessionId].categoryNames,
+        sessions[socket.sessionId].categoryDates
       );
     }
   });
@@ -298,7 +300,9 @@ io.on("connection", function(socket) {
       socket.emit(
         "join_success",
         sessions[socket.sessionId].boardController,
-        sessions[socket.sessionId].gameActive
+        sessions[socket.sessionId].gameActive,
+        sessions[socket.sessionId].categoryNames,
+        sessions[socket.sessionId].categoryDates
       );
 
       io.in(socket.sessionId).emit(

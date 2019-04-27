@@ -140,7 +140,9 @@ socket.on("update_players", function(newPlayers) {
 
 socket.on("join_success", function(
   boardController,
-  gameActive
+  gameActive,
+  categoryNames,
+  categoryDates
 ) {
 
   // gameActive is a boolean that tells if the game is currently going on (true)
@@ -148,6 +150,9 @@ socket.on("join_success", function(
   //
   // waitingToJoin is on if the game is going on when a player tries to join.
   // This way the player won't be allowed into the game until the current clue is over
+
+  setCategoryText(categoryNames, categoryDates);
+
   if (gameActive) {
     waitingToJoin = true;
     changeWaitScreen("NEXT CLUE");
@@ -838,40 +843,42 @@ function setCategoryText(categoryNames, categoryDates) {
   Displays each category name and date in the appropriate box on the board screen
    */
 
-  let categoryNameElement;
+  if (categoryNames.length == 6 && categoryDates.length == 6) {
+    let categoryNameElement;
 
-  for (let i = 1; i < 7; i++) {
-    if (isHost) {
-      categoryNameElement = document.getElementById("category-" + i + "-name");
-      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
+    for (let i = 1; i < 7; i++) {
+      if (isHost) {
+        categoryNameElement = document.getElementById("category-" + i + "-name");
+        categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
 
-      document.getElementById("category-" + i + "-date").innerHTML =
-        "(" + categoryDates[i - 1] + ")";
+        document.getElementById("category-" + i + "-date").innerHTML =
+          "(" + categoryDates[i - 1] + ")";
 
-      // Changes the font size of the category name depending on how many letters
-      // it has in it
-      // This prevents the category names from "bursting out" of its box
-      if (categoryNames[i - 1].length > 45) {
-        categoryNameElement.className = "xxxs-h-category-name";
-      } else if (categoryNames[i - 1].length > 32) {
-        categoryNameElement.className = "xxs-h-category-name";
-      } else if (categoryNames[i - 1].length > 24) {
-        categoryNameElement.className = "xs-h-category-name";
-      } else if (categoryNames[i - 1].length > 10) {
-        categoryNameElement.className = "s-h-category-name";
+        // Changes the font size of the category name depending on how many letters
+        // it has in it
+        // This prevents the category names from "bursting out" of its box
+        if (categoryNames[i - 1].length > 45) {
+          categoryNameElement.className = "xxxs-h-category-name";
+        } else if (categoryNames[i - 1].length > 32) {
+          categoryNameElement.className = "xxs-h-category-name";
+        } else if (categoryNames[i - 1].length > 24) {
+          categoryNameElement.className = "xs-h-category-name";
+        } else if (categoryNames[i - 1].length > 10) {
+          categoryNameElement.className = "s-h-category-name";
+        } else {
+          categoryNameElement.className = "h-category-name";
+        }
       } else {
-        categoryNameElement.className = "h-category-name";
-      }
-    } else {
-      categoryNameElement = document.getElementById("category-" + i + "-text");
-      categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
+        categoryNameElement = document.getElementById("category-" + i + "-text");
+        categoryNameElement.innerHTML = categoryNames[i - 1].toUpperCase();
 
-      if (categoryNames[i - 1].length > 45) {
-        categoryNameElement.className = "xxs-c-category-text";
-      } else if (categoryNames[i - 1].length > 30) {
-        categoryNameElement.className = "xs-c-category-text";
-      } else if (categoryNames[i - 1].length > 13) {
-        categoryNameElement.className = "s-c-category-text";
+        if (categoryNames[i - 1].length > 45) {
+          categoryNameElement.className = "xxs-c-category-text";
+        } else if (categoryNames[i - 1].length > 30) {
+          categoryNameElement.className = "xs-c-category-text";
+        } else if (categoryNames[i - 1].length > 13) {
+          categoryNameElement.className = "s-c-category-text";
+        }
       }
     }
   }
@@ -1135,7 +1142,6 @@ function updateCategoryOptions() {
     }
   }
 }
-
 
 function updateClueOptions(categoryId) {
   /*
@@ -2098,7 +2104,7 @@ function displayFinalJeopartyAnswers(players) {
         setTimeout(function() {
           clueText.className = "s-clue-text";
           clueText.innerHTML =
-            "<u>SPECIAL THANKS TO</u><br>MATT MORNINGSTAR<br>MAX THOMSEN<br>MATT BALDWIN<br>PRANIT NANDA<br>ATTIC STEIN BEATS";
+            "<u>SPECIAL THANKS TO</u><br>MATT MORNINGSTAR<br>MAX THOMSEN<br>MATT BALDWIN<br>PRANIT NANDA<br>AKA 'THE JEOPARTY COUNCIL'";
           playAudio("landing_screen_theme", true);
 
           setTimeout(function() {
