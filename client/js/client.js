@@ -23,7 +23,6 @@ let finalJeopartyClue;
 let finalJeopartyPlayer;
 
 // Timeout/interval handlers
-let buzzerTimeout;
 let questionInterval;
 let answerLivefeedInterval;
 let wagerLivefeedInterval;
@@ -496,10 +495,6 @@ socket.on("buzzers_ready", function(playersAnswered) {
       adjustClueFontSize(currentScreenQuestion, false);
       clearLastPlayerAnswer();
     }
-
-    buzzerTimeout = setTimeout(function() {
-      socket.emit("no_buzz");
-    }, 5000);
   } else {
     if (joined) {
       if (playersAnswered.includes(socket.id)) {
@@ -527,7 +522,6 @@ socket.on("get_answer", function(player) {
   }, 1);
 
   if (isHost) {
-    clearTimeout(buzzerTimeout);
     playAudio("buzzer");
     setupPlayerLivefeed(buzzWinner, currentScreenQuestion);
     clearLastPlayerAnswer();
@@ -1428,10 +1422,10 @@ function requestDailyDoubleWager(categoryName, nickname, score) {
       "<u>" +
       nickname.toUpperCase() +
       "'S MONEY</u><br>-$" +
-      Math.abs(score);
+      numberWithCommas(Math.abs(score));
   } else {
     clueText.innerHTML +=
-      "<br>" + "<u>" + nickname.toUpperCase() + "'S MONEY</u><br>$" + score;
+      "<br>" + "<u>" + nickname.toUpperCase() + "'S MONEY</u><br>$" + numberWithCommas(score);
   }
 
   document.getElementById("player-livefeed").innerHTML = "";
@@ -1705,7 +1699,7 @@ function displayPlayerAnswer(player, answer, correct) {
       "<u>" +
       player.nickname.toUpperCase() +
       "'S WAGER</u><br>$" +
-      player.wager +
+      numberWithCommas(player.wager) +
       "<br><br>";
     header += "<u>" + player.nickname.toUpperCase() + "'S ANSWER</u><br>";
   } else {
@@ -1909,7 +1903,7 @@ function updateScoreboard(players) {
         overflow.innerHTML += "$" + clone[id].score;
       }
       // Stops adding a " ... " if no players follow this one
-      if (i < 6) {
+      if (i < 6 && (i != playersLength)) {
         overflow.innerHTML += " ... ";
       }
     }
@@ -2041,7 +2035,7 @@ function displayFinalJeopartyAnswers(players) {
     correct = players[playerIds[i]].correct;
 
     clueText.innerHTML =
-      "<u>" + nickname + "'S WAGER</u><br>$" + wager + "<br><br>";
+      "<u>" + nickname + "'S WAGER</u><br>$" + numberWithCommas(wager) + "<br><br>";
     clueText.innerHTML += "<u>" + nickname + "'S ANSWER</u><br>";
 
     playerAnswer.style.transitionDuration = "0s";

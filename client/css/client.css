@@ -710,22 +710,22 @@ u {
   align-items: center;
 
   width: 100vw;
-  height: 95vh;
+  height: 100vh;
 
-  background-image: url("/graphics/background.png");
+  background-image: url("/graphics/score_screen_background.png");
 
   font-family: board;
 }
 
 .score-screen-row {
-  height: 85vh;
+  height: 80vh;
 }
 
 .nickname-column {
   display: flex;
   align-items: center;
 
-  height: 20%;
+  height: 13%;
 }
 
 .score-column {
@@ -739,7 +739,7 @@ u {
   display: flex;
   align-items: center;
 
-  height: 60%;
+  height: 65%;
 }
 
 .nickname-display {
@@ -785,8 +785,8 @@ u {
   width: 24vw;
   height: 75%;
 
-  border: 0.6vh solid white;
-  background-color: #060ce9;
+  border: 0.4vh solid white;
+  background-image: linear-gradient(#0129B3, #041982);
 }
 
 .score-text {
@@ -805,8 +805,8 @@ u {
   width: 24vw;
   height: 75%;
 
-  border: 0.6vh solid white;
-  background-color: #060ce9;
+  border: 0.4vh solid white;
+  background-image: linear-gradient(#0129B3, #041982);
 }
 
 .signature {
@@ -815,12 +815,12 @@ u {
 }
 
 .overflow-row {
-  display: flex;
-  align-items: center;
-
-  height: 6vh;
-
-  text-align: center;
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  bottom: 1.5vh;
 }
 
 .overflow-text {
@@ -1117,13 +1117,13 @@ u {
 
 @keyframes blink {
   0% {
-    background-color: yellow;
+    background-color: white;
   }
   50% {
     background-color: transparent;
   }
   100% {
-    background-color: yellow;
+    background-color: white;
   }
 }
 
@@ -1156,7 +1156,7 @@ u {
   width: 100vw;
   height: 5vh;
 
-  border: 0.3vh solid black;
+  border: 0.3vh solid #212330;
 }
 
 .c-timer-frame-divider {
@@ -1165,7 +1165,7 @@ u {
   width: 12.5%;
   height: 5vh;
 
-  border: 0.3vh solid black;
+  border: 0.3vh solid #212330;
 }
 
 /* Answer screen */

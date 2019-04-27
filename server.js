@@ -119,9 +119,11 @@ class session {
       "category-5": [],
       "category-6": []
     };
+
     // Gamestates
     this.requesting = false;
     this.answering = false;
+
     // Game data
     this.usedCategoryIds = [];
     this.categoryNames = [];
@@ -130,6 +132,9 @@ class session {
     this.dailyDoublesSet = false;
     this.dailyDoubleIds = [];
     this.finalJeopartyClue = undefined;
+
+    // Timeouts
+    this.noBuzzTimeout;
   }
 }
 
@@ -577,58 +582,58 @@ io.on("connection", function(socket) {
         sessions[socket.sessionId].playersAnswered
       );
       sessions[socket.sessionId].buzzersReady = true;
-    }
-  });
 
-  socket.on("no_buzz", function() {
-    // Gets called by a timeout in the host's client.js if nobody buzzes in
-    if (sessions[socket.sessionId]) {
-      sessions[socket.sessionId].buzzersReady = false;
+      sessions[socket.sessionId].noBuzzTimeout =  setTimeout(function() {
+        // Gets called by a timeout in the host's client.js if nobody buzzes in
+        if (sessions[socket.sessionId]) {
+          sessions[socket.sessionId].buzzersReady = false;
 
-      io.in(socket.sessionId).emit(
-        "display_correct_answer",
-        sessions[socket.sessionId].clues[
-          sessions[socket.sessionId].lastClueRequest
-        ]["screen_answer"],
-        true
-      );
-      setTimeout(function() {
-        if (socket.sessionId) {
-          io.in(socket.sessionId).emit("reveal_scores");
-          resetVariables(socket);
-
+          io.in(socket.sessionId).emit(
+            "display_correct_answer",
+            sessions[socket.sessionId].clues[
+              sessions[socket.sessionId].lastClueRequest
+            ]["screen_answer"],
+            true
+          );
           setTimeout(function() {
             if (socket.sessionId) {
-              if (
-                sessions[socket.sessionId].doubleJeoparty &&
-                !sessions[socket.sessionId].doubleJeopartySetup
-              ) {
-                sessions[socket.sessionId].doubleJeopartySetup = true;
-                io.in(socket.sessionId).emit(
-                  "setup_double_jeoparty",
-                  sessions[socket.sessionId].categoryNames,
-                  sessions[socket.sessionId].categoryDates
-                );
-              } else if (
-                sessions[socket.sessionId].finalJeoparty &&
-                !sessions[socket.sessionId].finalJeopartySetup
-              ) {
-                sessions[socket.sessionId].finalJeopartySetup = true;
-                io.in(socket.sessionId).emit(
-                  "setup_final_jeoparty",
-                  sessions[socket.sessionId].finalJeopartyClue
-                );
-              }
-              io.in(socket.sessionId).emit(
-                "reveal_board",
-                sessions[socket.sessionId].usedClueArray,
-                sessions[socket.sessionId].remainingClueIds,
-                sessions[socket.sessionId].boardController,
-                sessions[socket.sessionId].players[
-                  sessions[socket.sessionId].boardController
-                ].nickname
-              );
-              sessions[socket.sessionId].requesting = true;
+              io.in(socket.sessionId).emit("reveal_scores");
+              resetVariables(socket);
+
+              setTimeout(function() {
+                if (socket.sessionId) {
+                  if (
+                    sessions[socket.sessionId].doubleJeoparty &&
+                    !sessions[socket.sessionId].doubleJeopartySetup
+                  ) {
+                    sessions[socket.sessionId].doubleJeopartySetup = true;
+                    io.in(socket.sessionId).emit(
+                      "setup_double_jeoparty",
+                      sessions[socket.sessionId].categoryNames,
+                      sessions[socket.sessionId].categoryDates
+                    );
+                  } else if (
+                    sessions[socket.sessionId].finalJeoparty &&
+                    !sessions[socket.sessionId].finalJeopartySetup
+                  ) {
+                    sessions[socket.sessionId].finalJeopartySetup = true;
+                    io.in(socket.sessionId).emit(
+                      "setup_final_jeoparty",
+                      sessions[socket.sessionId].finalJeopartyClue
+                    );
+                  }
+                  io.in(socket.sessionId).emit(
+                    "reveal_board",
+                    sessions[socket.sessionId].usedClueArray,
+                    sessions[socket.sessionId].remainingClueIds,
+                    sessions[socket.sessionId].boardController,
+                    sessions[socket.sessionId].players[
+                      sessions[socket.sessionId].boardController
+                    ].nickname
+                  );
+                  sessions[socket.sessionId].requesting = true;
+                }
+              }, 5000);
             }
           }, 5000);
         }
@@ -638,27 +643,25 @@ io.on("connection", function(socket) {
 
   socket.on("buzz", function() {
     if (sessions[socket.sessionId]) {
-      // Delays this check for 250ms to make sure buzzersReady is properly
-      // updated (like if it gets changed to false in no_buzz)
-      setTimeout(function() {
-        if (sessions[socket.sessionId].buzzersReady) {
-          sessions[socket.sessionId].buzzWinnerId = socket.id;
-          sessions[socket.sessionId].buzzersReady = false;
-          sessions[socket.sessionId].answerReady = true;
+      clearTimeout(sessions[socket.sessionId].noBuzzTimeout);
 
-          // Leaves 250 ms for players to see whether they won the buzz or not
-          setTimeout(function() {
-            io.in(socket.sessionId).emit(
-              "get_answer",
-              sessions[socket.sessionId].players[
-                sessions[socket.sessionId].buzzWinnerId
-              ]
-            );
+      if (sessions[socket.sessionId].buzzersReady) {
+        sessions[socket.sessionId].buzzWinnerId = socket.id;
+        sessions[socket.sessionId].buzzersReady = false;
+        sessions[socket.sessionId].answerReady = true;
 
-            sessions[socket.sessionId].answering = true;
-          }, 250);
-        }
-      }, 250);
+        // Leaves 250 ms for players to see whether they won the buzz or not
+        setTimeout(function() {
+          io.in(socket.sessionId).emit(
+            "get_answer",
+            sessions[socket.sessionId].players[
+              sessions[socket.sessionId].buzzWinnerId
+            ]
+          );
+
+          sessions[socket.sessionId].answering = true;
+        }, 250);
+      }
     }
   });
 
