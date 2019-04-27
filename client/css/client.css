@@ -43,8 +43,6 @@ body {
   font-size: 10vh;
 
   -webkit-font-smoothing: antialiased;
-
-  background-image: url("/graphics/background.png");
 }
 
 button {

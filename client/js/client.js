@@ -201,6 +201,8 @@ socket.on("load_game", function(
     audioFiles["landing_screen_theme"].pause();
     say(getRandomBoardControllerIntro() + boardControllerNickname, 0.1);
     changeScreen("h-board-screen");
+
+    document.body.style.backgroundImage = "url('/graphics/background.png')";
   } else {
     if (joined) {
       if (socket.id == boardController) {
