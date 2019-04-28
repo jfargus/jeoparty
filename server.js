@@ -526,6 +526,62 @@ io.on("connection", function(socket) {
               sessions[socket.sessionId].playersAnswered
             );
             sessions[socket.sessionId].buzzersReady = true;
+
+            sessions[socket.sessionId].noBuzzTimeout =  setTimeout(function() {
+              // Gets called by a timeout in the host's client.js if nobody buzzes in
+              if (sessions[socket.sessionId]) {
+                sessions[socket.sessionId].buzzersReady = false;
+
+                io.in(socket.sessionId).emit(
+                  "display_correct_answer",
+                  sessions[socket.sessionId].clues[
+                    sessions[socket.sessionId].lastClueRequest
+                  ]["screen_answer"],
+                  true
+                );
+                setTimeout(function() {
+                  if (socket.sessionId) {
+                    io.in(socket.sessionId).emit("reveal_scores");
+                    resetVariables(socket);
+
+                    setTimeout(function() {
+                      if (socket.sessionId) {
+                        if (
+                          sessions[socket.sessionId].doubleJeoparty &&
+                          !sessions[socket.sessionId].doubleJeopartySetup
+                        ) {
+                          sessions[socket.sessionId].doubleJeopartySetup = true;
+                          io.in(socket.sessionId).emit(
+                            "setup_double_jeoparty",
+                            sessions[socket.sessionId].categoryNames,
+                            sessions[socket.sessionId].categoryDates
+                          );
+                        } else if (
+                          sessions[socket.sessionId].finalJeoparty &&
+                          !sessions[socket.sessionId].finalJeopartySetup
+                        ) {
+                          sessions[socket.sessionId].finalJeopartySetup = true;
+                          io.in(socket.sessionId).emit(
+                            "setup_final_jeoparty",
+                            sessions[socket.sessionId].finalJeopartyClue
+                          );
+                        }
+                        io.in(socket.sessionId).emit(
+                          "reveal_board",
+                          sessions[socket.sessionId].usedClueArray,
+                          sessions[socket.sessionId].remainingClueIds,
+                          sessions[socket.sessionId].boardController,
+                          sessions[socket.sessionId].players[
+                            sessions[socket.sessionId].boardController
+                          ].nickname
+                        );
+                        sessions[socket.sessionId].requesting = true;
+                      }
+                    }, 5000);
+                  }
+                }, 5000);
+              }
+            }, 5000);
           }
         }
       }, 5000);
