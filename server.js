@@ -49,10 +49,6 @@ server.listen(PORT);
 // Direct static file route to client folder
 app.use(express.static(path.join(__dirname, "client")));
 
-app.get("/.well-known/acme-challenge/8BSf9jkf7Ako8tlGYe0rk51DlbgFpfj_OS62yO6_WnE", function(req, res) {
-  res.send("8BSf9jkf7Ako8tlGYe0rk51DlbgFpfj_OS62yO6_WnE.1R1Nqvt7zVEiQ0_rtYR98zvTfPYIOAaxALahAe7La4Q")
-})
-
 process.on("uncaughtException", err => {
   console.log(err);
 });
