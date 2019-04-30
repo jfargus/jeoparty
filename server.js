@@ -1153,6 +1153,12 @@ function formatRaw(original) {
   rawAnswer = rawAnswer.replace(/a /g, "");
   rawAnswer = rawAnswer.replace(/an /g, "");
 
+  // Edge cases
+  rawAnswer = rawAnswer.replace(/v /g, "");
+  rawAnswer = rawAnswer.replace(/v. /g, "");
+  rawAnswer = rawAnswer.replace(/vs /g, "");
+  rawAnswer = rawAnswer.replace(/vs. /g, "");
+
   // Spacing
   rawAnswer = rawAnswer.replace(/ /g, "");
 
@@ -1226,11 +1232,6 @@ function evaluateAnswer(answer, socket) {
   }
   let playerAnswer = formatRaw(answer);
 
-  let question = formatRaw(
-    sessions[socket.sessionId].clues[
-      sessions[socket.sessionId].lastClueRequest
-    ]["question"]
-  );
   let categoryName = formatRaw(
     sessions[socket.sessionId].clues[
       sessions[socket.sessionId].lastClueRequest
@@ -1254,6 +1255,8 @@ function evaluateAnswer(answer, socket) {
         playerAnswer.includes(correctAnswer)
       ) {
         return true;
+      } else if (checkEdgeCases(playerAnswer, correctAnswer)) {
+        return true;
       } else {
         if (isNaN(playerAnswer)) {
           if (
@@ -1276,6 +1279,25 @@ function evaluateAnswer(answer, socket) {
       }
     }
   }
+}
+
+function checkEdgeCases(playerAnswer, correctAnswer) {
+  let jfkList = ["jfk", "johnfkennedy", "kennedy", "johnfitzgeraldkennedy"];
+  if (jfkList.includes(playerAnswer) && jfkList.includes(correctAnswer)) {
+    return true;
+  }
+
+  let fdrList = ["fdr", "franklindroosevelt", "roosevelt", "franklindelanoroosevelt"];
+  if (fdrList.includes(playerAnswer) && fdrList.includes(correctAnswer)) {
+    return true;
+  }
+
+  let lbjList = ["lbj", "lyndonbjohnson", "johnson", "lyndonbainesjohnson"];
+  if (lbjList.includes(playerAnswer) && lbjList.includes(correctAnswer)) {
+    return true;
+  }
+
+  return false;
 }
 
 function updateScore(id, correct, multiplier, dailyDouble, socket) {

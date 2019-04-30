@@ -154,6 +154,7 @@ socket.on("join_success", function(
   setCategoryText(categoryNames, categoryDates);
 
   if (gameActive) {
+    joined = false;
     waitingToJoin = true;
     changeWaitScreen("NEXT CLUE");
   } else {
@@ -773,8 +774,8 @@ function joinSession() {
 
   // Cookie variable holds a random string of numbers that represent this device
   // This is meant to replace using an IP address which isn't static for phones
-  if (document.cookie != "") {
-    document.cookie = Math.random().toString(36).substr(2, 5).toUpperCase();
+  if (document.cookie == "") {
+    document.cookie = Math.random().toString(36).substr(2, 20).toUpperCase();
   }
 
   socket.emit(
