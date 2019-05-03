@@ -712,7 +712,10 @@ function resetGame(refresh) {
   finalJeopartyClue = undefined;
   finalJeopartyPlayer = undefined;
 
-  if (refresh) {
+  currentScreenId = "join-session-screen";
+  changeScreen("c-landing-screen");
+
+  if (refresh && (currentScreenId != "join-session-screen") && (currentScreenId != "c-landing-screen")) {
     // Refreshes the browser
     window.location.href = window.location.href;
   }
