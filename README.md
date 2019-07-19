@@ -1,4 +1,6 @@
 # Jeoparty!
+[jeoparty.io](http://jeoparty.io)
+
 Display the board on your computer and use your mobile device as your controller to select clues, buzz in, and answer questions. Play alone, or with up to 98 friends!
 
 # How to Play
